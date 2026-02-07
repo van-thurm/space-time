@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Space-Time — Golden Time Color Palette</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0d1117;
+      color: #e8d5b7;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Starfield background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(1px 1px at 10% 20%, #ffd86644, transparent),
+        radial-gradient(1px 1px at 30% 60%, #7aa2d433, transparent),
+        radial-gradient(1.5px 1.5px at 50% 10%, #ffd86633, transparent),
+        radial-gradient(1px 1px at 70% 80%, #e8d5b722, transparent),
+        radial-gradient(1px 1px at 90% 30%, #ff994022, transparent),
+        radial-gradient(1.5px 1.5px at 15% 90%, #7aa2d422, transparent),
+        radial-gradient(1px 1px at 85% 55%, #ffd86622, transparent),
+        radial-gradient(1px 1px at 45% 45%, #e8d5b711, transparent),
+        radial-gradient(1px 1px at 60% 25%, #cc7a2e22, transparent),
+        radial-gradient(1.5px 1.5px at 25% 75%, #ffd86611, transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 40px 80px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    header h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #ffd866, #ff9940, #cc7a2e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    header .subtitle {
+      font-size: 1.1rem;
+      color: #8b8da3;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    header .divider {
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ffd866, transparent);
+      margin: 24px auto 0;
+    }
+
+    /* Section headers */
+    .section-title {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #ffd866;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1c2d4a;
+      letter-spacing: 0.04em;
+    }
+
+    .section { margin-bottom: 56px; }
+
+    /* Color cards grid */
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+
+    .color-card {
+      background: #0a0e14;
+      border: 1px solid #1c2d4a;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: transform 0.2s, border-color 0.3s;
+    }
+
+    .color-card:hover {
+      transform: translateY(-3px);
+      border-color: #ffd86644;
+    }
+
+    .color-swatch {
+      height: 100px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-swatch .hex-overlay {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.4rem;
+      font-weight: 500;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    .color-info {
+      padding: 20px;
+    }
+
+    .color-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e8d5b7;
+      margin-bottom: 4px;
+    }
+
+    .color-role {
+      font-size: 0.8rem;
+      color: #8b8da3;
+      margin-bottom: 14px;
+      font-weight: 300;
+    }
+
+    .color-values {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .color-value-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-value-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #ffd866;
+      background: #1c2d4a44;
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 52px;
+      text-align: center;
+      letter-spacing: 0.06em;
+    }
+
+    .color-value-data {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #c4a882;
+    }
+
+    /* Pantone badge */
+    .pantone-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pantone-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    /* Full-width banner cards */
+    .banner-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .banner-cell {
+      padding: 28px 20px;
+      text-align: center;
+    }
+
+    .banner-cell .b-hex {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .banner-cell .b-name {
+      font-size: 0.75rem;
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      color: #4a5568;
+      font-size: 0.8rem;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid #1c2d4a33;
+    }
+
+    footer span {
+      color: #ffd866;
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: white; color: #1a1a1a; }
+      body::before { display: none; }
+      .color-card { border-color: #ddd; break-inside: avoid; }
+      .color-name { color: #1a1a1a; }
+      .color-value-data { color: #333; }
+      header h1 { -webkit-text-fill-color: #cc7a2e; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Space-Time</h1>
+      <div class="subtitle">Golden Time Color Palette</div>
+      <div class="divider"></div>
+    </header>
+
+    <!-- Quick-glance banner -->
+    <div class="banner-row">
+      <div class="banner-cell" style="background:#070b10;">
+        <div class="b-hex" style="color:#4a5568;">#070b10</div>
+        <div class="b-name" style="color:#4a5568;">Void</div>
+      </div>
+      <div class="banner-cell" style="background:#0a0e14;">
+        <div class="b-hex" style="color:#6b7280;">#0a0e14</div>
+        <div class="b-name" style="color:#6b7280;">Deep Space</div>
+      </div>
+      <div class="banner-cell" style="background:#0d1117;">
+        <div class="b-hex" style="color:#8b8da3;">#0d1117</div>
+        <div class="b-name" style="color:#8b8da3;">Charcoal</div>
+      </div>
+      <div class="banner-cell" style="background:#1c2d4a;">
+        <div class="b-hex" style="color:#7aa2d4;">#1c2d4a</div>
+        <div class="b-name" style="color:#7aa2d4;">Twilight</div>
+      </div>
+      <div class="banner-cell" style="background:#ffd866;">
+        <div class="b-hex" style="color:#0d1117;">#ffd866</div>
+        <div class="b-name" style="color:#0d1117;">Gold</div>
+      </div>
+      <div class="banner-cell" style="background:#ff9940;">
+        <div class="b-hex" style="color:#0d1117;">#ff9940</div>
+        <div class="b-name" style="color:#0d1117;">Amber</div>
+      </div>
+      <div class="banner-cell" style="background:#7aa2d4;">
+        <div class="b-hex" style="color:#0d1117;">#7aa2d4</div>
+        <div class="b-name" style="color:#0d1117;">Soft Blue</div>
+      </div>
+      <div class="banner-cell" style="background:#e8d5b7;">
+        <div class="b-hex" style="color:#0d1117;">#e8d5b7</div>
+        <div class="b-name" style="color:#0d1117;">Parchment</div>
+      </div>
+    </div>
+
+    <!-- ═══ BACKGROUNDS ═══ -->
+    <div class="section">
+      <div class="section-title">Backgrounds</div>
+      <div class="palette-grid" id="backgrounds"></div>
+    </div>
+
+    <!-- ═══ GOLDS & AMBERS ═══ -->
+    <div class="section">
+      <div class="section-title">Golds &amp; Ambers</div>
+      <div class="palette-grid" id="golds"></div>
+    </div>
+
+    <!-- ═══ BLUES ═══ -->
+    <div class="section">
+      <div class="section-title">Blues</div>
+      <div class="palette-grid" id="blues"></div>
+    </div>
+
+    <!-- ═══ NEUTRALS ═══ -->
+    <div class="section">
+      <div class="section-title">Neutrals &amp; Text</div>
+      <div class="palette-grid" id="neutrals"></div>
+    </div>
+
+    <footer>
+      Space-Time &mdash; Golden Time Palette &mdash; <span>Cursor Workspace Theme</span><br>
+      Pantone&reg; values are approximate coated (C) matches. For production use, verify with a physical Pantone swatch book.
+    </footer>
+  </div>
+
+  <script>
+    // ── Color Data ──────────────────────────────────────
+    const colors = {
+      backgrounds: [
+        {
+          name: "Void Black",
+          role: "Darkest surface — activity bar, title bar",
+          hex: "#070b10",
+          rgb: [7, 11, 16],
+          cmyk: [56, 31, 0, 94],
+          pantone: "Black 6 C"
+        },
+        {
+          name: "Deep Space",
+          role: "Panels — sidebar, terminal, widgets",
+          hex: "#0a0e14",
+          rgb: [10, 14, 20],
+          cmyk: [50, 30, 0, 92],
+          pantone: "Black 6 C"
+        },
+        {
+          name: "Space Charcoal",
+          role: "Primary editor background",
+          hex: "#0d1117",
+          rgb: [13, 17, 23],
+          cmyk: [43, 26, 0, 91],
+          pantone: "Black 6 C"
+        },
+        {
+          name: "Midnight Ink",
+          role: "Line highlights, hover states",
+          hex: "#161b22",
+          rgb: [22, 27, 34],
+          cmyk: [35, 21, 0, 87],
+          pantone: "433 C"
+        }
+      ],
+      golds: [
+        {
+          name: "Star Gold",
+          role: "Primary accent — cursor, active tabs, headings",
+          hex: "#ffd866",
+          rgb: [255, 216, 102],
+          cmyk: [0, 15, 60, 0],
+          pantone: "121 C"
+        },
+        {
+          name: "Muted Gold",
+          role: "Selection highlights, secondary accent",
+          hex: "#e6ac00",
+          rgb: [230, 172, 0],
+          cmyk: [0, 25, 100, 10],
+          pantone: "124 C"
+        },
+        {
+          name: "Solar Amber",
+          role: "Functions, bright highlights, tags",
+          hex: "#ff9940",
+          rgb: [255, 153, 64],
+          cmyk: [0, 40, 75, 0],
+          pantone: "1375 C"
+        },
+        {
+          name: "Deep Amber",
+          role: "Numbers, constants, regex, deep warnings",
+          hex: "#cc7a2e",
+          rgb: [204, 122, 46],
+          cmyk: [0, 40, 77, 20],
+          pantone: "7571 C"
+        }
+      ],
+      blues: [
+        {
+          name: "Twilight Navy",
+          role: "Borders, panels, section dividers",
+          hex: "#1c2d4a",
+          rgb: [28, 45, 74],
+          cmyk: [62, 39, 0, 71],
+          pantone: "289 C"
+        },
+        {
+          name: "Deep Blue",
+          role: "Import keywords, deeper type accents",
+          hex: "#4a6fa5",
+          rgb: [74, 111, 165],
+          cmyk: [55, 33, 0, 35],
+          pantone: "7684 C"
+        },
+        {
+          name: "Soft Blue",
+          role: "Keywords, types, classes, links",
+          hex: "#7aa2d4",
+          rgb: [122, 162, 212],
+          cmyk: [42, 24, 0, 17],
+          pantone: "7688 C"
+        },
+        {
+          name: "Sky Mist",
+          role: "Bright cyan terminal, secondary blue",
+          hex: "#8bb8d0",
+          rgb: [139, 184, 208],
+          cmyk: [33, 12, 0, 18],
+          pantone: "550 C"
+        }
+      ],
+      neutrals: [
+        {
+          name: "Warm Parchment",
+          role: "Primary foreground text, variables",
+          hex: "#e8d5b7",
+          rgb: [232, 213, 183],
+          cmyk: [0, 8, 21, 9],
+          pantone: "7527 C"
+        },
+        {
+          name: "Sandy Scroll",
+          role: "Object properties, operators, sidebar text",
+          hex: "#c4a882",
+          rgb: [196, 168, 130],
+          cmyk: [0, 14, 34, 23],
+          pantone: "7502 C"
+        },
+        {
+          name: "Muted Lavender",
+          role: "Comments, inactive text, breadcrumbs",
+          hex: "#8b8da3",
+          rgb: [139, 141, 163],
+          cmyk: [15, 13, 0, 36],
+          pantone: "7544 C"
+        },
+        {
+          name: "Slate Fog",
+          role: "Inactive icons, secondary text",
+          hex: "#6b7280",
+          rgb: [107, 114, 128],
+          cmyk: [16, 11, 0, 50],
+          pantone: "7545 C"
+        },
+        {
+          name: "Graphite",
+          role: "Line numbers, dimmed text",
+          hex: "#4a5568",
+          rgb: [74, 85, 104],
+          cmyk: [29, 18, 0, 59],
+          pantone: "431 C"
+        }
+      ]
+    };
+
+    // ── Helpers ──────────────────────────────────────────
+    function luminance(r, g, b) {
+      const a = [r, g, b].map(v => {
+        v /= 255;
+        return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+      });
+      return 0.2126 * a[0] + 0.7152 * a[1] + 0.0722 * a[2];
+    }
+
+    function textColor(rgb) {
+      return luminance(...rgb) > 0.25 ? '#0d1117' : '#e8d5b7';
+    }
+
+    function renderCard(c) {
+      const fg = textColor(c.rgb);
+      return `
+        <div class="color-card">
+          <div class="color-swatch" style="background:${c.hex};">
+            <span class="hex-overlay" style="color:${fg};">${c.hex.toUpperCase()}</span>
+          </div>
+          <div class="color-info">
+            <div class="color-name">${c.name}</div>
+            <div class="color-role">${c.role}</div>
+            <div class="color-values">
+              <div class="color-value-row">
+                <span class="color-value-label">HEX</span>
+                <span class="color-value-data">${c.hex.toUpperCase()}</span>
+              </div>
+              <div class="color-value-row">
+                <span class="color-value-label">RGB</span>
+                <span class="color-value-data">${c.rgb[0]}, ${c.rgb[1]}, ${c.rgb[2]}</span>
+              </div>
+              <div class="color-value-row">
+                <span class="color-value-label">CMYK</span>
+                <span class="color-value-data">${c.cmyk[0]}C ${c.cmyk[1]}M ${c.cmyk[2]}Y ${c.cmyk[3]}K</span>
+              </div>
+              <div class="color-value-row">
+                <span class="color-value-label">PMS</span>
+                <span class="color-value-data">
+                  <span class="pantone-badge">
+                    <span class="pantone-dot" style="background:${c.hex};"></span>
+                    ${c.pantone}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Render ───────────────────────────────────────────
+    for (const [section, items] of Object.entries(colors)) {
+      const el = document.getElementById(section);
+      if (el) el.innerHTML = items.map(renderCard).join('');
+    }
+  </script>
+</body>
+</html>
