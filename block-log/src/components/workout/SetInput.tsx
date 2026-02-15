@@ -69,6 +69,7 @@ export function SetInput({
       setReps(value.reps);
       setRpe(value.rpe);
       setSetState(value.status === 'skipped' ? 'skipped' : value.reps > 0 ? 'completed' : 'empty');
+      setWeightTouched(value.weight > 0);
       return;
     }
     // When a workout is cleared, value becomes undefined.
@@ -83,11 +84,12 @@ export function SetInput({
   // Apply cascade weight when it changes (from first set).
   // Do not override values that are already logged/saved for this set.
   useEffect(() => {
-    const hasSavedWeight = Boolean(value && value.weight > 0);
-    if (cascadeWeight && !weightTouched && !hasSavedWeight && setState === 'empty' && setIndex > 0) {
+    const savedWeight = value?.weight || 0;
+    const canCascade = !weightTouched || weight === 0;
+    if (cascadeWeight && canCascade && savedWeight === 0 && setState === 'empty' && setIndex > 0) {
       setWeight(cascadeWeight);
     }
-  }, [cascadeWeight, weightTouched, setState, setIndex, value]);
+  }, [cascadeWeight, weightTouched, weight, setState, setIndex, value]);
 
   const cycleSetState = useCallback(() => {
     if (setState === 'empty') {
@@ -123,7 +125,7 @@ export function SetInput({
   const handleWeightChange = (newValue: number) => {
     const nextWeight = sanitizeWeight(newValue);
     setWeight(nextWeight);
-    setWeightTouched(true);
+    setWeightTouched(nextWeight > 0);
     
     // Notify parent for cascade (only from first set)
     if (setIndex === 0 && onWeightChange) {

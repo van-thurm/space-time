@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
 import { SetInput } from './SetInput';
 import { GeometricCheck, TimerIcon, TrashIcon } from '@/components/ui/DieterIcons';
@@ -37,6 +37,7 @@ export function AddedExerciseCard({
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
+  const [cascadeWeight, setCascadeWeight] = useState<number | undefined>(undefined);
   const [editedSets, setEditedSets] = useState(exercise.sets);
   const [editedReps, setEditedReps] = useState(exercise.reps);
   const [editedRPE, setEditedRPE] = useState(exercise.targetRPE);
@@ -72,6 +73,12 @@ export function AddedExerciseCard({
   const handleSetChange = (setIndex: number, setData: SetLog) => {
     logExerciseSet(workoutId, exercise.id, setIndex, setData);
   };
+
+  const handleFirstSetWeightChange = useCallback((weight: number) => {
+    if (userSettings.cascadeWeightToSets) {
+      setCascadeWeight(weight);
+    }
+  }, [userSettings.cascadeWeightToSets]);
 
   // Count only the currently configured set slots (ignore stale extra logged sets).
   const scopedSets = exerciseLog?.sets.slice(0, exercise.sets) || [];
@@ -319,6 +326,8 @@ export function AddedExerciseCard({
             previousSetInExercise={i > 0 ? exerciseLog?.sets[i - 1] : undefined}
             value={exerciseLog?.sets[i]}
             onChange={(setData) => handleSetChange(i, setData)}
+            onWeightChange={i === 0 ? handleFirstSetWeightChange : undefined}
+            cascadeWeight={i > 0 ? cascadeWeight : undefined}
             units={userSettings.units}
             showColumnLabels={i === 0}
             chipTone={isExerciseComplete ? 'complete' : 'default'}

@@ -100,7 +100,12 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
     };
   }, [log]);
 
-  const quoteSeed = Number.isFinite(completedAt) ? completedAt : stableQuoteSeed(workoutId);
+  const logCompletedAt = log?.date ? Date.parse(log.date) : Number.NaN;
+  const quoteSeed = Number.isFinite(completedAt)
+    ? completedAt
+    : Number.isFinite(logCompletedAt)
+      ? logCompletedAt
+      : stableQuoteSeed(`${workoutId}-${activeProgram?.id || 'block-log'}`);
   const quote = SUPPORT_QUOTES[Math.abs(quoteSeed % SUPPORT_QUOTES.length)];
   const quoteNoOrphan = preventQuoteOrphan(quote);
   const blockName = activeProgram?.name || 'block';
