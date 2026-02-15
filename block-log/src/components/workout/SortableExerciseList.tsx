@@ -94,7 +94,7 @@ interface SortableExerciseListProps {
   onDeleteAddedExercise: (exerciseId: string) => void;
   onUpdateExercise: (
     exerciseId: string,
-    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE'>>
+    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE' | 'restSeconds'>>
   ) => void;
   onReorder: (exerciseOrder: string[]) => void;
 }

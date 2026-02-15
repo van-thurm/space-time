@@ -171,7 +171,7 @@ export function SetInput({
   return (
     <div className="py-1">
       {showColumnLabels && (
-        <div className="grid grid-cols-[34px_minmax(0,1fr)_10px_minmax(0,0.88fr)_68px] gap-1.5 items-center pb-1">
+        <div className="grid grid-cols-[34px_minmax(0,0.94fr)_10px_minmax(0,0.8fr)_84px] gap-1.5 items-center pb-1">
           <span aria-hidden="true" />
           <span className={`h-5 px-1.5 inline-flex items-center justify-center border font-mono text-[10px] uppercase tracking-wide ${chipClass}`}>
             {units}
@@ -211,7 +211,7 @@ export function SetInput({
         </button>
 
         {/* Right: Input row */}
-        <div className="grid grid-cols-[minmax(0,1fr)_10px_minmax(0,0.88fr)_68px] gap-1.5 items-center">
+        <div className="grid grid-cols-[minmax(0,0.94fr)_10px_minmax(0,0.8fr)_84px] gap-1.5 items-center">
           {/* Weight group */}
           <div className="min-w-0">
             <input
@@ -259,8 +259,8 @@ export function SetInput({
               onChange={(e) => handleRpeChange(parseInt(e.target.value, 10) || 0)}
               onFocus={onActivateRow}
               aria-label="RPE (rating of perceived exertion)"
-              className={`w-full h-9 px-2 pr-6 border-2 ${inputBorderClass} bg-background font-mono text-sm
-                focus:border-foreground focus:outline-none text-center touch-manipulation`}
+              className={`w-full h-9 pl-2 pr-7 border-2 ${inputBorderClass} bg-background font-mono text-sm
+                focus:border-foreground focus:outline-none text-left touch-manipulation`}
             >
               <option value="">-</option>
               {[5, 6, 7, 8, 9, 10].map((r) => (

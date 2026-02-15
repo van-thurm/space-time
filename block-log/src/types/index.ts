@@ -105,7 +105,7 @@ export interface WorkoutLog {
   exerciseOrder?: string[];      // Custom order of exercise IDs (if reordered)
   exerciseOverrides?: Record<
     string,
-    Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE'>>
+    Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE' | 'restSeconds'>>
   >;
 }
 

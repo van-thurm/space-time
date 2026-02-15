@@ -34,7 +34,7 @@ interface ExerciseCardProps {
   defaultCollapsed?: boolean;
   onDeleteExercise?: () => void;
   onUpdateExercise?: (
-    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE'>>
+    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE' | 'restSeconds'>>
   ) => void;
 }
 
@@ -63,6 +63,7 @@ export function ExerciseCard({
   const [editedSets, setEditedSets] = useState(exercise.sets);
   const [editedReps, setEditedReps] = useState(exercise.reps);
   const [editedRpe, setEditedRpe] = useState(exercise.targetRPE);
+  const [editedRestSeconds, setEditedRestSeconds] = useState(exercise.restSeconds);
   
   const logExerciseSet = useAppStore((state) => state.logExerciseSet);
   const getSubstitution = useAppStore((state) => state.getSubstitution);
@@ -92,6 +93,7 @@ export function ExerciseCard({
       sets: Math.max(1, Math.min(10, editedSets)),
       reps: editedReps,
       targetRPE: editedRpe,
+      restSeconds: Math.max(5, Math.min(600, editedRestSeconds)),
     });
     setIsEditing(false);
   };
@@ -234,6 +236,7 @@ export function ExerciseCard({
                     setEditedSets(exercise.sets);
                     setEditedReps(exercise.reps);
                     setEditedRpe(exercise.targetRPE);
+                    setEditedRestSeconds(exercise.restSeconds);
                   }
                   setIsEditing((prev) => !prev);
                 }}
@@ -257,7 +260,7 @@ export function ExerciseCard({
 
       {isEditing && (
         <div className="p-3 space-y-2 bg-surface/30" onClick={(e) => e.stopPropagation()}>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             <input
               type="number"
               min={1}
@@ -280,6 +283,15 @@ export function ExerciseCard({
               onChange={(e) => setEditedRpe(e.target.value)}
               className="h-10 px-2 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
               aria-label="Edit target RPE"
+            />
+            <input
+              type="number"
+              min={5}
+              max={600}
+              value={editedRestSeconds}
+              onChange={(e) => setEditedRestSeconds(parseInt(e.target.value, 10) || 0)}
+              className="h-10 px-2 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+              aria-label="Edit rest seconds"
             />
           </div>
           <div className="flex gap-2">

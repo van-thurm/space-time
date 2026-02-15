@@ -41,6 +41,7 @@ export function AddedExerciseCard({
   const [editedSets, setEditedSets] = useState(exercise.sets);
   const [editedReps, setEditedReps] = useState(exercise.reps);
   const [editedRPE, setEditedRPE] = useState(exercise.targetRPE);
+  const [editedRestSeconds, setEditedRestSeconds] = useState(exercise.restSeconds);
   const notesFieldId = `${workoutId}-${exercise.id}-notes`;
   
   const logExerciseSet = useAppStore((state) => state.logExerciseSet);
@@ -56,6 +57,7 @@ export function AddedExerciseCard({
       sets: editedSets,
       reps: editedReps,
       targetRPE: editedRPE,
+      restSeconds: Math.max(5, Math.min(600, editedRestSeconds)),
     });
     setIsEditing(false);
   };
@@ -64,6 +66,7 @@ export function AddedExerciseCard({
     setEditedSets(exercise.sets);
     setEditedReps(exercise.reps);
     setEditedRPE(exercise.targetRPE);
+    setEditedRestSeconds(exercise.restSeconds);
     setIsEditing(false);
   };
 
@@ -204,6 +207,7 @@ export function AddedExerciseCard({
                   setEditedSets(exercise.sets);
                   setEditedReps(exercise.reps);
                   setEditedRPE(exercise.targetRPE);
+                  setEditedRestSeconds(exercise.restSeconds);
                 }
                 setIsEditing(!isEditing);
               }}
@@ -223,7 +227,7 @@ export function AddedExerciseCard({
         {/* Edit mode */}
         {isEditing ? (
           <div className="mt-3 space-y-3" onClick={(e) => e.stopPropagation()}>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               <div>
                 <label className="font-mono text-xs text-muted">sets</label>
                 <input
@@ -254,6 +258,18 @@ export function AddedExerciseCard({
                   value={editedRPE}
                   onChange={(e) => setEditedRPE(e.target.value)}
                   placeholder="7-8"
+                  className="w-full h-10 px-2 border-2 border-border bg-background font-mono text-sm
+                    focus:border-accent focus:outline-none"
+                />
+              </div>
+              <div>
+                <label className="font-mono text-xs text-muted">rest</label>
+                <input
+                  type="number"
+                  value={editedRestSeconds}
+                  onChange={(e) => setEditedRestSeconds(parseInt(e.target.value, 10) || 0)}
+                  min={5}
+                  max={600}
                   className="w-full h-10 px-2 border-2 border-border bg-background font-mono text-sm
                     focus:border-accent focus:outline-none"
                 />

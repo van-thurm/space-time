@@ -96,7 +96,7 @@ interface AppState {
   updateExerciseOverride: (
     workoutId: string,
     exerciseId: string,
-    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE'>>
+    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE' | 'restSeconds'>>
   ) => void;
   getAddedExercises: (workoutId: string) => AddedExercise[];
   reorderExercises: (workoutId: string, exerciseOrder: string[]) => void;
@@ -511,17 +511,22 @@ export const useAppStore = create<AppState>()(
         const activeProgram = state.programs.find((program) => program.id === state.activeProgramId);
         if (!activeProgram || activeProgram.templateId !== 'custom') return false;
 
+        const weekMatch = /week(\d+)/.exec(workoutId);
         const dayMatch = /day(\d+)/.exec(workoutId);
-        if (!dayMatch) return false;
+        const sourceWeek = weekMatch ? Number(weekMatch[1]) : Number.NaN;
+        if (!dayMatch || !Number.isFinite(sourceWeek) || sourceWeek < 1) return false;
         const day = Number(dayMatch[1]);
         if (!Number.isFinite(day) || day < 1) return false;
 
         const sourceLog = state.workoutLogs.find((log) => log.workoutId === workoutId);
+        if (!sourceLog) return false;
         const sourceAdded = sourceLog?.addedExercises || [];
-        const sourceOrder = (sourceLog?.exerciseOrder || []).filter((id) =>
-          sourceAdded.some((exercise) => exercise.id === id)
-        );
-        if (sourceAdded.length === 0) return false;
+        const sourceOrder = sourceLog?.exerciseOrder || [];
+        const sourceOverrides = sourceLog.exerciseOverrides || {};
+        const sourceExerciseLogs = sourceLog.exercises || [];
+        if (sourceAdded.length === 0 && sourceExerciseLogs.length === 0 && Object.keys(sourceOverrides).length === 0) {
+          return false;
+        }
 
         const totalWeeks =
           activeProgram.customWeeksTotal || getTemplate(activeProgram.templateId).weeksTotal || 12;
@@ -533,7 +538,6 @@ export const useAppStore = create<AppState>()(
           return log.exercises.some((exerciseLog) =>
             exerciseLog.sets.some(
               (set) =>
-                (set.weight || 0) > 0 ||
                 (set.reps || 0) > 0 ||
                 (set.rpe || 0) > 0 ||
                 set.status === 'skipped'
@@ -543,9 +547,23 @@ export const useAppStore = create<AppState>()(
 
         const clonedAdded = sourceAdded.map((exercise) => ({ ...exercise }));
         const clonedOrder = sourceOrder.length > 0 ? [...sourceOrder] : sourceAdded.map((exercise) => exercise.id);
+        const clonedOverrides = Object.fromEntries(
+          Object.entries(sourceOverrides).map(([exerciseId, override]) => [exerciseId, { ...override }])
+        );
+        const clonedExerciseLogs = sourceExerciseLogs.map((exerciseLog) => ({
+          ...exerciseLog,
+          // Carry weight forward as seed but reset completion-like data.
+          sets: exerciseLog.sets.map((set) => ({
+            weight: set.weight || 0,
+            reps: 0,
+            rpe: 0,
+          })),
+          completed: false,
+        }));
 
         const nextLogs = [...state.workoutLogs];
         for (let week = 1; week <= totalWeeks; week += 1) {
+          if (week <= sourceWeek) continue;
           const targetWorkoutId = `week${week}-day${day}`;
           if (targetWorkoutId === workoutId) continue;
           const existingIndex = nextLogs.findIndex((log) => log.workoutId === targetWorkoutId);
@@ -557,15 +575,31 @@ export const useAppStore = create<AppState>()(
               ...existingLog,
               addedExercises: clonedAdded.map((exercise) => ({ ...exercise })),
               exerciseOrder: [...clonedOrder],
+              exerciseOverrides: {
+                ...(existingLog.exerciseOverrides || {}),
+                ...Object.fromEntries(
+                  Object.entries(clonedOverrides).map(([exerciseId, override]) => [exerciseId, { ...override }])
+                ),
+              },
+              exercises: clonedExerciseLogs.map((exerciseLog) => ({
+                ...exerciseLog,
+                sets: exerciseLog.sets.map((set) => ({ ...set })),
+              })),
             };
           } else {
             nextLogs.push({
               workoutId: targetWorkoutId,
               date: new Date().toISOString(),
-              exercises: [],
+              exercises: clonedExerciseLogs.map((exerciseLog) => ({
+                ...exerciseLog,
+                sets: exerciseLog.sets.map((set) => ({ ...set })),
+              })),
               completed: false,
               addedExercises: clonedAdded.map((exercise) => ({ ...exercise })),
               exerciseOrder: [...clonedOrder],
+              exerciseOverrides: Object.fromEntries(
+                Object.entries(clonedOverrides).map(([exerciseId, override]) => [exerciseId, { ...override }])
+              ),
             });
           }
         }

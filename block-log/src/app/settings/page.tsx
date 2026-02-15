@@ -19,6 +19,7 @@ export default function SettingsPage() {
   const archivedPrograms = programs.filter((program) => program.isArchived);
   const [confirmDeleteArchivedId, setConfirmDeleteArchivedId] = useState<string | null>(null);
   const [confirmRestoreArchivedId, setConfirmRestoreArchivedId] = useState<string | null>(null);
+  const [confirmClearData, setConfirmClearData] = useState(false);
 
   return (
     <main className="min-h-screen bg-background">
@@ -252,18 +253,39 @@ export default function SettingsPage() {
                 delete all workout logs, substitutions, and settings
               </p>
             </div>
-            <button
-              onClick={() => {
-                if (confirm('Are you sure? This will delete all your workout data and cannot be undone.')) {
-                  clearAllData();
-                }
-              }}
-              className="w-32 h-9 border-2 border-danger text-danger font-mono text-sm
-                hover:bg-danger hover:text-background active:bg-danger active:text-background 
-                transition-colors touch-manipulation"
-            >
-              clear data
-            </button>
+            {confirmClearData ? (
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmClearData(false)}
+                    className="h-9 px-3 border-2 border-border font-mono text-xs text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                  >
+                    cancel
+                  </button>
+                  <button
+                    onClick={() => {
+                      clearAllData();
+                      setConfirmClearData(false);
+                    }}
+                    className="h-9 px-3 border-2 border-danger bg-danger text-background font-mono text-xs hover:bg-danger/90 transition-colors touch-manipulation"
+                  >
+                    yes, clear
+                  </button>
+                </div>
+                <p className="font-mono text-xs text-muted text-right">
+                  are you sure? this will delete all your workout data and cannot be undone.
+                </p>
+              </div>
+            ) : (
+              <button
+                onClick={() => setConfirmClearData(true)}
+                className="w-32 h-9 border-2 border-danger text-danger font-mono text-sm
+                  hover:bg-danger hover:text-background active:bg-danger active:text-background 
+                  transition-colors touch-manipulation"
+              >
+                clear data
+              </button>
+            )}
           </div>
         </section>
 
