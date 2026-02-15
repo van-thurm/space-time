@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '@/lib/store';
-import { findAlternatives, isApiConfigured, getExerciseDbApi } from '@/lib/exercise-db';
 import type { Exercise, ExerciseDbExercise, ExerciseSubstitution } from '@/types';
 
 interface SwapModalProps {
@@ -16,9 +15,9 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
   const [loading, setLoading] = useState(true);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [showingGif, setShowingGif] = useState<string | null>(null);
 
   const substituteExercise = useAppStore((state) => state.substituteExercise);
   const getSubstitution = useAppStore((state) => state.getSubstitution);
@@ -26,26 +25,30 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
 
   const currentSubstitution = getSubstitution(exercise.id);
 
-  // Fetch initial alternatives based on muscle group
+  // Fetch initial alternatives based on muscle group (using search API)
   useEffect(() => {
     async function fetchAlternatives() {
-      if (!isApiConfigured()) {
-        setError('exercisedb api key not configured. add NEXT_PUBLIC_EXERCISEDB_API_KEY to .env.local');
-        setLoading(false);
-        return;
-      }
-
       try {
         setLoading(true);
         setError(null);
         
-        const results = await findAlternatives(
-          exercise.muscleGroup,
-          exercise.equipment,
-          exercise.name
-        );
+        // Search for alternatives by muscle group name (use first muscle group or first word of exercise name)
+        const searchTerm = (exercise.muscleGroup && exercise.muscleGroup[0]) || exercise.name.split(' ')[0];
+        const response = await fetch(`/api/exercises/search?q=${encodeURIComponent(searchTerm)}`);
         
-        setAlternatives(results);
+        if (!response.ok) {
+          throw new Error('Failed to fetch alternatives');
+        }
+        
+        const results = await response.json();
+        // Filter out the current exercise and limit results
+        const filtered = Array.isArray(results) 
+          ? results.filter((r: ExerciseDbExercise) => 
+              r.name.toLowerCase() !== exercise.name.toLowerCase()
+            ).slice(0, 6)
+          : [];
+        
+        setAlternatives(filtered);
       } catch (err) {
         console.error('Failed to fetch alternatives:', err);
         // Don't show error - user can still search
@@ -58,20 +61,34 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
     fetchAlternatives();
   }, [exercise]);
 
-  // Debounced search function
+  // Debounced search function using server-side API route
   const searchExercises = useCallback(async (query: string) => {
     if (!query || query.length < 2) {
       setSearchResults([]);
+      setSearchError(null);
       return;
     }
 
     try {
       setSearching(true);
-      const api = getExerciseDbApi();
-      const results = await api.searchByName(query);
-      setSearchResults(results);
+      setSearchError(null);
+      const response = await fetch(`/api/exercises/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Search failed');
+      }
+      const results = await response.json();
+      if (Array.isArray(results)) {
+        setSearchResults(results);
+      } else if (results.error) {
+        setSearchError(results.error);
+        setSearchResults([]);
+      } else {
+        setSearchResults([]);
+      }
     } catch (err) {
       console.error('Search failed:', err);
+      setSearchError(err instanceof Error ? err.message : 'Search failed');
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -182,11 +199,13 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
           {!loading && !searching && !error && displayedExercises.length === 0 && (
             <div className="text-center py-8">
               <p className="font-mono text-sm text-muted">
-                {searchQuery.length >= 2 
-                  ? 'no results found' 
-                  : searchQuery.length > 0
-                    ? 'type at least 2 characters to search'
-                    : 'no alternatives found. try searching above.'
+                {searchError 
+                  ? `search error: ${searchError}`
+                  : searchQuery.length >= 2 
+                    ? 'no results found' 
+                    : searchQuery.length > 0
+                      ? 'type at least 2 characters to search'
+                      : 'no alternatives found. try searching above.'
                 }
               </p>
             </div>
@@ -225,28 +244,6 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
                     </div>
                   </button>
 
-                  {/* GIF preview */}
-                  {selectedId === alt.id && (
-                    <div className="border-t-2 border-border p-3">
-                      <button
-                        onClick={() => setShowingGif(showingGif === alt.id ? null : alt.id)}
-                        className="font-mono text-sm text-muted hover:text-foreground"
-                      >
-                        {showingGif === alt.id ? '− hide demo' : '+ show demo'}
-                      </button>
-                      
-                      {showingGif === alt.id && (
-                        <div className="mt-3">
-                          <img
-                            src={alt.gifUrl}
-                            alt={alt.name}
-                            className="w-full max-w-xs mx-auto border-2 border-border"
-                            loading="lazy"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

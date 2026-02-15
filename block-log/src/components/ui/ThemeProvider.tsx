@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -28,19 +28,38 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
+// Script to run inline to prevent flash
+const THEME_SCRIPT = `
+(function() {
+  try {
+    var stored = localStorage.getItem('block-log-theme');
+    var theme = stored || 'system';
+    var resolved = theme;
+    if (theme === 'system') {
+      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    if (resolved === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  } catch (e) {}
+})();
+`;
+
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
   // Get system preference
-  const getSystemTheme = (): 'light' | 'dark' => {
+  const getSystemTheme = useCallback((): 'light' | 'dark' => {
     if (typeof window === 'undefined') return 'light';
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  };
+  }, []);
 
   // Update resolved theme based on theme setting
-  const updateResolvedTheme = (t: Theme) => {
+  const updateResolvedTheme = useCallback((t: Theme) => {
     const resolved = t === 'system' ? getSystemTheme() : t;
     setResolvedTheme(resolved);
     
@@ -50,14 +69,14 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     } else {
       document.documentElement.classList.remove('dark');
     }
-  };
+  }, [getSystemTheme]);
 
   // Set theme and persist to localStorage
-  const setTheme = (newTheme: Theme) => {
+  const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('block-log-theme', newTheme);
     updateResolvedTheme(newTheme);
-  };
+  }, [updateResolvedTheme]);
 
   // Initialize on mount
   useEffect(() => {
@@ -69,22 +88,32 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
     // Listen for system preference changes
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = () => {
-      if (theme === 'system') {
+    const handleSystemChange = () => {
+      const currentStored = localStorage.getItem('block-log-theme') as Theme | null;
+      if (!currentStored || currentStored === 'system') {
         updateResolvedTheme('system');
       }
     };
     
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  // Update when theme changes
-  useEffect(() => {
-    if (mounted) {
-      updateResolvedTheme(theme);
-    }
-  }, [theme, mounted]);
+    mediaQuery.addEventListener('change', handleSystemChange);
+    
+    // Re-apply theme when returning to the app (visibility change)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const storedTheme = localStorage.getItem('block-log-theme') as Theme | null;
+        const currentTheme = storedTheme || 'system';
+        setThemeState(currentTheme);
+        updateResolvedTheme(currentTheme);
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      mediaQuery.removeEventListener('change', handleSystemChange);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [updateResolvedTheme]);
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, mounted }}>

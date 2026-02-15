@@ -1,0 +1,47 @@
+[
+  {
+    "test": "standard card edit button visible",
+    "passed": true,
+    "notes": ""
+  },
+  {
+    "test": "standard unedited unsaved swap API responds",
+    "passed": true,
+    "notes": "results found"
+  },
+  {
+    "test": "standard edited unsaved swap API responds",
+    "passed": true,
+    "notes": "results found"
+  },
+  {
+    "test": "standard edited before save swap API responds",
+    "passed": true,
+    "notes": "results found"
+  },
+  {
+    "test": "standard saved reopened swap API responds",
+    "passed": true,
+    "notes": "results found"
+  },
+  {
+    "test": "custom added card edit visible",
+    "passed": true,
+    "notes": ""
+  },
+  {
+    "test": "custom added card swap available",
+    "passed": true,
+    "notes": "available in edit actions"
+  },
+  {
+    "test": "custom added card swap modal opens",
+    "passed": true,
+    "notes": ""
+  },
+  {
+    "test": "custom added card swap API responds",
+    "passed": true,
+    "notes": "response returned"
+  }
+]

@@ -1,0 +1,43 @@
+import { ImageResponse } from 'next/og';
+
+export const runtime = 'edge';
+
+export const size = {
+  width: 32,
+  height: 32,
+};
+
+export const contentType = 'image/png';
+
+export default function Icon() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: '#0a0a0a',
+        }}
+      >
+        {/* 3x3 dots grid - orange and white mix */}
+        <svg width="24" height="24" viewBox="0 0 24 24">
+          <circle cx="4" cy="4" r="3" fill="#ff6b35" />
+          <circle cx="12" cy="4" r="3" fill="#ffffff" />
+          <circle cx="20" cy="4" r="3" fill="#ff6b35" />
+          <circle cx="4" cy="12" r="3" fill="#ffffff" />
+          <circle cx="12" cy="12" r="3" fill="#ff6b35" />
+          <circle cx="20" cy="12" r="3" fill="#ffffff" />
+          <circle cx="4" cy="20" r="3" fill="#ff6b35" />
+          <circle cx="12" cy="20" r="3" fill="#ffffff" />
+          <circle cx="20" cy="20" r="3" fill="#ff6b35" />
+        </svg>
+      </div>
+    ),
+    {
+      ...size,
+    }
+  );
+}

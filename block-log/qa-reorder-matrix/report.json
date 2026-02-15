@@ -1,0 +1,22 @@
+[
+  {
+    "test": "program reorder drag",
+    "passed": false,
+    "notes": "reorder toggle unavailable"
+  },
+  {
+    "test": "block workout-day reorder arrows",
+    "passed": true,
+    "notes": ""
+  },
+  {
+    "test": "workout exercise reorder drag",
+    "passed": true,
+    "notes": "handles=8"
+  },
+  {
+    "test": "warmup reorder drag",
+    "passed": true,
+    "notes": "handles=6"
+  }
+]

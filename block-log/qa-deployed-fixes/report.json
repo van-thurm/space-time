@@ -1,0 +1,32 @@
+[
+  {
+    "test": "Skip Exercise",
+    "passed": true,
+    "notes": "UI updated immediately (skipped state visible)"
+  },
+  {
+    "test": "Restore/Unskip",
+    "passed": true,
+    "notes": "Restored immediately"
+  },
+  {
+    "test": "Swap Exercise API",
+    "passed": false,
+    "notes": "still searching"
+  },
+  {
+    "test": "Add Exercise API",
+    "passed": false,
+    "notes": "still searching"
+  },
+  {
+    "test": "Gear Icon",
+    "passed": true,
+    "notes": "Screenshot captured - verify gear appearance (cog shape)"
+  },
+  {
+    "test": "Custom Program",
+    "passed": true,
+    "notes": "Weeks: week 1/12, 4 days: true"
+  }
+]

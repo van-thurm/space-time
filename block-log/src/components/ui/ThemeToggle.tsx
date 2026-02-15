@@ -3,7 +3,11 @@
 import { useTheme } from './ThemeProvider';
 import { SunIcon, MoonIcon } from './DieterIcons';
 
-export function ThemeToggle() {
+interface ThemeToggleProps {
+  className?: string;
+}
+
+export function ThemeToggle({ className = '' }: ThemeToggleProps) {
   const { resolvedTheme, setTheme, theme, mounted } = useTheme();
 
   const toggleTheme = () => {
@@ -19,14 +23,17 @@ export function ThemeToggle() {
   // Prevent hydration mismatch - render placeholder during SSR
   if (!mounted) {
     return (
-      <div className="w-[42px] h-[42px] border-2 border-border" />
+      <div
+        className={`w-[42px] h-[42px] shrink-0 border-2 border-border ${className}`.trim()}
+        aria-hidden="true"
+      />
     );
   }
 
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 border-2 border-border hover:border-foreground transition-colors"
+      className={`w-[42px] h-[42px] shrink-0 flex items-center justify-center border-2 border-border hover:border-foreground active:bg-surface transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`.trim()}
       title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
       aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
     >

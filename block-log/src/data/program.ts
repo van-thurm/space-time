@@ -522,6 +522,7 @@ function generateWorkout(week: number, day: WorkoutDay): Workout {
     2: 'upper body a',
     3: 'lower body b',
     4: 'upper body b',
+    5: 'full body circuit',  // For future 5-day programs
   };
 
   const baseExercises: Record<WorkoutDay, Exercise[]> = {
@@ -529,6 +530,7 @@ function generateWorkout(week: number, day: WorkoutDay): Workout {
     2: upperBodyDay2Exercises,
     3: lowerBodyDay3Exercises,
     4: upperBodyDay4Exercises,
+    5: lowerBodyDay1Exercises,  // Placeholder for future 5-day programs
   };
 
   // Clone exercises and add week-specific IDs
@@ -580,6 +582,7 @@ function generateWorkout(week: number, day: WorkoutDay): Workout {
     2: 50,
     3: 50,
     4: 50,
+    5: 45,  // For future 5-day programs
   };
 
   return {

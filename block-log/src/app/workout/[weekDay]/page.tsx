@@ -1,19 +1,23 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useEffect, useState, useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
-import { getWorkout, isDeloadWeek, getCurrentPhase } from '@/data/program';
+import { getWorkout } from '@/data/program';
+import { getWeekWorkouts } from '@/data/program';
+import { getProgramWorkouts } from '@/data/programs';
+import { getCustomWorkouts } from '@/data/programs/custom';
+import { getTemplate } from '@/data/program-templates';
 import { calculateRecommendedWeight } from '@/lib/progression';
 import { getSeedWeight } from '@/data/seed-weights';
+import { clampTimerSeconds } from '@/lib/timer';
 import { WarmupSection } from '@/components/workout/WarmupSection';
 import { SortableExerciseList } from '@/components/workout/SortableExerciseList';
 import { SwapModal } from '@/components/workout/SwapModal';
 import { AddExerciseModal } from '@/components/workout/AddExerciseModal';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { DialIcon } from '@/components/ui/DieterIcons';
-import type { WorkoutDay, ExerciseLog, Exercise, AddedExercise } from '@/types';
+import { SecondaryPageHeader } from '@/components/ui/SecondaryPageHeader';
+import type { WorkoutDay, ExerciseLog, Exercise } from '@/types';
 
 interface WorkoutPageProps {
   params: Promise<{ weekDay: string }>;
@@ -22,50 +26,130 @@ interface WorkoutPageProps {
 export default function WorkoutPage({ params }: WorkoutPageProps) {
   const resolvedParams = use(params);
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [swapModalExerciseId, setSwapModalExerciseId] = useState<string | null>(null);
   const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
+  const [confirmClearWorkout, setConfirmClearWorkout] = useState(false);
+  const [confirmResetReady, setConfirmResetReady] = useState(false);
+  const [copyDayStatus, setCopyDayStatus] = useState<'idle' | 'done' | 'needs_setup'>('idle');
   const [startTime] = useState(() => new Date());
 
   // Parse week and day from URL (format: "1-1" for week 1, day 1)
   const [weekStr, dayStr] = resolvedParams.weekDay.split('-');
   const week = parseInt(weekStr);
   const day = parseInt(dayStr) as WorkoutDay;
-
-  // Validate
-  if (isNaN(week) || week < 1 || week > 12 || isNaN(day) || day < 1 || day > 4) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="font-mono text-muted">invalid workout</p>
-          <Link href="/" className="font-mono text-sm underline mt-2 inline-block">
-            ← back to dashboard
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  const workout = getWorkout(week, day);
-  const phase = getCurrentPhase(week);
-  const isDeload = isDeloadWeek(week);
-
+  
   const logWorkout = useAppStore((state) => state.logWorkout);
   const getWorkoutLog = useAppStore((state) => state.getWorkoutLog);
+  const resetWorkoutLog = useAppStore((state) => state.resetWorkoutLog);
   const getLastWorkoutLog = useAppStore((state) => state.getLastWorkoutLog);
   const setCurrentWeek = useAppStore((state) => state.setCurrentWeek);
   const skipExercise = useAppStore((state) => state.skipExercise);
   const unskipExercise = useAppStore((state) => state.unskipExercise);
   const isExerciseSkipped = useAppStore((state) => state.isExerciseSkipped);
   const addExerciseToWorkout = useAppStore((state) => state.addExerciseToWorkout);
-  const removeAddedExercise = useAppStore((state) => state.removeAddedExercise);
+  const deleteExerciseFromWorkout = useAppStore((state) => state.deleteExerciseFromWorkout);
   const getAddedExercises = useAppStore((state) => state.getAddedExercises);
   const reorderExercises = useAppStore((state) => state.reorderExercises);
+  const updateExerciseOverride = useAppStore((state) => state.updateExerciseOverride);
+  const copyCustomWorkoutDayAcrossProgram = useAppStore((state) => state.copyCustomWorkoutDayAcrossProgram);
+  const showSmartTimer = useAppStore((state) => state.userSettings.showRestTimer);
+  const activeProgram = useAppStore((state) =>
+    state.programs.find((p) => p.id === state.activeProgramId)
+  );
+  const template = activeProgram ? getTemplate(activeProgram.templateId) : null;
+  const totalWeeks = activeProgram?.customWeeksTotal || template?.weeksTotal || 12;
+  const daysPerWeek = activeProgram?.customDaysPerWeek || template?.daysPerWeek || 4;
+  const dayNameOverride = activeProgram?.workoutDayNameOverrides?.[day];
 
-  const currentLog = getWorkoutLog(workout.id);
+  // Get workout from program-specific workouts
+  const workout = useMemo(() => {
+    if (isNaN(week) || week < 1 || week > totalWeeks || isNaN(day) || day < 1 || day > daysPerWeek) {
+      return null;
+    }
+    if (!activeProgram) return getWorkout(week, day);
+    if (activeProgram.templateId === 'custom') {
+      const dayLabels =
+        activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
+          ? activeProgram.customDayLabels
+          : Array.from({ length: daysPerWeek }, (_, i) => `day ${i + 1}`);
+      const workouts = getCustomWorkouts(week, dayLabels);
+      return workouts.find((w) => w.day === day) || workouts[0] || null;
+    }
+    const baseWorkouts =
+      activeProgram.templateId !== '4-day-upper-lower'
+        ? getProgramWorkouts(activeProgram.templateId, week)
+        : getWeekWorkouts(week);
+    const targetDays = activeProgram.customDaysPerWeek || baseWorkouts.length;
+    const dayLabels = activeProgram.customDayLabels || [];
+    const workouts =
+      targetDays > baseWorkouts.length
+        ? [
+            ...baseWorkouts,
+            ...Array.from({ length: targetDays - baseWorkouts.length }, (_, idx) => {
+              const extraDay = baseWorkouts.length + idx + 1;
+              return {
+                id: `week${week}-day${extraDay}`,
+                week,
+                day: extraDay as WorkoutDay,
+                dayName: dayLabels[extraDay - 1] || `day ${extraDay}`,
+                exercises: [],
+                estimatedDuration: 45,
+              };
+            }),
+          ]
+        : baseWorkouts;
+    return workouts.find((w) => w.day === day) || workouts[0] || null;
+  }, [activeProgram, week, day, totalWeeks, daysPerWeek]);
+  const workoutId = workout?.id;
+
+  // Subscribe directly to workoutLogs for proper reactivity
+  const currentLog = useAppStore((state) =>
+    workoutId ? state.workoutLogs.find((l) => l.workoutId === workoutId) : undefined
+  );
   const lastWeekLog = getLastWorkoutLog(week, day);
 
-  // Filter out warmup exercises (handled separately)
-  const workingExercises = workout.exercises.filter((e) => e.category !== 'warmup');
+  useEffect(() => {
+    const scrollYParam = searchParams.get('scrollY');
+    if (!scrollYParam) return;
+    const parsed = parseInt(scrollYParam, 10);
+    if (!Number.isFinite(parsed) || parsed < 0) return;
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: parsed, behavior: 'auto' });
+      router.replace(pathname, { scroll: false });
+    });
+  }, [pathname, router, searchParams]);
+
+  // Validate based on program
+  if (!workout) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="font-mono text-muted">invalid workout</p>
+          <Link href="/" className="font-mono text-sm underline mt-2 inline-block">
+            back to block
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  const openTimerWithSeconds = (seconds: number) => {
+    const currentScroll = typeof window !== 'undefined' ? Math.round(window.scrollY) : 0;
+    const returnTo = `/workout/${resolvedParams.weekDay}?scrollY=${currentScroll}`;
+    const duration = clampTimerSeconds(seconds);
+    router.push(`/timer?duration=${duration}&returnTo=${encodeURIComponent(returnTo)}`);
+  };
+
+  const exerciseOverrides = currentLog?.exerciseOverrides || {};
+  // Filter out warmup exercises (handled separately) and apply per-workout overrides.
+  const workingExercises = workout.exercises
+    .filter((exercise) => exercise.category !== 'warmup')
+    .map((exercise) => {
+      const override = exerciseOverrides[exercise.id];
+      return override ? { ...exercise, ...override } : exercise;
+    });
 
   // Get list of skipped exercises for this workout
   const skippedExerciseIds = currentLog?.skippedExercises || [];
@@ -75,34 +159,62 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
 
   // Calculate progress (excluding skipped exercises, including added exercises)
   const activeExercises = workingExercises.filter((e) => !skippedExerciseIds.includes(e.id));
+  const activeAddedExercises = addedExercises.filter((e) => !skippedExerciseIds.includes(e.id));
   const totalSets = activeExercises.reduce((acc, e) => acc + e.sets, 0) 
-    + addedExercises.reduce((acc, e) => acc + e.sets, 0);
-  const completedSets = currentLog?.exercises.reduce((acc, e) => {
-    // Only count sets for non-skipped exercises
+    + activeAddedExercises.reduce((acc, e) => acc + e.sets, 0);
+  
+  // Count completed sets for base exercises
+  const baseCompletedSets = currentLog?.exercises.reduce((acc, e) => {
+    // Only count sets for non-skipped base exercises
     if (skippedExerciseIds.includes(e.exerciseId)) return acc;
-    return acc + e.sets.filter((s) => s.weight > 0 && s.reps > 0).length;
+    // Skip added exercises (they start with 'api-' or 'custom-')
+    if (e.exerciseId.startsWith('api-') || e.exerciseId.startsWith('custom-')) return acc;
+    // Allow 0 weight (bodyweight exercises) - just need reps > 0
+    return acc + e.sets.filter((s) => s.reps > 0 && s.status !== 'skipped').length;
   }, 0) || 0;
-
+  
+  // Count completed sets for added exercises
+  const addedCompletedSets = currentLog?.exercises.reduce((acc, e) => {
+    // Only count added exercises
+    if (!e.exerciseId.startsWith('api-') && !e.exerciseId.startsWith('custom-')) return acc;
+    if (skippedExerciseIds.includes(e.exerciseId)) return acc;
+    return acc + e.sets.filter((s) => s.reps > 0 && s.status !== 'skipped').length;
+  }, 0) || 0;
+  
+  const completedSets = baseCompletedSets + addedCompletedSets;
   const progressPercent = totalSets > 0 ? Math.round((completedSets / totalSets) * 100) : 0;
+  
+  // Check if all exercises are complete or skipped (for save & exit prompt)
+  const allExercisesDone = progressPercent >= 100 || (totalSets > 0 && completedSets >= totalSets);
+  const isWorkoutCompleted = Boolean(currentLog?.completed);
 
   // Get last week's log for a specific exercise
   const getLastExerciseLog = (exerciseId: string): ExerciseLog | undefined => {
     if (!lastWeekLog) return undefined;
     
-    // Extract the exercise slot (e.g., "main" from "w1d1-main")
-    const slot = exerciseId.split('-').pop();
-    
-    return lastWeekLog.exercises.find((e) => e.exerciseId.endsWith(`-${slot}`));
+    // Match by exact id first, then by shared slot suffix for week-scoped ids.
+    const slot = exerciseId.split('-').pop() || exerciseId;
+
+    return lastWeekLog.exercises.find(
+      (exerciseLog) =>
+        exerciseLog.exerciseId === exerciseId ||
+        exerciseLog.exerciseId === slot ||
+        exerciseLog.exerciseId.endsWith(`-${slot}`)
+    );
   };
 
   // Get recommended weight for an exercise
   const getRecommendedWeight = (exercise: Exercise): number | undefined => {
-    const lastLog = getLastExerciseLog(exercise.id);
+    const byIdOrSlotLog = getLastExerciseLog(exercise.id);
+    const currentExerciseIndex = workingExercises.findIndex((item) => item.id === exercise.id);
+    const byIndexLog =
+      !byIdOrSlotLog && currentExerciseIndex >= 0 ? lastWeekLog?.exercises[currentExerciseIndex] : undefined;
+    const lastLog = byIdOrSlotLog || byIndexLog;
     
-    // If we have last week's data, use progression algorithm
+    // Prefer the best prior successful load for the same exercise slot.
     if (lastLog && lastLog.sets.some(s => s.weight > 0)) {
-      const result = calculateRecommendedWeight(exercise, week, lastLog);
-      return result.recommendedWeight > 0 ? result.recommendedWeight : undefined;
+      const maxPriorWeight = Math.max(...lastLog.sets.map((set) => set.weight || 0));
+      if (maxPriorWeight > 0) return maxPriorWeight;
     }
     
     // For week 1 or no prior data, use personalized seed weights
@@ -118,98 +230,118 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
 
   // Complete workout
   const handleComplete = () => {
+    // Read fresh log at click time to avoid stale data
+    const freshLog = getWorkoutLog(workout.id);
     const updatedLog = {
       workoutId: workout.id,
       date: startTime.toISOString(),
-      exercises: currentLog?.exercises || [],
+      exercises: freshLog?.exercises || [],
       completed: true,
+      skippedExercises: freshLog?.skippedExercises,
+      addedExercises: freshLog?.addedExercises,
+      exerciseOrder: freshLog?.exerciseOrder,
     };
     
     logWorkout(updatedLog);
     setCurrentWeek(week);
-    router.push('/');
+    const startedAt = startTime.getTime();
+    const completedAt = Date.now();
+    router.push(`/workout/${resolvedParams.weekDay}/complete?startedAt=${startedAt}&completedAt=${completedAt}`);
   };
 
-  // Save and exit
+  // Save and exit - prompt to complete if all done
   const handleSaveExit = () => {
-    if (currentLog) {
-      logWorkout({
-        ...currentLog,
-        completed: false,
-      });
+    // Read fresh log at click time to avoid stale data
+    const freshLog = getWorkoutLog(workout.id);
+    
+    // If all exercises are done, ask user if they want to mark complete
+    if (allExercisesDone && completedSets > 0) {
+      const shouldComplete = window.confirm(
+        'All exercises are done! Mark workout as complete?'
+      );
+      if (shouldComplete) {
+        handleComplete();
+        return;
+      }
     }
+    
+    // Preserve existing completion state when exiting.
+    // This prevents "view completed workout" from unintentionally downgrading status.
+    if (freshLog) logWorkout(freshLog);
     router.push('/');
   };
 
-  // Calculate elapsed time
-  const [elapsed, setElapsed] = useState('0:00');
-  
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const diff = Math.floor((new Date().getTime() - startTime.getTime()) / 1000);
-      const mins = Math.floor(diff / 60);
-      const secs = diff % 60;
-      setElapsed(`${mins}:${secs.toString().padStart(2, '0')}`);
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [startTime]);
+  const handleUnfinishWorkout = () => {
+    const freshLog = getWorkoutLog(workout.id);
+    if (!freshLog) return;
+    logWorkout({ ...freshLog, completed: false });
+  };
+
+  const handleClearWorkoutProgress = () => {
+    setConfirmResetReady(false);
+    setConfirmClearWorkout(true);
+  };
+
+  const handleConfirmClearWorkout = () => {
+    // True reset to ready state: remove the workout log entirely.
+    resetWorkoutLog(workout.id);
+    setConfirmClearWorkout(false);
+  };
+
+  const handleResetToReady = () => {
+    setConfirmClearWorkout(false);
+    setConfirmResetReady(true);
+  };
+
+  const handleConfirmResetToReady = () => {
+    resetWorkoutLog(workout.id);
+    setConfirmResetReady(false);
+    setConfirmClearWorkout(false);
+  };
+
+  const handleCopyDayAcrossBlock = () => {
+    const copied = copyCustomWorkoutDayAcrossProgram(workout.id);
+    setCopyDayStatus(copied ? 'done' : 'needs_setup');
+    setTimeout(() => setCopyDayStatus('idle'), 1600);
+  };
 
   return (
-    <main className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="border-b-2 border-border sticky top-0 bg-background z-10">
-        <div className="max-w-2xl mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="font-mono text-sm text-muted hover:text-foreground">
-              ← back
-            </Link>
-            <div className="flex items-center gap-3">
-              <span className="font-mono text-sm text-muted tabular-nums">{elapsed}</span>
-              <ThemeToggle />
-            </div>
-          </div>
-          
-          <div className="mt-2 flex items-center gap-3">
-            <DialIcon size={32} progress={progressPercent / 100} className="text-foreground" />
-            <div>
-              <h1 className="font-pixel font-bold text-lg">
-                week {week} · day {day}
-              </h1>
-              <p className="font-mono text-sm text-muted">
-                {workout.dayName}
-              </p>
-            </div>
-          </div>
+    <main className="min-h-screen bg-background pb-32">
+      <SecondaryPageHeader
+        subtitle="workout"
+        backFallbackHref="/"
+      />
 
-          {/* Phase / deload indicator */}
-          <div className="flex gap-2 mt-2">
-            <span className="font-mono text-xs text-muted">{phase.name}</span>
-            {isDeload && (
-              <span className="bg-accent text-background px-2 py-0.5 text-xs font-mono">
-                deload
-              </span>
-            )}
-          </div>
-
-          {/* Progress bar */}
-          <div className="mt-3">
-            <div className="flex justify-between text-xs font-mono text-muted mb-1">
-              <span>progress</span>
-              <span className="tabular-nums">{completedSets}/{totalSets} sets</span>
-            </div>
-            <div className="h-1 bg-surface w-full">
-              <div 
-                className="h-full bg-foreground transition-all duration-300"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
+      <section className="max-w-2xl mx-auto px-4 pt-3">
+        <div className="px-1 py-1.5 space-y-2">
+          <h1 className="font-pixel text-lg">{activeProgram?.name || 'my block'}</h1>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-mono text-xs uppercase tracking-wide text-muted">
+              week {week}
+            </span>
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-mono text-xs uppercase tracking-wide text-muted">
+              {dayNameOverride || workout.dayName || `day ${day}`}
+            </span>
           </div>
         </div>
-      </header>
+      </section>
+
+      {/* Header progress bar */}
+      <div className="max-w-2xl mx-auto px-4 pt-3">
+        <div className="flex justify-between text-xs font-mono text-muted mb-1">
+          <span>progress</span>
+          <span className="tabular-nums">{completedSets}/{totalSets} sets</span>
+        </div>
+        <div className="h-1 bg-surface w-full">
+          <div
+            className="h-full bg-foreground transition-all duration-300"
+            style={{ width: `${progressPercent}%` }}
+          />
+        </div>
+      </div>
 
       {/* Content */}
-      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6 pb-24">
         {/* Warmup */}
         <WarmupSection />
 
@@ -225,9 +357,35 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           onSwapClick={(id) => setSwapModalExerciseId(id)}
           onSkipClick={(id) => skipExercise(workout.id, id)}
           onRestoreClick={(id) => unskipExercise(workout.id, id)}
-          onRemoveAdded={(id) => removeAddedExercise(workout.id, id)}
+          onSkipAddedClick={(id) => skipExercise(workout.id, id)}
+          onRestoreAddedClick={(id) => unskipExercise(workout.id, id)}
+          onOpenTimer={showSmartTimer ? openTimerWithSeconds : undefined}
+          onDeleteExercise={(id) => deleteExerciseFromWorkout(workout.id, id)}
+          onDeleteAddedExercise={(id) => deleteExerciseFromWorkout(workout.id, id)}
+          onUpdateExercise={(exerciseId, updates) => updateExerciseOverride(workout.id, exerciseId, updates)}
           onReorder={(order) => reorderExercises(workout.id, order)}
         />
+
+        {activeProgram?.templateId === 'custom' && (
+          <div className="flex justify-end">
+            <button
+              onClick={handleCopyDayAcrossBlock}
+              className={`h-9 px-3 border font-mono text-xs transition-colors touch-manipulation ${
+                copyDayStatus === 'done'
+                  ? 'border-success text-success bg-success/10'
+                  : copyDayStatus === 'needs_setup'
+                    ? 'border-danger text-danger'
+                    : 'border-border text-muted hover:border-foreground hover:text-foreground'
+              }`}
+            >
+              {copyDayStatus === 'done'
+                ? 'copied across block'
+                : copyDayStatus === 'needs_setup'
+                  ? 'add exercises first'
+                  : 'copy this day across block'}
+            </button>
+          </div>
+        )}
 
         {/* Add exercise button */}
         <button
@@ -239,23 +397,101 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           <span className="text-lg">+</span>
           <span>add exercise</span>
         </button>
+
+        {currentLog && (
+          <div className="pt-1">
+            {!confirmClearWorkout ? (
+              <button
+                onClick={handleClearWorkoutProgress}
+                className="w-full py-2.5 px-4 border border-danger/70 text-muted font-mono text-xs uppercase tracking-wide
+                  hover:border-danger hover:text-danger transition-colors touch-manipulation"
+              >
+                clear workout
+              </button>
+            ) : (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setConfirmClearWorkout(false)}
+                  className="flex-1 py-2.5 px-3 border border-border font-mono text-xs text-muted
+                    hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                >
+                  cancel clear
+                </button>
+                <button
+                  onClick={handleConfirmClearWorkout}
+                  className="flex-1 py-2.5 px-3 border border-danger bg-danger text-background font-mono text-xs
+                    hover:bg-danger/90 transition-colors touch-manipulation"
+                >
+                  yes, clear
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Footer actions */}
-      <footer className="fixed bottom-0 left-0 right-0 bg-background border-t-2 border-border">
-        <div className="max-w-2xl mx-auto px-4 py-4 flex gap-4">
-          <button
-            onClick={handleSaveExit}
-            className="flex-1 py-3 px-4 border-2 border-border font-mono font-medium hover:border-foreground transition-colors"
-          >
-            save & exit
-          </button>
-          <button
-            onClick={handleComplete}
-            className="flex-1 py-3 px-4 bg-foreground text-background font-mono font-medium hover:bg-foreground/90 transition-colors"
-          >
-            complete workout
-          </button>
+      {/* Footer actions - inverse colors for contrast */}
+      <footer className="fixed bottom-0 left-0 right-0 z-50 bg-foreground border-t border-background/20">
+        <div className="max-w-2xl mx-auto px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] space-y-2">
+          {!isWorkoutCompleted ? (
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveExit}
+                className="flex-1 py-3 px-4 border-2 border-background/30 text-background font-mono font-medium 
+                  hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
+              >
+                save & exit
+              </button>
+              <button
+                onClick={handleComplete}
+                disabled={totalSets === 0 || completedSets === 0}
+                className="flex-1 py-3 px-4 bg-background text-foreground font-mono font-medium 
+                  hover:bg-background/90 active:bg-success active:text-background transition-colors touch-manipulation
+                  disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                complete
+              </button>
+            </div>
+          ) : (
+            <>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleUnfinishWorkout}
+                  className="flex-1 py-3 px-4 border-2 border-background/30 text-background font-mono font-medium 
+                    hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
+                >
+                  mark as unfinished
+                </button>
+                {!confirmResetReady ? (
+                  <button
+                    onClick={handleResetToReady}
+                    className="flex-1 py-3 px-4 border-2 border-background/30 text-background font-mono font-medium 
+                      hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
+                  >
+                    clear + reset to ready
+                  </button>
+                ) : (
+                  <div className="flex-1 flex gap-2">
+                    <button
+                      onClick={() => setConfirmResetReady(false)}
+                      className="flex-1 py-3 px-2 border-2 border-background/30 text-background font-mono text-xs
+                        hover:bg-background/10 transition-colors touch-manipulation"
+                    >
+                      cancel
+                    </button>
+                    <button
+                      onClick={handleConfirmResetToReady}
+                      className="flex-1 py-3 px-2 border-2 border-background bg-background text-foreground font-mono text-xs
+                        hover:bg-background/90 transition-colors touch-manipulation"
+                    >
+                      confirm
+                    </button>
+                  </div>
+                )}
+              </div>
+              <div className="w-full h-0" />
+            </>
+          )}
         </div>
       </footer>
 

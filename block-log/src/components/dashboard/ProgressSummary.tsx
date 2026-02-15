@@ -20,8 +20,8 @@ export function ProgressSummary() {
     const liftLogs: { week: number; weight: number }[] = [];
 
     workoutLogs.forEach((log) => {
-      // Parse week from workoutId (e.g., "week3-day1")
-      const weekMatch = log.workoutId.match(/week(\d+)-day(\d+)/);
+      // Parse week/day from ids like "week3-day1" or "custom-week3-day1"
+      const weekMatch = log.workoutId.match(/(?:^|-)week(\d+)-day(\d+)/);
       if (!weekMatch) return;
       
       const week = parseInt(weekMatch[1]);
@@ -35,8 +35,12 @@ export function ProgressSummary() {
       );
       
       if (exerciseLog && exerciseLog.sets.length > 0) {
-        // Get the max weight from this workout
-        const maxWeight = Math.max(...exerciseLog.sets.map((s) => s.weight));
+        // Guard against malformed or implausible values polluting progress cards.
+        const validWeights = exerciseLog.sets
+          .map((set) => Number(set.weight))
+          .filter((weight) => Number.isFinite(weight) && weight > 0 && weight <= 2000);
+        if (validWeights.length === 0) return;
+        const maxWeight = Math.max(...validWeights);
         if (maxWeight > 0) {
           liftLogs.push({ week, weight: maxWeight });
         }

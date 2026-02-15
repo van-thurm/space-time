@@ -1,65 +1,85 @@
 'use client';
 
 import { useAppStore } from '@/lib/store';
-import { getCurrentPhase, isDeloadWeek } from '@/data/program';
+import { getTemplate } from '@/data/program-templates';
 
 export function WeekSelector() {
   const currentWeek = useAppStore((state) => state.currentWeek);
   const setCurrentWeek = useAppStore((state) => state.setCurrentWeek);
-  const phase = getCurrentPhase(currentWeek);
+  const activeProgram = useAppStore((state) =>
+    state.programs.find((p) => p.id === state.activeProgramId)
+  );
+  const addWeekToProgram = useAppStore((state) => state.addWeekToProgram);
+  const removeWeekFromProgram = useAppStore((state) => state.removeWeekFromProgram);
+
+  const template = activeProgram ? getTemplate(activeProgram.templateId) : null;
+  const baseWeeks = activeProgram?.minWeeksTotal || template?.weeksTotal || 12;
+  // Use customWeeksTotal if set, otherwise fall back to template default
+  const totalWeeks = activeProgram?.customWeeksTotal || baseWeeks;
+  
+  // Can delete weeks if we have more than the base template weeks
+  const canDeleteWeeks = totalWeeks > baseWeeks;
+
+  const handleAddWeek = () => {
+    if (activeProgram) {
+      addWeekToProgram(activeProgram.id);
+    }
+  };
+
+  const handleRemoveWeek = () => {
+    if (activeProgram && canDeleteWeeks) {
+      removeWeekFromProgram(activeProgram.id);
+      // If current week is now beyond total, move back
+      if (currentWeek > totalWeeks - 1) {
+        setCurrentWeek(totalWeeks - 1);
+      }
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      {/* Phase indicator */}
-      <div className="flex items-center gap-3">
-        <span className="text-muted text-sm font-mono">phase:</span>
-        <span className="font-pixel font-bold">{phase.name}</span>
-        {isDeloadWeek(currentWeek) && (
-          <span className="bg-accent text-background px-2 py-0.5 text-xs font-mono">
-            deload
-          </span>
-        )}
-      </div>
-
-      {/* Week selector */}
-      <div className="flex flex-wrap gap-2">
-        {Array.from({ length: 12 }, (_, i) => i + 1).map((week) => {
+    <div className="space-y-2">
+      <div className="flex flex-wrap gap-1.5 items-center">
+        {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((week) => {
           const isActive = week === currentWeek;
-          const isDeload = isDeloadWeek(week);
-          const weekPhase = getCurrentPhase(week);
-          
-          // Phase separators
-          const showPhaseDivider = week === 5 || week === 9;
 
           return (
-            <div key={week} className="flex items-center">
-              {showPhaseDivider && (
-                <div className="w-px h-8 bg-border mx-2" />
-              )}
-              <button
-                onClick={() => setCurrentWeek(week)}
-                className={`
-                  w-10 h-10 font-mono text-sm font-medium transition-all
-                  border-2
-                  ${isActive 
-                    ? 'bg-foreground text-background border-foreground' 
-                    : 'bg-background text-foreground border-border hover:border-foreground'
-                  }
-                  ${isDeload ? 'border-accent' : ''}
-                `}
-                title={`Week ${week} - ${weekPhase.name}${isDeload ? ' (deload)' : ''}`}
-              >
-                {week}
-              </button>
-            </div>
+            <button
+              key={week}
+              onClick={() => setCurrentWeek(week)}
+              className={`
+                w-9 h-9 font-mono text-sm font-medium transition-all border-2 touch-manipulation
+                ${isActive 
+                  ? 'bg-foreground text-background border-foreground' 
+                  : 'bg-background text-foreground border-border hover:border-foreground active:bg-foreground/10'
+                }
+              `}
+              aria-label={`Week ${week}`}
+            >
+              {week}
+            </button>
           );
         })}
+        {/* Add week button */}
+        <button
+          onClick={handleAddWeek}
+          className="w-9 h-9 font-mono text-lg font-medium border-2 border-dashed border-border 
+            text-muted hover:border-accent hover:text-accent
+            transition-all touch-manipulation"
+          aria-label="Add another week"
+        >
+          +
+        </button>
       </div>
-
-      {/* Phase description */}
-      <p className="text-muted text-sm font-mono">
-        {phase.description}
-      </p>
+      
+      {/* Delete week option - only show if we have added weeks */}
+      {canDeleteWeeks && (
+        <button
+          onClick={handleRemoveWeek}
+          className="font-mono text-xs text-muted hover:text-danger transition-colors touch-manipulation"
+        >
+          − remove last week
+        </button>
+      )}
     </div>
   );
 }

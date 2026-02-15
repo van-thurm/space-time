@@ -5,10 +5,10 @@
   --foreground: #0a0a0a;
   --muted: #737373;
   --border: #e5e5e5;
-  --accent: #d4a574;
-  --success: #4a7c59;
+  --accent: #c97a2b;
+  --success: #2f8f5a;
   --surface: #f5f5f5;
-  --danger: #c44536;
+  --danger: #d45d2d;
 }
 
 .dark {
@@ -16,10 +16,10 @@
   --foreground: #ffffff;
   --muted: #a3a3a3;
   --border: #262626;
-  --accent: #d4a574;
-  --success: #6b9b7a;
+  --accent: #e7a14a;
+  --success: #68c790;
   --surface: #171717;
-  --danger: #ef6461;
+  --danger: #ff7442;
 }
 
 @theme inline {

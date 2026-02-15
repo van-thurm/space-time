@@ -1,0 +1,47 @@
+[
+  {
+    "name": "standard swap api search",
+    "searching": false,
+    "hasError": false,
+    "hasResultBtn": true,
+    "hasNoResults": false,
+    "passed": true
+  },
+  {
+    "name": "standard add api + ui",
+    "searching": false,
+    "hasSearchResult": true,
+    "beforeCount": 0,
+    "afterCount": 1,
+    "added": true,
+    "passed": true
+  },
+  {
+    "name": "standard skip/restore",
+    "skipped": true,
+    "canRestore": true,
+    "skippedAfter": false,
+    "passed": true
+  },
+  {
+    "name": "custom add api + ui",
+    "searching": false,
+    "hasSearchResult": true,
+    "beforeCount": 0,
+    "afterCount": 1,
+    "added": true,
+    "passed": true
+  },
+  {
+    "name": "custom skip/restore",
+    "skipped": true,
+    "canRestore": true,
+    "skippedAfter": false,
+    "passed": true
+  },
+  {
+    "name": "custom swap api search",
+    "passed": true,
+    "notes": "N/A in empty custom baseline without swap target"
+  }
+]

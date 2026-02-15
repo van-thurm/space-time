@@ -1,25 +1,24 @@
-import type { WorkoutLog, ExerciseSubstitution } from '@/types';
-import { getWorkout } from '@/data/program';
-import type { WorkoutDay } from '@/types';
+import type { WorkoutLog, ExerciseSubstitution, ProgramTemplateId } from '@/types';
 
 interface ExportData {
   workoutLogs: WorkoutLog[];
   exerciseSubstitutions: Record<string, ExerciseSubstitution>;
+  programName?: string;
+  templateId?: ProgramTemplateId;
+  totalPlannedWorkouts?: number;
 }
 
 // Convert workout logs to CSV format
 export function exportToCSV(data: ExportData): string {
-  const { workoutLogs, exerciseSubstitutions } = data;
+  const { workoutLogs, exerciseSubstitutions, programName } = data;
   
   // CSV header
   const headers = [
+    'program',
     'date',
     'week',
     'day',
-    'day_name',
-    'exercise_slot',
     'exercise_name',
-    'is_substitution',
     'set_number',
     'weight_lbs',
     'reps',
@@ -40,31 +39,25 @@ export function exportToCSV(data: ExportData): string {
     if (!match) continue;
     
     const week = parseInt(match[1]);
-    const day = parseInt(match[2]) as WorkoutDay;
-    const workout = getWorkout(week, day);
+    const day = parseInt(match[2]);
     
     const formattedDate = new Date(log.date).toLocaleDateString('en-US');
 
     for (const exerciseLog of log.exercises) {
-      // Find exercise info
-      const exercise = workout.exercises.find((e) => e.id === exerciseLog.exerciseId);
+      // Check for substitution name
       const substitution = exerciseSubstitutions[exerciseLog.exerciseId];
-      
-      const exerciseName = substitution?.replacementName || exercise?.name || 'Unknown';
-      const slot = exerciseLog.exerciseId.split('-').pop() || '';
-      const isSubstitution = !!substitution;
+      // Use substitution name, or try to extract from ID
+      const exerciseName = substitution?.replacementName || exerciseLog.exerciseId.split('-').slice(2).join('-') || 'Unknown';
 
       for (let setIndex = 0; setIndex < exerciseLog.sets.length; setIndex++) {
         const set = exerciseLog.sets[setIndex];
         
         rows.push([
+          programName || 'Block Log',
           formattedDate,
           week.toString(),
           day.toString(),
-          workout.dayName,
-          slot,
           exerciseName,
-          isSubstitution ? 'yes' : 'no',
           (setIndex + 1).toString(),
           set.weight.toString(),
           set.reps.toString(),
@@ -110,7 +103,29 @@ export function getExportSummary(data: ExportData): {
   
   if (workoutLogs.length === 0) {
     return {
-      totalWorkouts: 0,
+      totalWorkouts: data.totalPlannedWorkouts || 0,
+      completedWorkouts: 0,
+      totalSets: 0,
+      totalVolume: 0,
+      dateRange: null,
+    };
+  }
+
+  // Deduplicate any accidental duplicate logs by workoutId; keep newest entry.
+  const dedupedByWorkoutId = Array.from(
+    new Map(
+      [...workoutLogs]
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .map((log) => [log.workoutId, log])
+    ).values()
+  );
+
+  // Analytics summary metrics should reflect completed sessions only.
+  const completedLogs = dedupedByWorkoutId.filter((log) => log.completed);
+
+  if (completedLogs.length === 0) {
+    return {
+      totalWorkouts: data.totalPlannedWorkouts || dedupedByWorkoutId.length,
       completedWorkouts: 0,
       totalSets: 0,
       totalVolume: 0,
@@ -121,10 +136,10 @@ export function getExportSummary(data: ExportData): {
   let totalSets = 0;
   let totalVolume = 0;
 
-  for (const log of workoutLogs) {
+  for (const log of completedLogs) {
     for (const exerciseLog of log.exercises) {
       for (const set of exerciseLog.sets) {
-        if (set.weight > 0 && set.reps > 0) {
+        if (set.reps > 0 && set.status !== 'skipped') {
           totalSets++;
           totalVolume += set.weight * set.reps;
         }
@@ -132,13 +147,13 @@ export function getExportSummary(data: ExportData): {
     }
   }
 
-  const dates = workoutLogs.map((l) => new Date(l.date).getTime());
+  const dates = completedLogs.map((l) => new Date(l.date).getTime());
   const minDate = new Date(Math.min(...dates));
   const maxDate = new Date(Math.max(...dates));
 
   return {
-    totalWorkouts: workoutLogs.length,
-    completedWorkouts: workoutLogs.filter((l) => l.completed).length,
+    totalWorkouts: data.totalPlannedWorkouts || dedupedByWorkoutId.length,
+    completedWorkouts: completedLogs.length,
     totalSets,
     totalVolume,
     dateRange: {

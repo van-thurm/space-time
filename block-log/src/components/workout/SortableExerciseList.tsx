@@ -25,9 +25,10 @@ import type { Exercise, ExerciseLog, AddedExercise } from '@/types';
 interface SortableItemProps {
   id: string;
   children: React.ReactNode;
+  editMode: boolean;
 }
 
-function SortableItem({ id, children }: SortableItemProps) {
+function SortableItem({ id, children, editMode }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -35,24 +36,28 @@ function SortableItem({ id, children }: SortableItemProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
+  } = useSortable({ id, disabled: !editMode });
 
-  const style = {
+  const style = editMode ? {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none',
-  };
+  } : {};
+
+  if (!editMode) {
+    // Normal mode - no drag functionality, just render children
+    return <div>{children}</div>;
+  }
 
   return (
     <div ref={setNodeRef} style={style} {...attributes}>
       <div className="relative">
-        {/* Drag handle */}
+        {/* Drag handle - only shown in edit mode */}
         <button
           {...listeners}
           className="absolute -left-2 top-4 w-8 h-8 flex items-center justify-center
-            text-muted hover:text-foreground cursor-grab active:cursor-grabbing
-            touch-manipulation z-10"
+            text-accent hover:text-foreground cursor-grab active:cursor-grabbing
+            touch-manipulation z-10 bg-background border border-accent rounded"
           aria-label="Drag to reorder"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -64,7 +69,7 @@ function SortableItem({ id, children }: SortableItemProps) {
             <circle cx="11" cy="12" r="1.5" />
           </svg>
         </button>
-        <div className="ml-4">{children}</div>
+        <div className="ml-6">{children}</div>
       </div>
     </div>
   );
@@ -79,9 +84,18 @@ interface SortableExerciseListProps {
   getRecommendedWeight: (exercise: Exercise) => number | undefined;
   isExerciseSkipped: (workoutId: string, exerciseId: string) => boolean;
   onSwapClick: (exerciseId: string) => void;
+  onSwapAddedClick?: (exerciseId: string) => void;
   onSkipClick: (exerciseId: string) => void;
   onRestoreClick: (exerciseId: string) => void;
-  onRemoveAdded: (exerciseId: string) => void;
+  onSkipAddedClick?: (exerciseId: string) => void;
+  onRestoreAddedClick?: (exerciseId: string) => void;
+  onOpenTimer?: (seconds: number) => void;
+  onDeleteExercise: (exerciseId: string) => void;
+  onDeleteAddedExercise: (exerciseId: string) => void;
+  onUpdateExercise: (
+    exerciseId: string,
+    updates: Partial<Pick<Exercise, 'sets' | 'reps' | 'targetRPE'>>
+  ) => void;
   onReorder: (exerciseOrder: string[]) => void;
 }
 
@@ -89,16 +103,25 @@ export function SortableExerciseList({
   exercises,
   addedExercises,
   workoutId,
-  skippedExerciseIds,
+  skippedExerciseIds: _skippedExerciseIds,
   getLastExerciseLog,
   getRecommendedWeight,
   isExerciseSkipped,
   onSwapClick,
+  onSwapAddedClick,
   onSkipClick,
   onRestoreClick,
-  onRemoveAdded,
+  onSkipAddedClick,
+  onRestoreAddedClick,
+  onOpenTimer,
+  onDeleteExercise,
+  onDeleteAddedExercise,
+  onUpdateExercise,
   onReorder,
 }: SortableExerciseListProps) {
+  const [editMode, setEditMode] = useState(false);
+  const [collapseAllToken, setCollapseAllToken] = useState(0);
+  
   // Combine all exercise IDs
   const allExerciseIds = [
     ...exercises.map(e => e.id),
@@ -137,23 +160,6 @@ export function SortableExerciseList({
     }
   };
 
-  // Sort exercises by orderedIds
-  const sortedExercises = [...exercises].sort((a, b) => {
-    const aIndex = orderedIds.indexOf(a.id);
-    const bIndex = orderedIds.indexOf(b.id);
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
-
-  const sortedAddedExercises = [...addedExercises].sort((a, b) => {
-    const aIndex = orderedIds.indexOf(a.id);
-    const bIndex = orderedIds.indexOf(b.id);
-    if (aIndex === -1) return 1;
-    if (bIndex === -1) return -1;
-    return aIndex - bIndex;
-  });
-
   // Merge all exercises in order
   const allItems: { type: 'exercise' | 'added'; id: string; data: Exercise | AddedExercise }[] = [];
   
@@ -182,39 +188,71 @@ export function SortableExerciseList({
   }
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-    >
-      <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
-        <div className="space-y-6">
-          {allItems.map((item, index) => (
-            <SortableItem key={item.id} id={item.id}>
-              {item.type === 'exercise' ? (
-                <ExerciseCard
-                  exercise={item.data as Exercise}
-                  workoutId={workoutId}
-                  exerciseIndex={index}
-                  lastWeekLog={getLastExerciseLog(item.id)}
-                  recommendedWeight={getRecommendedWeight(item.data as Exercise)}
-                  isSkipped={isExerciseSkipped(workoutId, item.id)}
-                  onSwapClick={() => onSwapClick(item.id)}
-                  onSkipClick={() => onSkipClick(item.id)}
-                  onRestoreClick={() => onRestoreClick(item.id)}
-                />
-              ) : (
-                <AddedExerciseCard
-                  exercise={item.data as AddedExercise}
-                  workoutId={workoutId}
-                  exerciseIndex={index}
-                  onRemove={() => onRemoveAdded(item.id)}
-                />
-              )}
-            </SortableItem>
-          ))}
-        </div>
-      </SortableContext>
-    </DndContext>
+    <div className="space-y-4">
+      {/* Edit mode toggle */}
+      <div className="flex justify-end gap-2">
+        <button
+          onClick={() => setCollapseAllToken((value) => value + 1)}
+          className="px-3 py-2 font-mono text-sm border transition-colors touch-manipulation border-border text-muted hover:border-foreground hover:text-foreground"
+        >
+          collapse all
+        </button>
+        <button
+          onClick={() => setEditMode(!editMode)}
+          className={`px-3 py-2 font-mono text-sm border transition-colors touch-manipulation
+            ${editMode 
+              ? 'border-accent text-accent bg-accent/10' 
+              : 'border-border text-muted hover:border-foreground hover:text-foreground'
+            }`}
+        >
+          {editMode ? 'done editing' : 'reorder'}
+        </button>
+      </div>
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext items={allItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+          <div className="space-y-4">
+            {allItems.map((item, index) => (
+              <SortableItem key={`${item.id}-${collapseAllToken}`} id={item.id} editMode={editMode}>
+                {item.type === 'exercise' ? (
+                  <ExerciseCard
+                    exercise={item.data as Exercise}
+                    workoutId={workoutId}
+                    exerciseIndex={index}
+                    lastWeekLog={getLastExerciseLog(item.id)}
+                    recommendedWeight={getRecommendedWeight(item.data as Exercise)}
+                    isSkipped={isExerciseSkipped(workoutId, item.id)}
+                    onSwapClick={() => onSwapClick(item.id)}
+                    onSkipClick={() => onSkipClick(item.id)}
+                    onRestoreClick={() => onRestoreClick(item.id)}
+                    onOpenTimer={onOpenTimer}
+                    defaultCollapsed={collapseAllToken > 0}
+                    onDeleteExercise={() => onDeleteExercise(item.id)}
+                    onUpdateExercise={(updates) => onUpdateExercise(item.id, updates)}
+                  />
+                ) : (
+                  <AddedExerciseCard
+                    exercise={item.data as AddedExercise}
+                    workoutId={workoutId}
+                    exerciseIndex={index}
+                    isSkipped={isExerciseSkipped(workoutId, item.id)}
+                    onSkipClick={onSkipAddedClick ? () => onSkipAddedClick(item.id) : undefined}
+                    onRestoreClick={onRestoreAddedClick ? () => onRestoreAddedClick(item.id) : undefined}
+                    onOpenTimer={onOpenTimer}
+                    defaultCollapsed={collapseAllToken > 0}
+                    onDeleteExercise={() => onDeleteAddedExercise(item.id)}
+                    onSwap={onSwapAddedClick ? () => onSwapAddedClick(item.id) : undefined}
+                  />
+                )}
+              </SortableItem>
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 }

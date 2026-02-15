@@ -1,0 +1,655 @@
+'use client';
+
+import { useEffect, useState, useMemo } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { useAppStore } from '@/lib/store';
+import { getTemplate } from '@/data/program-templates';
+import { AppFooter } from '@/components/ui/AppFooter';
+import { SecondaryPageHeader } from '@/components/ui/SecondaryPageHeader';
+import { TrashIcon } from '@/components/ui/DieterIcons';
+import type { UserProgram } from '@/types';
+
+const PROGRAM_NAME_MAX = 48;
+const TEMPLATE_NAME_MAX = 56;
+
+// Sortable program card wrapper
+interface SortableProgramCardProps {
+  program: UserProgram;
+  isRecentActive: boolean;
+  editModeEnabled: boolean;
+  onOpenEdit: () => void;
+  onSelect: () => void;
+  onOpenAnalytics: () => void;
+}
+
+function SortableProgramCard({
+  program,
+  isRecentActive,
+  editModeEnabled,
+  onOpenEdit,
+  onSelect,
+  onOpenAnalytics,
+}: SortableProgramCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: program.id, disabled: !editModeEnabled });
+
+  const style = editModeEnabled ? {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  } : {};
+
+  const template = getTemplate(program.templateId);
+  const completedWorkouts = program.workoutLogs.filter(l => l.completed).length;
+  const daysPerWeek = program.customDaysPerWeek || template.daysPerWeek;
+  const totalWorkouts = (program.customWeeksTotal || template.weeksTotal) * daysPerWeek;
+  const progressPercent = totalWorkouts > 0 
+    ? Math.round((completedWorkouts / totalWorkouts) * 100) 
+    : 0;
+  const completionDate =
+    completedWorkouts >= totalWorkouts
+      ? [...program.workoutLogs]
+          .filter((log) => log.completed)
+          .sort((a, b) => b.date.localeCompare(a.date))[0]?.date
+      : undefined;
+  const earliestLoggedDate =
+    program.workoutLogs.length > 0
+      ? [...program.workoutLogs]
+          .sort((a, b) => a.date.localeCompare(b.date))[0]?.date
+      : undefined;
+  const startedDate = earliestLoggedDate || program.startedAt || program.createdAt;
+  const safeCompletionDate =
+    completionDate && new Date(completionDate).getTime() < new Date(startedDate).getTime()
+      ? startedDate
+      : completionDate;
+  const formatShortDate = (value?: string) => {
+    if (!value) return '—';
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toLowerCase();
+  };
+  const templateLabel =
+    program.customDaysPerWeek && program.customDaysPerWeek !== template.daysPerWeek
+      ? 'custom'
+      : template.shortName;
+  const isProgramComplete = totalWorkouts > 0 && completedWorkouts >= totalWorkouts;
+  const cardToneClass = isProgramComplete
+    ? 'border-success/50 border-l-[3px] border-l-success bg-success/5'
+    : isRecentActive
+      ? 'border-accent bg-accent/5'
+      : 'border-border hover:border-foreground';
+  const progressToneClass = isProgramComplete ? 'bg-success' : isRecentActive ? 'bg-accent' : 'bg-foreground';
+  const openButtonClass = isRecentActive
+    ? 'text-accent border-accent hover:bg-accent/10'
+    : isProgramComplete
+      ? 'text-success border-success hover:bg-success/10'
+      : 'text-foreground border-border hover:bg-foreground/10 hover:border-foreground';
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`w-full text-left border-2 p-4 transition-colors ${cardToneClass}`}
+    >
+      <div className="flex justify-between items-start gap-2">
+        {editModeEnabled && (
+          <button
+            {...attributes}
+            {...listeners}
+            className="w-10 h-10 flex items-center justify-center text-accent hover:text-foreground 
+              cursor-grab active:cursor-grabbing touch-manipulation flex-shrink-0"
+            aria-label="Drag to reorder"
+          >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <circle cx="5" cy="4" r="1.5" />
+              <circle cx="11" cy="4" r="1.5" />
+              <circle cx="5" cy="8" r="1.5" />
+              <circle cx="11" cy="8" r="1.5" />
+              <circle cx="5" cy="12" r="1.5" />
+              <circle cx="11" cy="12" r="1.5" />
+            </svg>
+          </button>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-mono font-bold text-base truncate">{program.name}</h3>
+            {isRecentActive && (
+              <span className="font-mono text-xs text-accent flex-shrink-0">active</span>
+            )}
+            {isProgramComplete && (
+              <span className="font-mono text-xs text-success flex-shrink-0">complete</span>
+            )}
+          </div>
+          <p className="font-mono text-sm text-muted mt-1">
+            {templateLabel} · week {program.currentWeek}/{program.customWeeksTotal || template.weeksTotal}
+          </p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <span className="font-mono text-sm">{progressPercent}%</span>
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div className="mt-3 h-1 bg-surface w-full">
+        <div 
+          className={`h-full transition-all ${progressToneClass}`}
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
+
+      <div className="flex justify-between items-center mt-2">
+        <div className="font-mono text-xs text-muted space-y-0.5">
+          <p>{completedWorkouts} workouts done · {daysPerWeek} days/week</p>
+          <p>started: {formatShortDate(startedDate)}</p>
+          {safeCompletionDate && <p>completed: {formatShortDate(safeCompletionDate)}</p>}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onOpenEdit}
+            className="h-9 px-3 font-mono text-xs border border-border text-muted hover:text-foreground hover:border-foreground transition-colors touch-manipulation"
+          >
+            edit
+          </button>
+          {isProgramComplete && (
+            <button
+              onClick={onOpenAnalytics}
+              className="h-9 px-3 font-mono text-xs border border-success text-success hover:bg-success/10 transition-colors touch-manipulation"
+            >
+              report
+            </button>
+          )}
+          <button
+            onClick={onSelect}
+            className={`h-9 px-3 font-mono text-xs border transition-colors touch-manipulation ${openButtonClass}`}
+          >
+            open
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function ProgramsPage() {
+  const router = useRouter();
+  const programs = useAppStore((state) => state.programs);
+  const activeProgramId = useAppStore((state) => state.activeProgramId);
+  const lastTrainedProgramId = useAppStore((state) => state.lastTrainedProgramId);
+  const setActiveProgram = useAppStore((state) => state.setActiveProgram);
+  const renameProgram = useAppStore((state) => state.renameProgram);
+  const deleteProgram = useAppStore((state) => state.deleteProgram);
+  const archiveProgram = useAppStore((state) => state.archiveProgram);
+  const reorderPrograms = useAppStore((state) => state.reorderPrograms);
+  const saveAsTemplate = useAppStore((state) => state.saveAsTemplate);
+  const updateProgramStructure = useAppStore((state) => state.updateProgramStructure);
+  const migrateToMultiProgram = useAppStore((state) => state.migrateToMultiProgram);
+  const workoutLogs = useAppStore((state) => state.workoutLogs);
+  const currentWeek = useAppStore((state) => state.currentWeek);
+  
+  const [editModeEnabled, setEditModeEnabled] = useState(false);
+  const [selectedProgramId, setSelectedProgramId] = useState<string | null>(null);
+  const [templateName, setTemplateName] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmDangerAction, setConfirmDangerAction] = useState(false);
+  const [templateSaveState, setTemplateSaveState] = useState<'idle' | 'saved'>('idle');
+  const [templateExpanded, setTemplateExpanded] = useState(false);
+  const [draftName, setDraftName] = useState('');
+  const [draftWeeks, setDraftWeeks] = useState(12);
+  const [draftDays, setDraftDays] = useState(4);
+  const [structureError, setStructureError] = useState('');
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Migrate legacy data on first load
+  useEffect(() => {
+    migrateToMultiProgram();
+  }, [migrateToMultiProgram]);
+
+  // Filter to non-archived programs and keep active program at the top.
+  const sortedPrograms = useMemo(() => {
+    const visible = programs.filter((p) => !p.isArchived);
+    const activeId = lastTrainedProgramId || activeProgramId;
+    if (!activeId) return visible;
+    const activeIndex = visible.findIndex((program) => program.id === activeId);
+    if (activeIndex <= 0) return visible;
+    const activeProgram = visible[activeIndex];
+    return [activeProgram, ...visible.slice(0, activeIndex), ...visible.slice(activeIndex + 1)];
+  }, [programs, activeProgramId, lastTrainedProgramId]);
+  
+  const activePrograms = sortedPrograms;
+  const selectedProgram = activePrograms.find((program) => program.id === selectedProgramId);
+  const canShowReorder = activePrograms.length > 2;
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      const oldIndex = activePrograms.findIndex(p => p.id === active.id);
+      const newIndex = activePrograms.findIndex(p => p.id === over.id);
+      const newOrder = arrayMove(activePrograms, oldIndex, newIndex);
+      reorderPrograms(newOrder.map(p => p.id));
+    }
+  };
+
+  // Handle selecting a program
+  const handleSelectProgram = (programId: string) => {
+    setActiveProgram(programId);
+    router.push('/');
+  };
+
+  const handleOpenProgramAnalytics = (programId: string) => {
+    setActiveProgram(programId);
+    router.push('/analytics');
+  };
+
+  // If no programs and no legacy data, redirect to new program flow
+  const hasLegacyData = workoutLogs.length > 0 || currentWeek > 1;
+
+  useEffect(() => {
+    if (!canShowReorder && editModeEnabled) {
+      setEditModeEnabled(false);
+    }
+  }, [canShowReorder, editModeEnabled]);
+  
+  if (activePrograms.length === 0 && !hasLegacyData) {
+    return (
+      <main className="min-h-screen bg-background flex flex-col">
+        <SecondaryPageHeader subtitle="programs" backFallbackHref="/" />
+
+        <div className="flex-1 flex flex-col items-center justify-center p-8">
+          <div className="text-center space-y-4 max-w-sm">
+            <h2 className="font-mono text-lg">welcome to block log</h2>
+            <p className="font-mono text-sm text-muted">
+              start your first training program
+            </p>
+            <Link
+              href="/programs/new"
+              className="inline-block mt-4 px-6 py-3 bg-foreground text-background font-mono font-medium
+                hover:bg-foreground/90 active:bg-accent transition-colors touch-manipulation"
+            >
+              + new program
+            </Link>
+          </div>
+        </div>
+        <AppFooter className="mt-0" />
+      </main>
+    );
+  }
+  const openEditModal = (program: UserProgram) => {
+    const template = getTemplate(program.templateId);
+    setSelectedProgramId(program.id);
+    setDraftName(program.name);
+    setDraftWeeks(program.customWeeksTotal || template.weeksTotal);
+    setDraftDays(program.customDaysPerWeek || template.daysPerWeek);
+    setTemplateName(`${program.name} Template`);
+    setConfirmDelete(false);
+    setConfirmDangerAction(false);
+    setTemplateSaveState('idle');
+    setTemplateExpanded(false);
+    setStructureError('');
+  };
+
+  const closeEditModal = () => {
+    setSelectedProgramId(null);
+    setConfirmDelete(false);
+    setConfirmDangerAction(false);
+    setTemplateSaveState('idle');
+    setTemplateExpanded(false);
+    setStructureError('');
+  };
+
+  const handleSaveProgram = () => {
+    if (!selectedProgram || !draftName.trim()) return;
+    renameProgram(selectedProgram.id, draftName.trim().slice(0, PROGRAM_NAME_MAX));
+    updateProgramStructure(selectedProgram.id, {
+      weeksTotal: draftWeeks,
+      daysPerWeek: draftDays,
+    });
+    closeEditModal();
+  };
+
+  const handleSaveTemplate = () => {
+    if (!selectedProgram || !templateName.trim()) return;
+    const templateId = saveAsTemplate(selectedProgram.id, templateName.trim().slice(0, TEMPLATE_NAME_MAX));
+    if (!templateId) return;
+    setTemplateSaveState('saved');
+    setTimeout(() => setTemplateSaveState('idle'), 1200);
+  };
+
+  const selectedTemplate = selectedProgram ? getTemplate(selectedProgram.templateId) : null;
+  const weeksTotal = selectedProgram ? draftWeeks : 12;
+  const daysTotal = selectedProgram ? draftDays : 4;
+  const minWeeks = selectedProgram
+    ? Math.max(1, selectedProgram.currentWeek, selectedProgram.minWeeksTotal || selectedTemplate?.weeksTotal || 1)
+    : 1;
+
+  const hasDataPastDay = (program: UserProgram, nextDays: number): boolean => {
+    return program.workoutLogs.some((log) => {
+      const match = /day(\d+)/.exec(log.workoutId);
+      const day = match ? Number(match[1]) : 0;
+      if (!Number.isFinite(day) || day <= nextDays) return false;
+      const hasSetData = log.exercises.some((exercise) =>
+        exercise.sets.some((set) => (set.weight || 0) > 0 || (set.reps || 0) > 0 || (set.rpe || 0) > 0 || set.status === 'skipped')
+      );
+      const hasOtherData =
+        Boolean(log.completed) ||
+        Boolean(log.skippedExercises?.length) ||
+        Boolean(log.addedExercises?.length);
+      return hasSetData || hasOtherData;
+    });
+  };
+
+  return (
+    <main className="min-h-screen bg-background">
+      <SecondaryPageHeader
+        subtitle="programs"
+        backFallbackHref="/"
+      />
+
+      {/* Programs list */}
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+        {/* Edit mode toggle */}
+        {canShowReorder && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => setEditModeEnabled(!editModeEnabled)}
+              className={`px-3 py-2 font-mono text-sm border transition-colors touch-manipulation
+                ${editModeEnabled 
+                  ? 'border-accent text-accent bg-accent/10' 
+                  : 'border-border text-muted hover:border-foreground hover:text-foreground'
+                }`}
+            >
+              {editModeEnabled ? 'done' : 'reorder'}
+            </button>
+          </div>
+        )}
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext items={activePrograms.map(p => p.id)} strategy={verticalListSortingStrategy}>
+            {activePrograms.map((program) => (
+              <SortableProgramCard
+                key={program.id}
+                program={program}
+                isRecentActive={program.id === lastTrainedProgramId}
+                editModeEnabled={editModeEnabled}
+                onOpenEdit={() => openEditModal(program)}
+                onSelect={() => handleSelectProgram(program.id)}
+                onOpenAnalytics={() => handleOpenProgramAnalytics(program.id)}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+
+        {/* Add new program button */}
+        <Link
+          href="/programs/new"
+          className="block w-full text-center py-4 border-2 border-dashed border-border 
+            hover:border-accent text-muted hover:text-accent font-mono
+            transition-colors touch-manipulation"
+        >
+          + new program
+        </Link>
+      </div>
+
+      {/* Footer */}
+      <AppFooter className="mt-12" />
+
+      {selectedProgram && (
+        <div className="fixed inset-0 z-50 bg-black/60 p-4 flex items-end sm:items-center justify-center">
+          <div className="w-full max-w-md border-2 border-border dark:border-white/60 bg-background dark:bg-accent/5 p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="font-pixel font-bold text-base">edit program</h2>
+              <button
+                onClick={closeEditModal}
+                className="w-9 h-9 border border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                aria-label="Close program editor"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <label className="font-mono text-xs text-muted uppercase tracking-wide">name</label>
+              <input
+                type="text"
+                value={draftName}
+                onChange={(e) => setDraftName(e.target.value)}
+                maxLength={PROGRAM_NAME_MAX}
+                className="w-full h-11 px-3 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+              />
+            </div>
+
+            {(() => {
+              const template = getTemplate(selectedProgram.templateId);
+              const total = (selectedProgram.customWeeksTotal || template.weeksTotal) * (selectedProgram.customDaysPerWeek || template.daysPerWeek);
+              const done = selectedProgram.workoutLogs.filter((log) => log.completed).length;
+              const isComplete = total > 0 && done >= total;
+              if (!isComplete) return null;
+              return (
+                <div className="border border-success/60 bg-success/10 px-3 py-2 space-y-1">
+                  <p className="font-mono text-xs uppercase tracking-wide text-success">program complete</p>
+                  <p className="font-mono text-xs text-muted">keep visible, archive it, or extend weeks/days to continue this block.</p>
+                </div>
+              );
+            })()}
+
+            <div className="space-y-2 border-t border-border pt-3">
+              <label className="font-mono text-xs text-muted uppercase tracking-wide">block length</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setStructureError('');
+                    setDraftWeeks((value) => Math.max(minWeeks, value - 1));
+                  }}
+                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                >
+                  -
+                </button>
+                <div className="flex-1 h-11 border-2 border-border font-mono text-sm flex items-center justify-center">
+                  {weeksTotal} weeks
+                </div>
+                <button
+                  onClick={() => {
+                    setStructureError('');
+                    setDraftWeeks((value) => Math.min(52, value + 1));
+                  }}
+                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                >
+                  +
+                </button>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  onClick={() => {
+                    if (draftDays <= 1) return;
+                    if (hasDataPastDay(selectedProgram, draftDays - 1)) {
+                      setStructureError('cannot remove this day because workout data already exists for it.');
+                      return;
+                    }
+                    setStructureError('');
+                    setDraftDays((value) => Math.max(1, value - 1));
+                  }}
+                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                  aria-label="Remove one day from this program"
+                >
+                  -
+                </button>
+                <div className="flex-1 h-11 border-2 border-border font-mono text-sm flex items-center justify-center">
+                  {daysTotal} days/week
+                </div>
+                <button
+                  onClick={() => {
+                    setStructureError('');
+                    setDraftDays((value) => Math.min(7, value + 1));
+                  }}
+                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                  aria-label="Add one day to this program"
+                >
+                  +
+                </button>
+              </div>
+              {structureError && (
+                <p className="font-mono text-xs text-danger">{structureError}</p>
+              )}
+              <p className="font-mono text-xs text-muted">
+                For data integrity, exercise structure is edited from the workout flow.
+              </p>
+            </div>
+
+            <div className="space-y-2 border-t border-border pt-3">
+              {!templateExpanded ? (
+                <button
+                  onClick={() => setTemplateExpanded(true)}
+                  className="w-full h-11 border-2 border-accent text-accent font-mono text-sm hover:bg-accent/10 transition-colors touch-manipulation"
+                >
+                  save as template
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <input
+                    type="text"
+                    value={templateName}
+                    onChange={(e) => setTemplateName(e.target.value)}
+                    maxLength={TEMPLATE_NAME_MAX}
+                    className="w-full h-11 px-3 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setTemplateExpanded(false)}
+                      className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                    >
+                      cancel
+                    </button>
+                    <button
+                      onClick={handleSaveTemplate}
+                      disabled={!templateName.trim()}
+                      className="flex-1 h-11 border-2 border-accent text-accent font-mono text-sm hover:bg-accent/10 disabled:opacity-50 transition-colors touch-manipulation"
+                    >
+                      {templateSaveState === 'saved' ? 'saved!' : 'save template'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-border pt-3 space-y-2">
+              {confirmDelete ? (
+                <div className="space-y-2">
+                  <p className="font-mono text-sm text-muted">
+                    are you sure you want to delete? your workout data will also be deleted.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setConfirmDelete(false)}
+                      className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                    >
+                      cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        deleteProgram(selectedProgram.id);
+                        closeEditModal();
+                      }}
+                      className="flex-1 h-11 border-2 border-danger bg-danger text-background font-mono text-sm hover:bg-danger/90 transition-colors touch-manipulation"
+                    >
+                      yes, delete
+                    </button>
+                  </div>
+                </div>
+              ) : confirmDangerAction ? (
+                <div className="space-y-2">
+                  <p className="font-mono text-sm text-muted">
+                    delete/archive this program? deleting removes workout data. archiving keeps it in settings.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setConfirmDangerAction(false)}
+                      className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                    >
+                      cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        archiveProgram(selectedProgram.id);
+                        closeEditModal();
+                      }}
+                      className="flex-1 h-11 border-2 border-border font-mono text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                    >
+                      archive
+                    </button>
+                    <button
+                      onClick={() => {
+                        setConfirmDangerAction(false);
+                        setConfirmDelete(true);
+                      }}
+                      className="flex-1 h-11 border-2 border-danger bg-danger text-background font-mono text-sm hover:bg-danger/90 transition-colors touch-manipulation"
+                    >
+                      delete
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setConfirmDangerAction(true)}
+                    className="w-11 h-11 border-2 border-danger text-danger inline-flex items-center justify-center hover:bg-danger hover:text-background transition-colors touch-manipulation"
+                    aria-label="Delete or archive program"
+                  >
+                    <TrashIcon size={16} />
+                  </button>
+                  <button
+                    onClick={closeEditModal}
+                    className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                  >
+                    cancel
+                  </button>
+                  <button
+                    onClick={handleSaveProgram}
+                    disabled={!draftName.trim()}
+                    className="flex-1 h-11 border-2 border-foreground bg-foreground text-background font-mono text-sm hover:bg-foreground/90 disabled:opacity-50 transition-colors touch-manipulation"
+                  >
+                    save
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </main>
+  );
+}

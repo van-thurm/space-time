@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Block Log Header + Branding Mockups</title>
+  <style>
+    :root {
+      --bg: #06080b;
+      --surface: #0f1216;
+      --muted: #8f949d;
+      --fg: #f2f4f7;
+      --border: #2a2f38;
+      --accent: #d49a52;
+      --success: #68c790;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .h1 {
+      font-size: 20px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+
+    .h2 {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin: 0 0 8px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .card {
+      border: 2px solid var(--border);
+      background: #090c10;
+      padding: 12px;
+    }
+
+    .mock-screen {
+      border: 2px solid var(--border);
+      background: var(--bg);
+      min-height: 230px;
+      overflow: hidden;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--border);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .btn-sm {
+      width: 42px;
+      height: 42px;
+      border: 2px solid var(--border);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      font-size: 20px;
+    }
+
+    .label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Common brand block */
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .wordmark {
+      font-family: "Courier New", ui-monospace, monospace;
+      font-size: 22px;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    .subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Option A: fixed shell */
+    .header-a {
+      border-bottom: 2px solid var(--border);
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-right { display: flex; gap: 8px; }
+
+    /* Option C: global + page row */
+    .header-c-top {
+      border-bottom: 2px solid var(--border);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-c-sub {
+      border-bottom: 2px solid var(--border);
+      padding: 10px 16px;
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+    }
+
+    .header-c-sub .page-title {
+      color: var(--muted);
+      font-size: 14px;
+      text-transform: lowercase;
+      letter-spacing: 0.04em;
+    }
+
+    .body-fill {
+      padding: 16px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    /* Branding mark direction 1: bold pixel grid */
+    .mark-grid {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 2px;
+      flex: 0 0 auto;
+    }
+
+    .mark-grid span {
+      background: var(--fg);
+      display: block;
+    }
+
+    .mark-grid span:nth-child(2),
+    .mark-grid span:nth-child(4),
+    .mark-grid span:nth-child(6),
+    .mark-grid span:nth-child(8) {
+      opacity: 0.68;
+    }
+
+    /* Branding mark direction 2: monolithic BL */
+    .mark-monolith {
+      width: 30px;
+      height: 30px;
+      position: relative;
+      flex: 0 0 auto;
+      background: var(--fg);
+    }
+
+    .mark-monolith::before,
+    .mark-monolith::after {
+      content: "";
+      position: absolute;
+      background: var(--bg);
+    }
+
+    /* carve a brutalist "B/L" vibe */
+    .mark-monolith::before {
+      left: 8px;
+      top: 6px;
+      width: 8px;
+      height: 18px;
+      box-shadow:
+        0 -4px 0 0 var(--bg),
+        0 4px 0 0 var(--bg);
+    }
+
+    .mark-monolith::after {
+      right: 0;
+      bottom: 0;
+      width: 12px;
+      height: 12px;
+    }
+
+    .caption {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .state-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .state-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <h1 class="h1">Header + Branding Comparison Mockups</h1>
+
+    <section class="grid-2">
+      <article class="card">
+        <h2 class="h2">Problem 1: Option A (Fixed 3-Column Header)</h2>
+        <div class="state-row">
+          <div>
+            <div class="state-label">Back visible</div>
+            <div class="mock-screen">
+              <header class="header-a">
+                <button class="btn" aria-hidden="true">←</button>
+                <div>
+                  <div class="brand">
+                    <div class="mark-grid" aria-hidden="true">
+                      <span></span><span></span><span></span>
+                      <span></span><span></span><span></span>
+                      <span></span><span></span><span></span>
+                    </div>
+                    <span class="wordmark">Block Log</span>
+                  </div>
+                  <div class="subtitle">programs</div>
+                </div>
+                <div class="header-right">
+                  <button class="btn-sm" aria-hidden="true">☼</button>
+                  <button class="btn-sm" aria-hidden="true">+</button>
+                </div>
+              </header>
+              <div class="body-fill">Brand x-position is fixed because left slot width is always reserved.</div>
+            </div>
+          </div>
+          <div>
+            <div class="state-label">Back hidden</div>
+            <div class="mock-screen">
+              <header class="header-a">
+                <div aria-hidden="true"></div>
+                <div>
+                  <div class="brand">
+                    <div class="mark-grid" aria-hidden="true">
+                      <span></span><span></span><span></span>
+                      <span></span><span></span><span></span>
+                      <span></span><span></span><span></span>
+                    </div>
+                    <span class="wordmark">Block Log</span>
+                  </div>
+                  <div class="subtitle">block</div>
+                </div>
+                <div class="header-right">
+                  <button class="btn-sm" aria-hidden="true">☼</button>
+                  <button class="btn-sm" aria-hidden="true">+</button>
+                </div>
+              </header>
+              <div class="body-fill">No jump: title/logo starts at identical point even when back is missing.</div>
+            </div>
+          </div>
+        </div>
+        <p class="caption">Most pragmatic: stable alignment, minimal code churn, and scales well with current shared header component.</p>
+      </article>
+
+      <article class="card">
+        <h2 class="h2">Problem 1: Option C (Global Chrome + Page Subheader)</h2>
+        <div class="state-row">
+          <div>
+            <div class="state-label">Back visible</div>
+            <div class="mock-screen">
+              <header class="header-c-top">
+                <div class="brand">
+                  <div class="mark-grid" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                  </div>
+                  <span class="wordmark">Block Log</span>
+                </div>
+                <div class="header-right">
+                  <button class="btn-sm" aria-hidden="true">☼</button>
+                  <button class="btn-sm" aria-hidden="true">+</button>
+                </div>
+              </header>
+              <div class="header-c-sub">
+                <button class="btn" aria-hidden="true">←</button>
+                <div class="page-title">programs</div>
+              </div>
+              <div class="body-fill">Global top bar never changes; navigation controls live in a stable second row.</div>
+            </div>
+          </div>
+          <div>
+            <div class="state-label">Back hidden</div>
+            <div class="mock-screen">
+              <header class="header-c-top">
+                <div class="brand">
+                  <div class="mark-grid" aria-hidden="true">
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                    <span></span><span></span><span></span>
+                  </div>
+                  <span class="wordmark">Block Log</span>
+                </div>
+                <div class="header-right">
+                  <button class="btn-sm" aria-hidden="true">☼</button>
+                  <button class="btn-sm" aria-hidden="true">+</button>
+                </div>
+              </header>
+              <div class="header-c-sub">
+                <div aria-hidden="true"></div>
+                <div class="page-title">block</div>
+              </div>
+              <div class="body-fill">Most scalable architecture over time, but requires touching page-level layout expectations.</div>
+            </div>
+          </div>
+        </div>
+        <p class="caption">Best for long-term product growth if you expect more header actions, breadcrumbs, or per-page tools.</p>
+      </article>
+    </section>
+
+    <section class="grid-2">
+      <article class="card">
+        <h2 class="h2">Problem 2: Branding Direction 1 (Bold Pixel Grid Mark)</h2>
+        <div class="mock-screen">
+          <header class="header-a">
+            <button class="btn" aria-hidden="true">←</button>
+            <div>
+              <div class="brand">
+                <div class="mark-grid" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                  <span></span><span></span><span></span>
+                  <span></span><span></span><span></span>
+                </div>
+                <span class="wordmark">Block Log</span>
+              </div>
+              <div class="subtitle">analytics</div>
+            </div>
+            <div class="header-right">
+              <button class="btn-sm" aria-hidden="true">☼</button>
+              <button class="btn-sm" aria-hidden="true">+</button>
+            </div>
+          </header>
+        </div>
+        <p class="caption">Feels modular/industrial, reads clearly at small sizes, and stays faithful to the pixel type language you already use.</p>
+      </article>
+
+      <article class="card">
+        <h2 class="h2">Problem 2: Branding Direction 2 (Brutalist Monolith Mark)</h2>
+        <div class="mock-screen">
+          <header class="header-a">
+            <button class="btn" aria-hidden="true">←</button>
+            <div>
+              <div class="brand">
+                <div class="mark-monolith" aria-hidden="true"></div>
+                <span class="wordmark">Block Log</span>
+              </div>
+              <div class="subtitle">analytics</div>
+            </div>
+            <div class="header-right">
+              <button class="btn-sm" aria-hidden="true">☼</button>
+              <button class="btn-sm" aria-hidden="true">+</button>
+            </div>
+          </header>
+        </div>
+        <p class="caption">Stronger logo personality and more “brand object” feel; better if you want a signature mark beyond utility icon language.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from 'react';
-import type { AddedExercise, ExerciseCategory } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import type { AddedExercise, ExerciseDbExercise } from '@/types';
 
 interface AddExerciseModalProps {
   onAdd: (exercise: AddedExercise) => void;
   onClose: () => void;
+}
+
+function generateAddedExerciseId(prefix: 'api' | 'custom', base?: string): string {
+  const safeBase = base ? base.replace(/[^a-zA-Z0-9_-]/g, '') : 'item';
+  const random = Math.random().toString(36).slice(2, 8);
+  return `${prefix}-${safeBase}-${Date.now()}-${random}`;
 }
 
 export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
@@ -13,20 +19,82 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
   const [sets, setSets] = useState(3);
   const [reps, setReps] = useState('10');
   const [targetRPE, setTargetRPE] = useState('7-8');
-  const [category, setCategory] = useState<ExerciseCategory>('accessory');
+  
+  // API search state
+  const [searchResults, setSearchResults] = useState<ExerciseDbExercise[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [selectedExercise, setSelectedExercise] = useState<ExerciseDbExercise | null>(null);
+  const [showSearch, setShowSearch] = useState(true);
+
+  // Debounced search function using server-side API route
+  const searchExercises = useCallback(async (query: string) => {
+    if (!query || query.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      setSearching(true);
+      const response = await fetch(`/api/exercises/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        throw new Error('Search failed');
+      }
+      const results = await response.json();
+      setSearchResults(Array.isArray(results) ? results.slice(0, 8) : []);
+    } catch (err) {
+      console.error('Search failed:', err);
+      setSearchResults([]);
+    } finally {
+      setSearching(false);
+    }
+  }, []);
+
+  // Debounce search input
+  useEffect(() => {
+    if (!showSearch) return;
+    
+    const timer = setTimeout(() => {
+      if (name.length >= 2) {
+        searchExercises(name);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [name, showSearch, searchExercises]);
+
+  const handleSelectFromApi = (exercise: ExerciseDbExercise) => {
+    setSelectedExercise(exercise);
+    setName(exercise.name);
+    setShowSearch(false);
+    setSearchResults([]);
+    
+  };
+
+  const handleClearSelection = () => {
+    setSelectedExercise(null);
+    setShowSearch(true);
+  };
 
   const handleSubmit = () => {
     if (!name.trim()) return;
 
     const exercise: AddedExercise = {
-      id: `added-${Date.now()}`,
+      id: selectedExercise
+        ? generateAddedExerciseId('api', selectedExercise.id)
+        : generateAddedExerciseId('custom'),
       name: name.trim(),
       sets,
       reps,
       targetRPE,
       restSeconds: 60,
-      category,
+      category: 'accessory',
       addedAt: new Date().toISOString(),
+      // Store API data for consistency
+      apiExerciseId: selectedExercise?.id,
+      muscleGroup: selectedExercise?.target,
+      equipment: selectedExercise?.equipment,
     };
 
     onAdd(exercise);
@@ -42,9 +110,9 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
       />
       
       {/* Modal */}
-      <div className="relative bg-background border-2 border-border w-full max-w-md">
+      <div className="relative bg-background border-2 border-border w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b border-border flex justify-between items-center">
+        <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0">
           <h2 className="font-pixel text-lg">add exercise</h2>
           <button
             onClick={onClose}
@@ -56,35 +124,67 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
         </div>
 
         {/* Form */}
-        <div className="p-4 space-y-4">
-          {/* Exercise name */}
-          <div>
-            <label className="block font-mono text-sm text-muted mb-1">exercise name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g., dumbbell curls"
-              className="w-full p-3 border-2 border-border bg-background font-mono text-sm
-                focus:border-foreground focus:outline-none touch-manipulation"
-            />
-          </div>
-
-          {/* Category */}
-          <div>
-            <label className="block font-mono text-sm text-muted mb-1">category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value as ExerciseCategory)}
-              className="w-full p-3 border-2 border-border bg-background font-mono text-sm
-                focus:border-foreground focus:outline-none touch-manipulation"
-            >
-              <option value="power">power</option>
-              <option value="main_lift">main lift</option>
-              <option value="accessory">accessory</option>
-              <option value="isolation">isolation</option>
-              <option value="finisher">finisher</option>
-            </select>
+        <div className="p-4 space-y-4 overflow-y-auto flex-1">
+          {/* Exercise name with API search */}
+          <div className="relative">
+            <label className="block font-mono text-sm text-muted mb-1">
+              exercise name
+              <span className="ml-2 text-accent text-xs">· search 1000+ exercises</span>
+            </label>
+            
+            {selectedExercise ? (
+              <div className="flex items-center gap-2 p-3 border-2 border-accent bg-accent/5">
+                <div className="flex-1">
+                  <p className="font-mono text-sm font-medium">{selectedExercise.name}</p>
+                  <p className="font-mono text-xs text-muted">
+                    {selectedExercise.target} · {selectedExercise.equipment}
+                  </p>
+                </div>
+                <button
+                  onClick={handleClearSelection}
+                  className="text-muted hover:text-foreground text-sm"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="search or type custom name..."
+                  className="w-full p-3 border-2 border-border bg-background font-mono text-sm
+                    focus:border-foreground focus:outline-none touch-manipulation"
+                />
+                
+                {/* Search results dropdown */}
+                {showSearch && (searchResults.length > 0 || searching) && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-background border-2 border-border 
+                    max-h-48 overflow-y-auto z-10">
+                    {searching ? (
+                      <div className="p-3 font-mono text-sm text-muted text-center">
+                        searching...
+                      </div>
+                    ) : (
+                      searchResults.map((result) => (
+                        <button
+                          key={result.id}
+                          onClick={() => handleSelectFromApi(result)}
+                          className="w-full text-left p-2 hover:bg-surface border-b border-border last:border-0
+                            touch-manipulation transition-colors"
+                        >
+                          <p className="font-mono text-sm truncate">{result.name}</p>
+                          <p className="font-mono text-xs text-muted">
+                            {result.target} · {result.equipment}
+                          </p>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </>
+            )}
           </div>
 
           {/* Sets and Reps */}
@@ -129,7 +229,7 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-border flex gap-3">
+        <div className="p-4 border-t border-border flex gap-3 flex-shrink-0">
           <button
             onClick={onClose}
             className="flex-1 py-3 px-4 border-2 border-border font-mono 

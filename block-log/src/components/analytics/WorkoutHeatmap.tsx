@@ -1,26 +1,40 @@
 'use client';
 
 import { useAppStore } from '@/lib/store';
+import { getTemplate } from '@/data/program-templates';
+import { useRouter } from 'next/navigation';
 
 export function WorkoutHeatmap() {
-  const workoutLogs = useAppStore((state) => state.workoutLogs);
+  const router = useRouter();
+  const activeProgram = useAppStore((state) =>
+    state.programs.find((p) => p.id === state.activeProgramId)
+  );
+  const workoutLogs = activeProgram?.workoutLogs || [];
+  const template = activeProgram ? getTemplate(activeProgram.templateId) : null;
+  
+  const totalWeeks = activeProgram?.customWeeksTotal || template?.weeksTotal || 12;
+  const daysPerWeek = activeProgram?.customDaysPerWeek || template?.daysPerWeek || 4;
+  const dayLabels =
+    activeProgram?.customDayLabels && activeProgram.customDayLabels.length > 0
+      ? activeProgram.customDayLabels
+      : template?.dayLabels || Array.from({ length: daysPerWeek }, (_, i) => `day ${i + 1}`);
 
-  // Create a 12 (weeks) x 4 (days) grid
-  const grid: ('completed' | 'in_progress' | 'not_started')[][] = [];
+  // Create a grid based on program dimensions
+  const grid: { week: number; day: number; status: 'completed' | 'in_progress' | 'not_started' }[][] = [];
 
-  for (let week = 1; week <= 12; week++) {
-    const weekData: ('completed' | 'in_progress' | 'not_started')[] = [];
+  for (let week = 1; week <= totalWeeks; week++) {
+    const weekData: { week: number; day: number; status: 'completed' | 'in_progress' | 'not_started' }[] = [];
     
-    for (let day = 1; day <= 4; day++) {
+    for (let day = 1; day <= daysPerWeek; day++) {
       const workoutId = `week${week}-day${day}`;
       const log = workoutLogs.find((l) => l.workoutId === workoutId);
       
       if (!log) {
-        weekData.push('not_started');
+        weekData.push({ week, day, status: 'not_started' });
       } else if (log.completed) {
-        weekData.push('completed');
+        weekData.push({ week, day, status: 'completed' });
       } else {
-        weekData.push('in_progress');
+        weekData.push({ week, day, status: 'in_progress' });
       }
     }
     
@@ -28,48 +42,48 @@ export function WorkoutHeatmap() {
   }
 
   const statusColors = {
-    completed: 'bg-foreground',
+    completed: 'bg-success',
     in_progress: 'bg-accent',
     not_started: 'bg-surface',
   };
 
-  const dayLabels = ['L1', 'U1', 'L2', 'U2'];
   const completedCount = workoutLogs.filter((l) => l.completed).length;
+  const inProgressCount = workoutLogs.filter((l) => !l.completed).length;
+  const totalWorkouts = totalWeeks * daysPerWeek;
+  const notStartedCount = Math.max(0, totalWorkouts - completedCount - inProgressCount);
 
   return (
     <div className="border-2 border-border p-4">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="font-mono font-bold">workout completion</h2>
-        <span className="font-mono text-sm text-muted">
-          {completedCount}/48 workouts
-        </span>
+      <div className="mb-3">
+        <h2 className="font-pixel font-bold">workout completion</h2>
       </div>
-
-      {/* Legend */}
-      <div className="flex gap-4 mb-4 text-xs font-mono text-muted">
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-foreground" />
-          <span>completed</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-accent" />
-          <span>in progress</span>
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="w-3 h-3 bg-surface border border-border" />
-          <span>not started</span>
-        </div>
+      <div className="grid grid-cols-3 gap-2 mb-4 font-mono text-[10px] md:text-xs">
+        <span className="h-6 md:h-7 px-2 inline-flex items-center justify-center border border-border bg-success/10 text-success whitespace-nowrap">
+          {completedCount} completed
+        </span>
+        <span className="h-6 md:h-7 px-2 inline-flex items-center justify-center border border-border bg-accent/10 text-accent whitespace-nowrap">
+          {inProgressCount} incomplete
+        </span>
+        <span className="h-6 md:h-7 px-2 inline-flex items-center justify-center border border-border bg-surface text-muted whitespace-nowrap">
+          {notStartedCount} not started
+        </span>
       </div>
 
       {/* Grid */}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full table-fixed border-separate [border-spacing:0_4px] md:[border-spacing:0_6px]">
+          <colgroup>
+            <col className="w-10" />
+            {dayLabels.map((label) => (
+              <col key={`col-${label}`} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
-              <th className="font-mono text-xs text-muted text-left pb-2 pr-2">wk</th>
+              <th className="font-mono text-xs text-muted text-center pb-1 px-1">wk</th>
               {dayLabels.map((label) => (
-                <th key={label} className="font-mono text-xs text-muted text-center pb-2 px-1">
-                  {label}
+                <th key={label} className="font-mono text-xs text-muted text-center pb-1 px-1">
+                  {label.toLowerCase()}
                 </th>
               ))}
             </tr>
@@ -77,17 +91,35 @@ export function WorkoutHeatmap() {
           <tbody>
             {grid.map((week, weekIndex) => (
               <tr key={weekIndex}>
-                <td className="font-mono text-xs text-muted pr-2 py-0.5">
+                <td className="font-mono text-xs text-muted text-center px-1 py-0 align-middle">
                   {weekIndex + 1}
                 </td>
-                {week.map((status, dayIndex) => (
-                  <td key={dayIndex} className="px-1 py-0.5">
-                    <div
-                      className={`w-6 h-6 md:w-8 md:h-8 ${statusColors[status]} ${
-                        status === 'not_started' ? 'border border-border' : ''
-                      }`}
-                      title={`Week ${weekIndex + 1}, Day ${dayIndex + 1}: ${status.replace('_', ' ')}`}
-                    />
+                {week.map((cell, dayIndex) => (
+                  <td key={dayIndex} className="px-1 py-0 text-center align-middle">
+                    {cell.status === 'not_started' ? (
+                      <div
+                        className={`w-7 h-7 md:w-8 md:h-8 mx-auto ${statusColors[cell.status]} border border-border`}
+                        title={`Week ${weekIndex + 1}, Day ${dayIndex + 1}: not started`}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          router.push(
+                            cell.status === 'completed'
+                              ? `/workout/${cell.week}-${cell.day}/complete`
+                              : `/workout/${cell.week}-${cell.day}`
+                          )
+                        }
+                        className={`w-7 h-7 md:w-8 md:h-8 mx-auto ${statusColors[cell.status]} border border-border hover:border-foreground transition-colors touch-manipulation`}
+                        title={`Week ${cell.week}, Day ${cell.day}: ${
+                          cell.status === 'completed' ? 'completed (open summary)' : 'incomplete (open workout)'
+                        }`}
+                        aria-label={`Open ${
+                          cell.status === 'completed' ? 'workout summary' : 'workout'
+                        } for week ${cell.week}, day ${cell.day}`}
+                      />
+                    )}
                   </td>
                 ))}
               </tr>
