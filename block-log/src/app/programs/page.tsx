@@ -29,6 +29,7 @@ import type { UserProgram } from '@/types';
 
 const PROGRAM_NAME_MAX = 48;
 const TEMPLATE_NAME_MAX = 56;
+const DAY_NAME_MAX = 32;
 
 // Sortable program card wrapper
 interface SortableProgramCardProps {
@@ -201,6 +202,7 @@ export default function ProgramsPage() {
   const lastTrainedProgramId = useAppStore((state) => state.lastTrainedProgramId);
   const setActiveProgram = useAppStore((state) => state.setActiveProgram);
   const renameProgram = useAppStore((state) => state.renameProgram);
+  const renameWorkoutDay = useAppStore((state) => state.renameWorkoutDay);
   const deleteProgram = useAppStore((state) => state.deleteProgram);
   const archiveProgram = useAppStore((state) => state.archiveProgram);
   const reorderPrograms = useAppStore((state) => state.reorderPrograms);
@@ -219,7 +221,9 @@ export default function ProgramsPage() {
   const [templateExpanded, setTemplateExpanded] = useState(false);
   const [draftName, setDraftName] = useState('');
   const [draftWeeks, setDraftWeeks] = useState(12);
+  const [draftWeeksInput, setDraftWeeksInput] = useState('12');
   const [draftDays, setDraftDays] = useState(4);
+  const [draftDayNames, setDraftDayNames] = useState<string[]>([]);
   const [structureError, setStructureError] = useState('');
 
   const sensors = useSensors(
@@ -307,10 +311,23 @@ export default function ProgramsPage() {
   }
   const openEditModal = (program: UserProgram) => {
     const template = getTemplate(program.templateId);
+    const initialDays = program.customDaysPerWeek || template.daysPerWeek;
+    const initialDayNames = Array.from({ length: initialDays }, (_, index) => {
+      const day = index + 1;
+      return (
+        program.workoutDayNameOverrides?.[day] ||
+        program.customDayLabels?.[index] ||
+        template.dayLabels[index] ||
+        `day ${day}`
+      );
+    });
+    const initialWeeks = program.customWeeksTotal || template.weeksTotal;
     setSelectedProgramId(program.id);
     setDraftName(program.name);
-    setDraftWeeks(program.customWeeksTotal || template.weeksTotal);
-    setDraftDays(program.customDaysPerWeek || template.daysPerWeek);
+    setDraftWeeks(initialWeeks);
+    setDraftWeeksInput(String(initialWeeks));
+    setDraftDays(initialDays);
+    setDraftDayNames(initialDayNames);
     setTemplateName(`${program.name} Template`);
     setConfirmDelete(false);
     setConfirmDangerAction(false);
@@ -330,11 +347,23 @@ export default function ProgramsPage() {
 
   const handleSaveProgram = () => {
     if (!selectedProgram || !draftName.trim()) return;
+    const minWeeksForSave = Math.max(1, selectedProgram.currentWeek);
+    const requestedWeeksRaw = Number(draftWeeksInput);
+    const requestedWeeks = Number.isFinite(requestedWeeksRaw) && draftWeeksInput !== ''
+      ? requestedWeeksRaw
+      : draftWeeks;
+    const safeWeeks = Math.max(minWeeksForSave, Math.min(52, Math.trunc(requestedWeeks)));
     renameProgram(selectedProgram.id, draftName.trim().slice(0, PROGRAM_NAME_MAX));
     updateProgramStructure(selectedProgram.id, {
-      weeksTotal: draftWeeks,
+      weeksTotal: safeWeeks,
       daysPerWeek: draftDays,
     });
+    for (let i = 0; i < draftDays; i += 1) {
+      const nextName = draftDayNames[i]?.trim();
+      if (nextName) {
+        renameWorkoutDay(selectedProgram.id, i + 1, nextName.slice(0, DAY_NAME_MAX));
+      }
+    }
     closeEditModal();
   };
 
@@ -350,7 +379,7 @@ export default function ProgramsPage() {
   const weeksTotal = selectedProgram ? draftWeeks : 12;
   const daysTotal = selectedProgram ? draftDays : 4;
   const minWeeks = selectedProgram
-    ? Math.max(1, selectedProgram.currentWeek, selectedProgram.minWeeksTotal || selectedTemplate?.weeksTotal || 1)
+    ? Math.max(1, selectedProgram.currentWeek)
     : 1;
 
   const hasDataPastDay = (program: UserProgram, nextDays: number): boolean => {
@@ -473,19 +502,48 @@ export default function ProgramsPage() {
                 <button
                   onClick={() => {
                     setStructureError('');
-                    setDraftWeeks((value) => Math.max(minWeeks, value - 1));
+                    setDraftWeeks((value) => {
+                      const next = Math.max(minWeeks, value - 1);
+                      setDraftWeeksInput(String(next));
+                      return next;
+                    });
                   }}
                   className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
                 >
                   -
                 </button>
-                <div className="flex-1 h-11 border-2 border-border font-mono text-sm flex items-center justify-center">
-                  {weeksTotal} weeks
+                <div className="flex-1 h-11 border-2 border-border bg-background font-mono text-sm flex items-center justify-center px-2">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={draftWeeksInput}
+                    onChange={(e) => {
+                      const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 2);
+                      setDraftWeeksInput(digitsOnly);
+                    }}
+                    onBlur={() => {
+                      const parsed = Number(draftWeeksInput);
+                      const safe = Number.isFinite(parsed) && draftWeeksInput !== ''
+                        ? Math.max(minWeeks, Math.min(52, Math.trunc(parsed)))
+                        : weeksTotal;
+                      setStructureError('');
+                      setDraftWeeks(safe);
+                      setDraftWeeksInput(String(safe));
+                    }}
+                    className="w-16 bg-transparent text-center font-mono text-sm focus:outline-none"
+                    aria-label="Weeks total"
+                  />
+                  <span className="text-muted">weeks</span>
                 </div>
                 <button
                   onClick={() => {
                     setStructureError('');
-                    setDraftWeeks((value) => Math.min(52, value + 1));
+                    setDraftWeeks((value) => {
+                      const next = Math.min(52, value + 1);
+                      setDraftWeeksInput(String(next));
+                      return next;
+                    });
                   }}
                   className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
                 >
@@ -501,7 +559,11 @@ export default function ProgramsPage() {
                       return;
                     }
                     setStructureError('');
-                    setDraftDays((value) => Math.max(1, value - 1));
+                    setDraftDays((value) => {
+                      const next = Math.max(1, value - 1);
+                      setDraftDayNames((prev) => prev.slice(0, next));
+                      return next;
+                    });
                   }}
                   className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
                   aria-label="Remove one day from this program"
@@ -514,7 +576,18 @@ export default function ProgramsPage() {
                 <button
                   onClick={() => {
                     setStructureError('');
-                    setDraftDays((value) => Math.min(7, value + 1));
+                    setDraftDays((value) => {
+                      const next = Math.min(7, value + 1);
+                      setDraftDayNames((prev) => {
+                        if (prev.length >= next) return prev.slice(0, next);
+                        const appended = [...prev];
+                        while (appended.length < next) {
+                          appended.push(`day ${appended.length + 1}`);
+                        }
+                        return appended;
+                      });
+                      return next;
+                    });
                   }}
                   className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
                   aria-label="Add one day to this program"
@@ -528,6 +601,32 @@ export default function ProgramsPage() {
               <p className="font-mono text-xs text-muted">
                 For data integrity, exercise structure is edited from the workout flow.
               </p>
+            </div>
+
+            <div className="space-y-2 border-t border-border pt-3">
+              <label className="font-mono text-xs text-muted uppercase tracking-wide">workout day names</label>
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                {Array.from({ length: draftDays }, (_, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="w-12 text-right font-mono text-xs text-muted">day {index + 1}</span>
+                    <input
+                      type="text"
+                      value={draftDayNames[index] || ''}
+                      maxLength={DAY_NAME_MAX}
+                      onChange={(e) => {
+                        const nextValue = e.target.value;
+                        setDraftDayNames((prev) => {
+                          const next = [...prev];
+                          next[index] = nextValue;
+                          return next;
+                        });
+                      }}
+                      className="flex-1 h-10 px-3 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+                      aria-label={`Workout day ${index + 1} name`}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="space-y-2 border-t border-border pt-3">

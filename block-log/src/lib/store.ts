@@ -427,9 +427,8 @@ export const useAppStore = create<AppState>()(
           if (p.id !== programId) return p;
           const templateWeeks = getTemplate(p.templateId).weeksTotal;
           const currentWeeks = p.customWeeksTotal || templateWeeks;
-          const minWeeks = p.minWeeksTotal || templateWeeks;
           // Don't go below 1 week or current week
-          const floor = Math.max(1, p.currentWeek, minWeeks);
+          const floor = Math.max(1, p.currentWeek);
           return { ...p, customWeeksTotal: Math.max(floor, currentWeeks - 1) };
         }),
       })),
@@ -464,7 +463,7 @@ export const useAppStore = create<AppState>()(
         programs: state.programs.map((program) => {
           if (program.id !== programId) return program;
           const template = getTemplate(program.templateId);
-          const minWeeks = Math.max(1, program.currentWeek, program.minWeeksTotal || template.weeksTotal);
+          const minWeeks = Math.max(1, program.currentWeek);
           const requestedWeeks = typeof updates.weeksTotal === 'number'
             ? Math.max(minWeeks, Math.min(52, Math.round(updates.weeksTotal)))
             : (program.customWeeksTotal || template.weeksTotal);
