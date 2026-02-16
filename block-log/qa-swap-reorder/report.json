@@ -1,7 +1,0 @@
-[
-  {
-    "test": "qa runtime",
-    "passed": false,
-    "notes": "locator.click: Timeout 5000ms exceeded.\nCall log:\n  - waiting for locator('button:has-text(\"edit\")').first()\n"
-  }
-]

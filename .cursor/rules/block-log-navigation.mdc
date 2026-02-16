@@ -1,0 +1,24 @@
+---
+description: Block Log secondary-page navigation standards.
+globs:
+  - block-log/src/app/**/*.tsx
+alwaysApply: true
+---
+
+# Block Log Navigation Contract
+
+Apply this contract to every secondary page in Block Log (any route other than `/`):
+
+1. Header must include a left nav cluster with:
+   - back action rendered as icon + visible short label (`back`)
+   - explicit home/dashboard affordance rendered as icon + visible short label (`dashboard` or `programs`)
+2. Do not use icon-only single-path exits for primary navigation.
+3. Back behavior cannot rely solely on browser history:
+   - use a deterministic fallback route when back stack is unsafe
+   - fallback should be context-aware when possible (`/`, `/programs`, or related parent route)
+4. Navigation controls must be touch-friendly:
+   - minimum interactive hit target: `42x42`
+   - spacing must avoid precision taps
+5. Right-side utility cluster should use consistent geometry with existing controls (`ThemeToggle`, optional page action).
+6. All nav controls must expose meaningful `aria-label` text.
+7. Keyboard users must see clear focus styling on all interactive header controls.

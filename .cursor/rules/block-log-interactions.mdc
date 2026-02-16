@@ -1,0 +1,22 @@
+---
+description: Block Log interaction and accessibility guardrails.
+globs:
+  - block-log/src/**/*.tsx
+alwaysApply: true
+---
+
+# Block Log Interaction Rules
+
+Use these interaction guardrails for all newly added or edited UI controls:
+
+1. Primary interactive controls should use minimum target size `>= 42x42`.
+2. Critical navigation and destructive actions must include visible text labels.
+3. Avoid unlabeled icon-only actions for any flow exit, navigation, or destructive behavior.
+4. Every button/link/control must provide:
+   - semantic role (`button` or `a`)
+   - clear `aria-label` when text is not sufficient
+   - visible `focus-visible` state
+5. Keep touch and keyboard parity:
+   - no interaction pattern should require precise tap placement
+   - keyboard navigation must be usable for header controls and key action bars
+6. Preserve business logic while polishing UI. Navigation and interaction refactors should not modify workout/program data behavior.
