@@ -22,7 +22,8 @@ export default function NewProgramPage() {
   const [step, setStep] = useState<'select' | 'name'>('select');
   const [dayFilter, setDayFilter] = useState<number | null>(null);
   const [customWeeks, setCustomWeeks] = useState(12);
-  const [customDayNames, setCustomDayNames] = useState<string[]>(['day 1', 'day 2', 'day 3', 'day 4']);
+  const [customDayNames, setCustomDayNames] = useState<string[]>(['', '', '', '']);
+  const [dayNameError, setDayNameError] = useState('');
   const savedTemplatesRef = useRef<HTMLElement | null>(null);
 
   const allTemplates = getAllTemplates();
@@ -49,11 +50,17 @@ export default function NewProgramPage() {
   const handleSelectTemplate = (template: ProgramTemplate) => {
     setSelectedCustomTemplate(null);
     setSelectedTemplate(template);
+    setDayNameError('');
     setProgramName(template.id === 'custom' ? 'my custom program' : template.name);
     if (template.id === 'custom') {
-      const defaults = template.dayLabels.length > 0 ? template.dayLabels : ['day 1', 'day 2', 'day 3', 'day 4'];
+      const isGenericLabel = (l: string) => /^day\s*\d+$/i.test(l.trim());
+      const hasRealLabels = template.dayLabels.length > 0 && template.dayLabels.some((l) => l.trim() && !isGenericLabel(l));
+      const count = hasRealLabels ? template.dayLabels.length : 4;
+      const defaults = hasRealLabels
+        ? template.dayLabels.map((l) => (isGenericLabel(l) ? '' : l))
+        : Array.from({ length: count }, () => '');
       setCustomWeeks(template.weeksTotal || 12);
-      setCustomDayNames(defaults.map((label, i) => label || `day ${i + 1}`));
+      setCustomDayNames(defaults);
     }
     setStep('name');
   };
@@ -73,17 +80,23 @@ export default function NewProgramPage() {
     setSelectedCustomTemplate(template);
     setProgramName(`${template.name} copy`);
     setCustomWeeks(template.weeksTotal);
-    setCustomDayNames(template.dayLabels.length > 0 ? template.dayLabels : ['day 1', 'day 2', 'day 3', 'day 4']);
+    setDayNameError('');
+    setCustomDayNames(template.dayLabels.length > 0 ? template.dayLabels.map((l) => l || '') : Array.from({ length: 4 }, () => ''));
     setStep('name');
   };
 
   const handleCreate = () => {
     if (!selectedTemplate || !programName.trim()) return;
     if (selectedTemplate.id === 'custom') {
+      if (customDayNames.some((n) => !n.trim())) {
+        setDayNameError('all workout days need a name');
+        return;
+      }
+      setDayNameError('');
       createProgram(selectedTemplate.id, programName.trim().slice(0, PROGRAM_NAME_MAX), {
         customWeeksTotal: customWeeks,
         customDaysPerWeek: customDayNames.length,
-        customDayLabels: customDayNames.map((name, i) => name.trim().slice(0, WORKOUT_DAY_NAME_MAX) || `day ${i + 1}`),
+        customDayLabels: customDayNames.map((name) => name.trim().slice(0, WORKOUT_DAY_NAME_MAX)),
       });
     } else {
       createProgram(selectedTemplate.id, programName.trim().slice(0, PROGRAM_NAME_MAX));
@@ -112,7 +125,8 @@ export default function NewProgramPage() {
 
   const addCustomDay = () => {
     if (customDayNames.length >= 5) return;
-    setCustomDayNames((prev) => [...prev, `day ${prev.length + 1}`]);
+    setDayNameError('');
+    setCustomDayNames((prev) => [...prev, '']);
   };
 
   // Visual indicator based on equipment/intensity
@@ -343,9 +357,10 @@ export default function NewProgramPage() {
                       value={dayName}
                       onChange={(e) => updateCustomDayName(index, e.target.value)}
                       maxLength={WORKOUT_DAY_NAME_MAX}
-                      placeholder={`day ${index + 1}`}
-                      className="h-10 px-3 border-2 border-border bg-background font-mono text-sm
-                        focus:border-foreground focus:outline-none"
+                      placeholder="enter workout name"
+                      className={`h-10 px-3 border-2 bg-background font-mono text-sm
+                        focus:border-foreground focus:outline-none placeholder:text-muted/50
+                        ${dayNameError && !dayName.trim() ? 'border-danger' : 'border-border'}`}
                     />
                     <div className="flex items-center gap-1">
                       <button
@@ -378,6 +393,9 @@ export default function NewProgramPage() {
                     </div>
                   </div>
                 ))}
+                {dayNameError && (
+                  <p className="font-mono text-xs text-danger">{dayNameError}</p>
+                )}
               </div>
             </section>
           )}
@@ -417,7 +435,7 @@ export default function NewProgramPage() {
             </button>
             <button
               onClick={handleCreate}
-              disabled={!programName.trim()}
+              disabled={!programName.trim() || (selectedTemplate?.id === 'custom' && customDayNames.some((n) => !n.trim()))}
               className="flex-1 py-3 px-4 bg-background text-foreground font-mono font-medium 
                 hover:bg-background/90 active:bg-accent active:text-background 
                 disabled:opacity-50 disabled:cursor-not-allowed

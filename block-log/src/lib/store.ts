@@ -61,6 +61,7 @@ interface AppState {
   ) => void;
   reorderPrograms: (programIds: string[]) => void;
   copyCustomWorkoutDayAcrossProgram: (workoutId: string) => boolean;
+  updateTrackedChartExercises: (programId: string, exercises: string[] | null) => void;
   
   // Current week (scoped to active program)
   setCurrentWeek: (week: number) => void;
@@ -134,11 +135,13 @@ function normalizeTextEntry(value: string): string {
 function removeExerciseReferencesFromLog(
   log: WorkoutLog,
   exerciseId: string,
-  options?: { markSkipped?: boolean }
+  options?: { markSkipped?: boolean; markDeleted?: boolean }
 ): WorkoutLog {
   const wasAddedExercise = Boolean(log.addedExercises?.some((exercise) => exercise.id === exerciseId));
-  const shouldMarkSkipped = Boolean(options?.markSkipped) && !wasAddedExercise;
+  const shouldMarkDeleted = Boolean(options?.markDeleted) && !wasAddedExercise;
+  const shouldMarkSkipped = Boolean(options?.markSkipped) && !wasAddedExercise && !shouldMarkDeleted;
   const nextSkipped = (log.skippedExercises || []).filter((id) => id !== exerciseId);
+  const nextDeleted = (log.deletedExercises || []).filter((id) => id !== exerciseId);
   const nextOverrides = { ...(log.exerciseOverrides || {}) };
   delete nextOverrides[exerciseId];
 
@@ -147,6 +150,7 @@ function removeExerciseReferencesFromLog(
     exercises: log.exercises.filter((exerciseLog) => exerciseLog.exerciseId !== exerciseId),
     addedExercises: (log.addedExercises || []).filter((exercise) => exercise.id !== exerciseId),
     skippedExercises: shouldMarkSkipped ? [...nextSkipped, exerciseId] : nextSkipped,
+    deletedExercises: shouldMarkDeleted ? [...nextDeleted, exerciseId] : nextDeleted,
     exerciseOrder: (log.exerciseOrder || []).filter((id) => id !== exerciseId),
     exerciseOverrides: nextOverrides,
   };
@@ -505,6 +509,15 @@ export const useAppStore = create<AppState>()(
           .concat(state.programs.filter(p => !programIds.includes(p.id))), // Keep any not in order at end
       })),
 
+      // Update tracked chart exercises for a program (null = reset to auto)
+      updateTrackedChartExercises: (programId, exercises) => set((state) => ({
+        programs: state.programs.map((p) =>
+          p.id === programId
+            ? { ...p, trackedChartExercises: exercises ?? undefined }
+            : p
+        ),
+      })),
+
       copyCustomWorkoutDayAcrossProgram: (workoutId) => {
         const state = get();
         if (!state.activeProgramId) return false;
@@ -524,7 +537,8 @@ export const useAppStore = create<AppState>()(
         const sourceOrder = sourceLog?.exerciseOrder || [];
         const sourceOverrides = sourceLog.exerciseOverrides || {};
         const sourceExerciseLogs = sourceLog.exercises || [];
-        if (sourceAdded.length === 0 && sourceExerciseLogs.length === 0 && Object.keys(sourceOverrides).length === 0) {
+        const sourceDeleted = sourceLog.deletedExercises || [];
+        if (sourceAdded.length === 0 && sourceExerciseLogs.length === 0 && Object.keys(sourceOverrides).length === 0 && sourceDeleted.length === 0) {
           return false;
         }
 
@@ -545,21 +559,29 @@ export const useAppStore = create<AppState>()(
           );
         };
 
-        const clonedAdded = sourceAdded.map((exercise) => ({ ...exercise }));
-        const clonedOrder = sourceOrder.length > 0 ? [...sourceOrder] : sourceAdded.map((exercise) => exercise.id);
+        const clonedDeleted = [...sourceDeleted];
+        const clonedAdded = sourceAdded
+          .filter((exercise) => !sourceDeleted.includes(exercise.id))
+          .map((exercise) => ({ ...exercise }));
+        const clonedOrder = (sourceOrder.length > 0 ? [...sourceOrder] : sourceAdded.map((exercise) => exercise.id))
+          .filter((id) => !sourceDeleted.includes(id));
         const clonedOverrides = Object.fromEntries(
-          Object.entries(sourceOverrides).map(([exerciseId, override]) => [exerciseId, { ...override }])
+          Object.entries(sourceOverrides)
+            .filter(([exerciseId]) => !sourceDeleted.includes(exerciseId))
+            .map(([exerciseId, override]) => [exerciseId, { ...override }])
         );
-        const clonedExerciseLogs = sourceExerciseLogs.map((exerciseLog) => ({
-          ...exerciseLog,
-          // Carry weight forward as seed but reset completion-like data.
-          sets: exerciseLog.sets.map((set) => ({
-            weight: set.weight || 0,
-            reps: 0,
-            rpe: 0,
-          })),
-          completed: false,
-        }));
+        const clonedExerciseLogs = sourceExerciseLogs
+          .filter((exerciseLog) => !sourceDeleted.includes(exerciseLog.exerciseId))
+          .map((exerciseLog) => ({
+            ...exerciseLog,
+            // Carry weight forward as seed but reset completion-like data.
+            sets: exerciseLog.sets.map((set) => ({
+              weight: set.weight || 0,
+              reps: 0,
+              rpe: 0,
+            })),
+            completed: false,
+          }));
 
         const nextLogs = [...state.workoutLogs];
         for (let week = 1; week <= totalWeeks; week += 1) {
@@ -574,6 +596,7 @@ export const useAppStore = create<AppState>()(
             nextLogs[existingIndex] = {
               ...existingLog,
               addedExercises: clonedAdded.map((exercise) => ({ ...exercise })),
+              deletedExercises: [...clonedDeleted],
               exerciseOrder: [...clonedOrder],
               exerciseOverrides: {
                 ...(existingLog.exerciseOverrides || {}),
@@ -595,6 +618,7 @@ export const useAppStore = create<AppState>()(
                 sets: exerciseLog.sets.map((set) => ({ ...set })),
               })),
               completed: false,
+              deletedExercises: [...clonedDeleted],
               addedExercises: clonedAdded.map((exercise) => ({ ...exercise })),
               exerciseOrder: [...clonedOrder],
               exerciseOverrides: Object.fromEntries(
@@ -806,9 +830,20 @@ export const useAppStore = create<AppState>()(
             setData.status === 'completed' ||
             (setData.reps || 0) > 0 ||
             (setData.weight || 0) > 0;
+          // Only update lastTrainedProgramId if the workout still has real
+          // training progress after this update (mirrors getWorkoutStatus).
+          // This ensures an accidental tap + undo doesn't permanently mark
+          // the program as last-trained.
+          const targetLog = newLogs.find((l) => l.workoutId === workoutId);
+          const stillHasProgress = targetLog
+            ? targetLog.exercises.some((ex) =>
+                ex.sets.some((s) => s.reps > 0 || s.status === 'skipped')
+              )
+            : false;
+          const shouldUpdateTrainedId = didLogProgress && stillHasProgress;
           return {
             workoutLogs: newLogs,
-            lastTrainedProgramId: didLogProgress ? state.activeProgramId : state.lastTrainedProgramId,
+            lastTrainedProgramId: shouldUpdateTrainedId ? state.activeProgramId : state.lastTrainedProgramId,
             programs: state.programs.map(p => 
               p.id === state.activeProgramId ? { ...p, workoutLogs: newLogs } : p
             ),
@@ -985,11 +1020,22 @@ export const useAppStore = create<AppState>()(
       }),
 
       deleteExerciseFromWorkout: (workoutId, exerciseId) => set((state) => {
-        const logIndex = state.workoutLogs.findIndex((log) => log.workoutId === workoutId);
-        if (logIndex < 0) return state;
+        let newLogs = [...state.workoutLogs];
+        let logIndex = newLogs.findIndex((log) => log.workoutId === workoutId);
 
-        const newLogs = [...state.workoutLogs];
-        newLogs[logIndex] = removeExerciseReferencesFromLog(newLogs[logIndex], exerciseId, { markSkipped: true });
+        // Create a log entry if none exists so the delete can be recorded.
+        if (logIndex < 0) {
+          const emptyLog: WorkoutLog = {
+            workoutId,
+            date: new Date().toISOString(),
+            exercises: [],
+            completed: false,
+          };
+          newLogs = [...newLogs, emptyLog];
+          logIndex = newLogs.length - 1;
+        }
+
+        newLogs[logIndex] = removeExerciseReferencesFromLog(newLogs[logIndex], exerciseId, { markDeleted: true });
 
         if (state.activeProgramId) {
           return {
@@ -1115,17 +1161,22 @@ export const useAppStore = create<AppState>()(
       })),
 
       // Get workout status
+      // Only actual training activity triggers in_progress:
+      //   - Completed/skipped sets (reps > 0 or set status === 'skipped')
+      //   - Deliberately skipped exercises (skippedExercises[])
+      // Structural-only changes do NOT trigger in_progress:
+      //   - deletedExercises[], exerciseOrder[], exerciseOverrides, addedExercises[]
       getWorkoutStatus: (workoutId) => {
         const log = get().workoutLogs.find((l) => l.workoutId === workoutId);
         if (!log) return 'not_started';
         if (log.completed) return 'completed';
+
         const hasCompletedSet = log.exercises.some((exerciseLog) =>
           exerciseLog.sets.some((set) => set.reps > 0 || set.status === 'skipped')
         );
         const hasSkippedExercise = Boolean(log.skippedExercises && log.skippedExercises.length > 0);
-        const hasAddedExercises = Boolean(log.addedExercises && log.addedExercises.length > 0);
 
-        if (!hasCompletedSet && !hasSkippedExercise && !hasAddedExercises) {
+        if (!hasCompletedSet && !hasSkippedExercise) {
           return 'not_started';
         }
 

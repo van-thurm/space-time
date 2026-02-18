@@ -143,9 +143,10 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   };
 
   const exerciseOverrides = currentLog?.exerciseOverrides || {};
-  // Filter out warmup exercises (handled separately) and apply per-workout overrides.
+  const deletedExerciseIds = currentLog?.deletedExercises || [];
+  // Filter out warmup exercises, deleted exercises, and apply per-workout overrides.
   const workingExercises = workout.exercises
-    .filter((exercise) => exercise.category !== 'warmup')
+    .filter((exercise) => exercise.category !== 'warmup' && !deletedExerciseIds.includes(exercise.id))
     .map((exercise) => {
       const override = exerciseOverrides[exercise.id];
       return override ? { ...exercise, ...override } : exercise;
@@ -154,8 +155,8 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   // Get list of skipped exercises for this workout
   const skippedExerciseIds = currentLog?.skippedExercises || [];
 
-  // Get added exercises for this workout
-  const addedExercises = getAddedExercises(workout.id);
+  // Get added exercises for this workout (excluding deleted ones)
+  const addedExercises = getAddedExercises(workout.id).filter((e) => !deletedExerciseIds.includes(e.id));
 
   // Calculate progress (excluding skipped exercises, including added exercises)
   const activeExercises = workingExercises.filter((e) => !skippedExerciseIds.includes(e.id));
@@ -351,6 +352,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           addedExercises={addedExercises}
           workoutId={workout.id}
           skippedExerciseIds={skippedExerciseIds}
+          savedExerciseOrder={currentLog?.exerciseOrder}
           getLastExerciseLog={getLastExerciseLog}
           getRecommendedWeight={getRecommendedWeight}
           isExerciseSkipped={isExerciseSkipped}

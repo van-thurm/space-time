@@ -3,6 +3,18 @@
 import { useAppStore } from '@/lib/store';
 import { getTemplate } from '@/data/program-templates';
 import { useRouter } from 'next/navigation';
+import type { WorkoutLog } from '@/types';
+
+function deriveLogStatus(log: WorkoutLog | undefined): 'completed' | 'in_progress' | 'not_started' {
+  if (!log) return 'not_started';
+  if (log.completed) return 'completed';
+  const hasCompletedSet = log.exercises.some((ex) =>
+    ex.sets.some((s) => s.reps > 0 || s.status === 'skipped')
+  );
+  const hasSkippedExercise = Boolean(log.skippedExercises && log.skippedExercises.length > 0);
+  if (!hasCompletedSet && !hasSkippedExercise) return 'not_started';
+  return 'in_progress';
+}
 
 export function WorkoutHeatmap() {
   const router = useRouter();
@@ -19,7 +31,7 @@ export function WorkoutHeatmap() {
       ? activeProgram.customDayLabels
       : template?.dayLabels || Array.from({ length: daysPerWeek }, (_, i) => `day ${i + 1}`);
 
-  // Create a grid based on program dimensions
+  // Create a grid based on program dimensions — use same status logic as getWorkoutStatus
   const grid: { week: number; day: number; status: 'completed' | 'in_progress' | 'not_started' }[][] = [];
 
   for (let week = 1; week <= totalWeeks; week++) {
@@ -28,14 +40,7 @@ export function WorkoutHeatmap() {
     for (let day = 1; day <= daysPerWeek; day++) {
       const workoutId = `week${week}-day${day}`;
       const log = workoutLogs.find((l) => l.workoutId === workoutId);
-      
-      if (!log) {
-        weekData.push({ week, day, status: 'not_started' });
-      } else if (log.completed) {
-        weekData.push({ week, day, status: 'completed' });
-      } else {
-        weekData.push({ week, day, status: 'in_progress' });
-      }
+      weekData.push({ week, day, status: deriveLogStatus(log) });
     }
     
     grid.push(weekData);
@@ -47,10 +52,10 @@ export function WorkoutHeatmap() {
     not_started: 'bg-surface',
   };
 
-  const completedCount = workoutLogs.filter((l) => l.completed).length;
-  const inProgressCount = workoutLogs.filter((l) => !l.completed).length;
-  const totalWorkouts = totalWeeks * daysPerWeek;
-  const notStartedCount = Math.max(0, totalWorkouts - completedCount - inProgressCount);
+  const allStatuses = grid.flat().map((c) => c.status);
+  const completedCount = allStatuses.filter((s) => s === 'completed').length;
+  const inProgressCount = allStatuses.filter((s) => s === 'in_progress').length;
+  const notStartedCount = allStatuses.filter((s) => s === 'not_started').length;
 
   return (
     <div className="border-2 border-border p-4">

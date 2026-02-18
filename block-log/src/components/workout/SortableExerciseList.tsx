@@ -80,6 +80,7 @@ interface SortableExerciseListProps {
   addedExercises: AddedExercise[];
   workoutId: string;
   skippedExerciseIds: string[];
+  savedExerciseOrder?: string[];
   getLastExerciseLog: (exerciseId: string) => ExerciseLog | undefined;
   getRecommendedWeight: (exercise: Exercise) => number | undefined;
   isExerciseSkipped: (workoutId: string, exerciseId: string) => boolean;
@@ -104,6 +105,7 @@ export function SortableExerciseList({
   addedExercises,
   workoutId,
   skippedExerciseIds: _skippedExerciseIds,
+  savedExerciseOrder,
   getLastExerciseLog,
   getRecommendedWeight,
   isExerciseSkipped,
@@ -128,12 +130,25 @@ export function SortableExerciseList({
     ...addedExercises.map(e => e.id),
   ];
 
-  const [orderedIds, setOrderedIds] = useState<string[]>(allExerciseIds);
+  // Apply saved order: put saved IDs first (in saved order), then append any new IDs
+  const initialOrder = (() => {
+    if (!savedExerciseOrder || savedExerciseOrder.length === 0) return allExerciseIds;
+    const validSaved = savedExerciseOrder.filter((id) => allExerciseIds.includes(id));
+    const remaining = allExerciseIds.filter((id) => !validSaved.includes(id));
+    return [...validSaved, ...remaining];
+  })();
 
-  // Update orderedIds when exercises change
+  const [orderedIds, setOrderedIds] = useState<string[]>(initialOrder);
+
+  // Update orderedIds when exercises change (additions/removals)
   const currentIds = allExerciseIds.join(',');
-  if (orderedIds.join(',') !== currentIds && !orderedIds.some(id => allExerciseIds.includes(id))) {
-    setOrderedIds(allExerciseIds);
+  const orderedValid = orderedIds.filter((id) => allExerciseIds.includes(id));
+  if (orderedValid.length !== orderedIds.length || allExerciseIds.some((id) => !orderedIds.includes(id))) {
+    const remaining = allExerciseIds.filter((id) => !orderedValid.includes(id));
+    const next = [...orderedValid, ...remaining];
+    if (next.join(',') !== orderedIds.join(',')) {
+      setOrderedIds(next);
+    }
   }
 
   const sensors = useSensors(

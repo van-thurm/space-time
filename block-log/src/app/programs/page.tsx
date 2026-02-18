@@ -318,7 +318,7 @@ export default function ProgramsPage() {
         program.workoutDayNameOverrides?.[day] ||
         program.customDayLabels?.[index] ||
         template.dayLabels[index] ||
-        `day ${day}`
+        ''
       );
     });
     const initialWeeks = program.customWeeksTotal || template.weeksTotal;
@@ -347,6 +347,12 @@ export default function ProgramsPage() {
 
   const handleSaveProgram = () => {
     if (!selectedProgram || !draftName.trim()) return;
+    const relevantNames = draftDayNames.slice(0, draftDays);
+    if (relevantNames.some((n) => !n.trim())) {
+      setStructureError('all workout days need a name');
+      return;
+    }
+    setStructureError('');
     const minWeeksForSave = Math.max(1, selectedProgram.currentWeek);
     const requestedWeeksRaw = Number(draftWeeksInput);
     const requestedWeeks = Number.isFinite(requestedWeeksRaw) && draftWeeksInput !== ''
@@ -359,7 +365,7 @@ export default function ProgramsPage() {
       daysPerWeek: draftDays,
     });
     for (let i = 0; i < draftDays; i += 1) {
-      const nextName = draftDayNames[i]?.trim();
+      const nextName = relevantNames[i]?.trim();
       if (nextName) {
         renameWorkoutDay(selectedProgram.id, i + 1, nextName.slice(0, DAY_NAME_MAX));
       }
@@ -458,8 +464,16 @@ export default function ProgramsPage() {
       <AppFooter className="mt-12" />
 
       {selectedProgram && (
-        <div className="fixed inset-0 z-50 bg-black/60 p-4 flex items-end sm:items-center justify-center">
-          <div className="w-full max-w-md border-2 border-border dark:border-white/60 bg-background dark:bg-accent/5 p-4 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-background/80"
+            onClick={closeEditModal}
+          />
+          <div
+            className="relative w-full max-w-md border-2 border-border bg-background p-4 space-y-4 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between">
               <h2 className="font-pixel font-bold text-base">edit program</h2>
               <button
@@ -582,7 +596,7 @@ export default function ProgramsPage() {
                         if (prev.length >= next) return prev.slice(0, next);
                         const appended = [...prev];
                         while (appended.length < next) {
-                          appended.push(`day ${appended.length + 1}`);
+                          appended.push('');
                         }
                         return appended;
                       });
@@ -613,15 +627,18 @@ export default function ProgramsPage() {
                       type="text"
                       value={draftDayNames[index] || ''}
                       maxLength={DAY_NAME_MAX}
+                      placeholder="enter workout name"
                       onChange={(e) => {
                         const nextValue = e.target.value;
+                        setStructureError('');
                         setDraftDayNames((prev) => {
                           const next = [...prev];
                           next[index] = nextValue;
                           return next;
                         });
                       }}
-                      className="flex-1 h-10 px-3 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+                      className={`flex-1 h-10 px-3 border-2 bg-background font-mono text-sm focus:border-foreground focus:outline-none placeholder:text-muted/50
+                        ${structureError && !(draftDayNames[index] || '').trim() ? 'border-danger' : 'border-border'}`}
                       aria-label={`Workout day ${index + 1} name`}
                     />
                   </div>
@@ -738,7 +755,7 @@ export default function ProgramsPage() {
                   </button>
                   <button
                     onClick={handleSaveProgram}
-                    disabled={!draftName.trim()}
+                    disabled={!draftName.trim() || draftDayNames.slice(0, draftDays).some((n) => !(n || '').trim())}
                     className="flex-1 h-11 border-2 border-foreground bg-foreground text-background font-mono text-sm hover:bg-foreground/90 disabled:opacity-50 transition-colors touch-manipulation"
                   >
                     save

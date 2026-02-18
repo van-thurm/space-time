@@ -54,6 +54,7 @@ export interface UserProgram {
   customDayLabels?: string[];         // Override day labels (custom programs)
   workoutDayNameOverrides?: Record<number, string>; // Per-day display name overrides (all templates)
   workoutDayOrder?: number[];         // Dashboard day-card display order (by day number)
+  trackedChartExercises?: string[];   // User-selected exercises for the analytics progress chart
 }
 
 export interface Exercise {
@@ -100,7 +101,8 @@ export interface WorkoutLog {
   date: string;                  // ISO date string
   exercises: ExerciseLog[];
   completed: boolean;
-  skippedExercises?: string[];   // Exercise IDs that were skipped/removed
+  skippedExercises?: string[];   // Exercise IDs that were skipped (visible, greyed out, restorable)
+  deletedExercises?: string[];   // Exercise IDs that were deleted (completely hidden from UI)
   addedExercises?: AddedExercise[];  // Custom exercises added to this workout
   exerciseOrder?: string[];      // Custom order of exercise IDs (if reordered)
   exerciseOverrides?: Record<
