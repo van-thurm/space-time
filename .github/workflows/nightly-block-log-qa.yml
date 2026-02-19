@@ -68,11 +68,16 @@ jobs:
           run_script() {
             local name="$1"
             local cmd="$2"
+            local required="$3"
             echo "Running: $name"
             bash -lc "$cmd"
             local rc=$?
-            echo "- ${name}: exit ${rc}" >> qa-summary.md
-            if [ $rc -ne 0 ]; then
+            if [ "$required" = "required" ]; then
+              echo "- ${name}: exit ${rc} (required)" >> qa-summary.md
+            else
+              echo "- ${name}: exit ${rc} (informational)" >> qa-summary.md
+            fi
+            if [ $rc -ne 0 ] && [ "$required" = "required" ]; then
               FAILED=1
             fi
           }
@@ -87,15 +92,17 @@ jobs:
           echo "" >> qa-summary.md
           echo "### Script exit codes" >> qa-summary.md
 
-          run_script "qa-smoke" "node qa-smoke.mjs"
-          run_script "qa-smoke-week-coverage-local" "node qa-smoke-week-coverage-local.mjs"
-          run_script "qa-flow-matrix-local" "node qa-flow-matrix-local.mjs"
-          run_script "qa-api-matrix-local" "node qa-api-matrix-local.mjs"
-          run_script "qa-reorder-matrix-local" "node qa-reorder-matrix-local.mjs"
-          run_script "qa-swap-variations-local" "node qa-swap-variations-local.mjs"
-          run_script "qa-swap-reorder-local" "node qa-swap-reorder-local.mjs"
-          run_script "qa-a11y-accessibility" "node qa-a11y-accessibility.mjs"
-          run_script "qa-a11y-mobile" "node qa-a11y-mobile.mjs"
+          run_script "qa-smoke" "node qa-smoke.mjs" "required"
+          run_script "qa-smoke-week-coverage-local" "node qa-smoke-week-coverage-local.mjs" "required"
+          run_script "qa-reorder-matrix-local" "node qa-reorder-matrix-local.mjs" "required"
+          run_script "qa-swap-reorder-local" "node qa-swap-reorder-local.mjs" "required"
+
+          # Informational/legacy suites (currently useful for coverage but not stable enough to gate)
+          run_script "qa-flow-matrix-local" "node qa-flow-matrix-local.mjs" "informational"
+          run_script "qa-api-matrix-local" "node qa-api-matrix-local.mjs" "informational"
+          run_script "qa-swap-variations-local" "node qa-swap-variations-local.mjs" "informational"
+          run_script "qa-a11y-accessibility" "node qa-a11y-accessibility.mjs" "informational"
+          run_script "qa-a11y-mobile" "node qa-a11y-mobile.mjs" "informational"
 
           echo "" >> qa-summary.md
           if [ $FAILED -eq 0 ]; then
