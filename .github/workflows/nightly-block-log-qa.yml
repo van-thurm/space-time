@@ -1,0 +1,147 @@
+name: Nightly Block Log QA
+
+on:
+  schedule:
+    # 10:00 UTC ~= 2:00am PT (3:00am during DST)
+    - cron: "0 10 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+
+concurrency:
+  group: nightly-block-log-qa
+  cancel-in-progress: true
+
+jobs:
+  nightly-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: block-log
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: block-log/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Cleanup stale QA artifacts
+        run: |
+          rm -rf qa-flow-matrix qa-api-matrix qa-screenshots
+          mkdir -p qa-screenshots
+
+      - name: Start app server
+        run: |
+          npm run dev -- --hostname 127.0.0.1 --port 3000 > /tmp/block-log-dev.log 2>&1 &
+          echo $! > /tmp/block-log-dev.pid
+          for i in {1..90}; do
+            if curl -fsS http://127.0.0.1:3000 >/dev/null; then
+              echo "App is ready"
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "App did not become ready in time"
+          cat /tmp/block-log-dev.log || true
+          exit 1
+
+      - name: Run extensive nightly QA suite
+        id: qa
+        shell: bash
+        run: |
+          set +e
+
+          run_script() {
+            local name="$1"
+            local cmd="$2"
+            echo "Running: $name"
+            bash -lc "$cmd"
+            local rc=$?
+            echo "- ${name}: exit ${rc}" >> qa-summary.md
+            if [ $rc -ne 0 ]; then
+              FAILED=1
+            fi
+          }
+
+          FAILED=0
+          : > qa-summary.md
+          echo "## Nightly QA Results" >> qa-summary.md
+          echo "" >> qa-summary.md
+          echo "- Trigger: ${GITHUB_EVENT_NAME}" >> qa-summary.md
+          echo "- Run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" >> qa-summary.md
+          echo "- Commit: ${GITHUB_SHA}" >> qa-summary.md
+          echo "" >> qa-summary.md
+          echo "### Script exit codes" >> qa-summary.md
+
+          run_script "qa-smoke" "node qa-smoke.mjs"
+          run_script "qa-smoke-week-coverage-local" "node qa-smoke-week-coverage-local.mjs"
+          run_script "qa-flow-matrix-local" "node qa-flow-matrix-local.mjs"
+          run_script "qa-api-matrix-local" "node qa-api-matrix-local.mjs"
+          run_script "qa-reorder-matrix-local" "node qa-reorder-matrix-local.mjs"
+          run_script "qa-swap-variations-local" "node qa-swap-variations-local.mjs"
+          run_script "qa-swap-reorder-local" "node qa-swap-reorder-local.mjs"
+          run_script "qa-a11y-accessibility" "node qa-a11y-accessibility.mjs"
+          run_script "qa-a11y-mobile" "node qa-a11y-mobile.mjs"
+
+          echo "" >> qa-summary.md
+          if [ $FAILED -eq 0 ]; then
+            echo "### Overall" >> qa-summary.md
+            echo "PASS - all nightly QA scripts exited 0." >> qa-summary.md
+            echo "qa_failed=false" >> $GITHUB_OUTPUT
+          else
+            echo "### Overall" >> qa-summary.md
+            echo "FAIL - one or more nightly QA scripts failed. See artifacts and logs." >> qa-summary.md
+            echo "qa_failed=true" >> $GITHUB_OUTPUT
+          fi
+
+          cat qa-summary.md >> $GITHUB_STEP_SUMMARY
+
+          # Fail step if any checks failed so run is visibly red.
+          if [ $FAILED -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Stop app server
+        if: always()
+        run: |
+          if [ -f /tmp/block-log-dev.pid ]; then
+            kill "$(cat /tmp/block-log-dev.pid)" || true
+          fi
+
+      - name: Upload QA artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-block-log-qa-${{ github.run_number }}
+          retention-days: 14
+          path: |
+            /tmp/block-log-dev.log
+            block-log/qa-summary.md
+            block-log/qa-flow-matrix/**
+            block-log/qa-api-matrix/**
+            block-log/qa-screenshots/**
+
+      - name: Create issue when nightly QA fails
+        if: failure()
+        uses: peter-evans/create-issue-from-file@v5
+        with:
+          title: "Nightly QA failure: block-log (#${{ github.run_number }})"
+          content-filepath: block-log/qa-summary.md
+          labels: |
+            qa
+            nightly
+            bug
