@@ -56,7 +56,7 @@ export function WorkoutHeatmap() {
   const completedCount = allStatuses.filter((s) => s === 'completed').length;
   const inProgressCount = allStatuses.filter((s) => s === 'in_progress').length;
   const notStartedCount = allStatuses.filter((s) => s === 'not_started').length;
-  const heatmapTileClass = 'w-11 h-11 mx-auto border border-border touch-manipulation';
+  const heatmapTileClass = 'w-11 h-11 mx-auto border border-border touch-manipulation rounded-none';
 
   return (
     <div className="border border-border p-4">
