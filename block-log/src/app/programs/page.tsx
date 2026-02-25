@@ -465,14 +465,14 @@ export default function ProgramsPage() {
       <AppFooter className="mt-12" />
 
       {selectedProgram && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
           <div
             className="absolute inset-0 bg-background/80"
             onClick={closeEditModal}
           />
           <div
-            className="relative w-full max-w-md border border-border bg-background p-4 pb-6 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-md border border-border bg-background p-4 pb-6 space-y-4 max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
