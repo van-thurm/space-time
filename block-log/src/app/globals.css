@@ -1,25 +1,34 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --muted: #737373;
-  --border: #e5e5e5;
-  --accent: #c97a2b;
-  --success: #2f8f5a;
-  --surface: #f5f5f5;
-  --danger: #d45d2d;
+  --background: #FAF7F2;
+  --foreground: #1A1715;
+  --muted: #8C857D;
+  --border: #DDD8D0;
+  --accent: #C4572A;
+  --accent-foreground: #FAF7F2;
+  --success: #3B7D52;
+  --surface: #F0ECE4;
+  --danger: #B8352A;
+  --active: #D4864A;
+  --subtle: #A69B8E;
+  --radius-ui: 6px;
+  --stroke-default: 1px;
+  --stroke-emphasis: 2px;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ffffff;
-  --muted: #a3a3a3;
-  --border: #262626;
-  --accent: #e7a14a;
-  --success: #68c790;
-  --surface: #171717;
-  --danger: #ff7442;
+  --background: #121110;
+  --foreground: #F5F0E8;
+  --muted: #9C9488;
+  --border: #2A2724;
+  --accent: #E06B3A;
+  --accent-foreground: #121110;
+  --success: #5EA872;
+  --surface: #1C1A17;
+  --danger: #E05A50;
+  --active: #E7A054;
+  --subtle: #6B6259;
 }
 
 @theme inline {
@@ -28,56 +37,52 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-active: var(--active);
+  --color-subtle: var(--subtle);
   --color-success: var(--success);
   --color-surface: var(--surface);
   --color-danger: var(--danger);
-  --font-mono: var(--font-mono);
-  --font-pixel: var(--font-pixel);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-sans);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  font-family: var(--font-sans), 'Sora', sans-serif;
   transition: background-color 0.2s, color 0.2s;
 }
 
-/* pixel font for headers */
-.font-pixel {
-  font-family: var(--font-pixel), 'Silkscreen', monospace;
+.font-display {
+  font-family: var(--font-sans), 'Sora', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
 
-/* block log design system - dieter rams / analog tech aesthetic */
-
-/* no rounded corners - sharp precision */
 * {
   border-radius: 0;
 }
 
-/* subtle 2px radius for interactive elements only */
 button, input, select, textarea {
-  border-radius: 2px;
+  border-radius: var(--radius-ui);
 }
 
-/* monospace numbers for data */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
 }
 
-/* highlight effect for emphasis */
 .highlight {
   background-color: var(--accent);
   padding: 0 0.25rem;
   color: var(--background);
 }
 
-/* clean focus states */
 :focus-visible {
-  outline: 2px solid var(--foreground);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* scrollbar styling - minimal */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -95,15 +100,11 @@ button, input, select, textarea {
   background: var(--muted);
 }
 
-/* dieter rams inspired decorative elements */
-
-/* dot grid pattern */
 .dots-pattern {
   background-image: radial-gradient(var(--muted) 1px, transparent 1px);
   background-size: 8px 8px;
 }
 
-/* horizontal lines pattern */
 .lines-pattern {
   background-image: repeating-linear-gradient(
     0deg,
@@ -114,7 +115,6 @@ button, input, select, textarea {
   );
 }
 
-/* dial indicator animation */
 @keyframes dial-rotate {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
@@ -124,7 +124,6 @@ button, input, select, textarea {
   animation: dial-rotate 2s linear infinite;
 }
 
-/* concentric circle pulse */
 @keyframes pulse-ring {
   0% { transform: scale(0.8); opacity: 1; }
   100% { transform: scale(1.2); opacity: 0; }

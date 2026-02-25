@@ -19,6 +19,11 @@ Defined in `src/app/globals.css`:
   - `font-mono` for body, controls, and numeric data
 - Motion:
   - Fast transitions (`transition-colors`) for immediate feedback
+- Geometry:
+  - Default stroke: `1px` (`border`)
+  - Emphasis stroke: `2px` only for deliberate state emphasis (active rails, selected nav markers)
+  - Default corner radius: `rounded-md` (`6px`) for controls and compact tiles
+  - Square geometry (`radius: 0`) reserved for framing surfaces unless a rounded tile/control is intentional
 
 ## Core Components
 
@@ -33,6 +38,14 @@ Defined in `src/app/globals.css`:
 - Workout controls:
   - Fixed action bar with strong contrast from content area
   - Inputs and buttons use consistent 2px border weight
+
+## Geometry Rules
+
+- Default all containers and controls to `border` (`1px`).
+- Use `border-2` only for explicit semantic emphasis, not as a visual baseline.
+- Keep component clusters consistent: adjacent controls should share stroke and radius unless meaningfully different.
+- Prefer `rounded-md` for small tiles, chip-like controls, and modals using rounded treatment.
+- Avoid mixing `rounded-lg`/`rounded-xl` without a documented semantic reason.
 
 ## Usage Rules
 

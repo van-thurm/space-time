@@ -14,7 +14,6 @@ import {
 import { useAppStore } from '@/lib/store';
 import { getTemplate } from '@/data/program-templates';
 import { getWeekWorkouts } from '@/data/program';
-import { getProgramWorkouts } from '@/data/programs';
 import { getCustomWorkouts } from '@/data/programs/custom';
 
 const COLORS = ['var(--accent)', 'var(--success)', 'var(--foreground)', 'var(--muted)', 'var(--danger)', 'var(--accent)'];
@@ -106,15 +105,15 @@ function ExercisePickerModal({
 
       {/* Modal */}
       <div
-        className="relative bg-background border-2 border-border w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col"
+        className="relative bg-background border border-border w-full max-w-md max-h-[80vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="p-4 border-b border-border flex justify-between items-center flex-shrink-0">
-          <h2 className="font-pixel text-lg">tracked lifts</h2>
+          <h2 className="font-display text-lg">tracked lifts</h2>
           <button
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center text-muted hover:text-foreground
+            className="w-11 h-11 flex items-center justify-center text-muted text-base font-medium leading-none hover:text-foreground
               active:text-foreground border border-border hover:border-foreground touch-manipulation"
           >
             ✕
@@ -128,10 +127,10 @@ function ExercisePickerModal({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="search exercises..."
-            className="w-full h-10 px-3 border-2 border-border bg-background font-mono text-sm
+            className="w-full h-10 px-3 border border-border bg-background font-sans text-sm
               focus:border-foreground focus:outline-none placeholder:text-muted/50"
           />
-          <p className="font-mono text-xs text-muted mt-1">
+          <p className="font-sans text-xs text-muted mt-1">
             {checked.size}/{MAX_TRACKED} selected
             {atLimit && ' (max reached)'}
           </p>
@@ -140,7 +139,7 @@ function ExercisePickerModal({
         {/* Exercise list */}
         <div className="flex-1 overflow-y-auto px-4 pb-2">
           {filtered.length === 0 ? (
-            <p className="font-mono text-sm text-muted py-4 text-center">no matching exercises</p>
+            <p className="font-sans text-sm text-muted py-4 text-center">no matching exercises</p>
           ) : (
             <div className="space-y-1">
               {filtered.map((ex) => {
@@ -152,11 +151,11 @@ function ExercisePickerModal({
                     key={ex.name}
                     onClick={() => !disabled && toggleExercise(ex.name)}
                     disabled={disabled}
-                    className={`w-full flex items-center gap-3 py-2 px-2 font-mono text-sm transition-colors touch-manipulation text-left
+                    className={`w-full min-h-11 flex items-center gap-3 py-2 px-2 font-sans text-sm transition-colors touch-manipulation text-left
                       ${disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-foreground/5'}`}
                   >
                     <span
-                      className={`w-5 h-5 border-2 flex-shrink-0 flex items-center justify-center text-xs
+                      className={`w-5 h-5 border flex-shrink-0 flex items-center justify-center text-xs
                         ${isChecked
                           ? 'border-success bg-success text-background'
                           : 'border-border'
@@ -179,26 +178,26 @@ function ExercisePickerModal({
         <div className="p-4 border-t border-border flex gap-2 flex-shrink-0">
           <button
             onClick={handleReset}
-            className="px-3 h-10 border-2 border-border font-mono text-xs hover:border-foreground transition-colors touch-manipulation"
+            className="px-3 h-10 border border-border font-sans text-xs hover:border-foreground transition-colors touch-manipulation"
           >
             reset
           </button>
           <button
             onClick={handleClear}
-            className="px-3 h-10 border-2 border-border font-mono text-xs hover:border-foreground transition-colors touch-manipulation"
+            className="px-3 h-10 border border-border font-sans text-xs hover:border-foreground transition-colors touch-manipulation"
           >
             clear
           </button>
           <div className="flex-1" />
           <button
             onClick={onClose}
-            className="px-3 h-10 border-2 border-border font-mono text-xs hover:border-foreground transition-colors touch-manipulation"
+            className="px-3 h-10 border border-border font-sans text-xs hover:border-foreground transition-colors touch-manipulation"
           >
             cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 h-10 border-2 border-foreground bg-foreground text-background font-mono text-xs
+            className="px-4 h-10 border border-foreground bg-foreground text-background font-sans text-xs
               hover:bg-foreground/90 transition-colors touch-manipulation"
           >
             save
@@ -225,31 +224,10 @@ export function ProgressChart() {
 
   const getPlannedWorkoutsForWeek = useCallback((week: number) => {
     if (!activeProgram) return getWeekWorkouts(week);
-    if (activeProgram.templateId === 'custom') {
-      const labels = activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
-        ? activeProgram.customDayLabels
-        : Array.from({ length: activeProgram.customDaysPerWeek || 4 }, (_, i) => `day ${i + 1}`);
-      return getCustomWorkouts(week, labels);
-    }
-    const base =
-      activeProgram.templateId !== '4-day-upper-lower'
-        ? getProgramWorkouts(activeProgram.templateId, week)
-        : getWeekWorkouts(week);
-    const targetDays = activeProgram.customDaysPerWeek || base.length;
-    if (targetDays <= base.length) return base;
-    const labels = activeProgram.customDayLabels || [];
-    const extra = Array.from({ length: targetDays - base.length }, (_, idx) => {
-      const day = base.length + idx + 1;
-      return {
-        id: `week${week}-day${day}`,
-        week,
-        day: day as 1 | 2 | 3 | 4 | 5,
-        dayName: labels[day - 1] || `day ${day}`,
-        exercises: [],
-        estimatedDuration: 45,
-      };
-    });
-    return [...base, ...extra];
+    const labels = activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
+      ? activeProgram.customDayLabels
+      : Array.from({ length: activeProgram.customDaysPerWeek || 4 }, (_, i) => `day ${i + 1}`);
+    return getCustomWorkouts(week, labels);
   }, [activeProgram]);
 
   // Collect max weights by movement family across weeks.
@@ -354,8 +332,8 @@ export function ProgressChart() {
 
   if (!hasData) {
     return (
-      <div className="border-2 border-border p-6 text-center">
-        <p className="font-mono text-muted">
+      <div className="border border-border p-6 text-center">
+        <p className="font-sans text-muted">
           complete workouts to see your progress chart
         </p>
       </div>
@@ -363,12 +341,12 @@ export function ProgressChart() {
   }
 
   return (
-    <div className="border-2 border-border p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="font-pixel font-bold">main lifts progress</h2>
+    <div className="border border-border p-4">
+      <div className="flex items-center justify-between mb-4 gap-2">
+        <h2 className="font-display font-bold text-balance">main lifts progress</h2>
         <button
           onClick={() => setPickerOpen(true)}
-          className="px-2 py-1 border border-border font-mono text-xs text-muted
+          className="px-3 min-h-11 border border-border font-sans text-sm text-muted
             hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
           aria-label="Edit tracked lifts"
         >
@@ -377,11 +355,11 @@ export function ProgressChart() {
       </div>
 
       {isCustomSelection && (
-        <p className="font-mono text-xs text-muted mb-2">
+        <p className="font-sans text-xs text-muted mb-2">
           custom selection ·{' '}
           <button
             onClick={() => activeProgram && updateTrackedChartExercises(activeProgram.id, null)}
-            className="text-accent hover:text-foreground transition-colors"
+            className="text-accent hover:text-foreground transition-colors min-h-11 px-1 touch-manipulation"
           >
             reset to default
           </button>
@@ -418,8 +396,8 @@ export function ProgressChart() {
                 color: 'var(--foreground)',
                 fontFamily: 'monospace',
                 fontSize: 12,
-                border: '2px solid var(--border)',
-                borderRadius: 0,
+                border: '1px solid var(--border)',
+                borderRadius: 6,
               }}
               formatter={(value, name) => [`${value} ${userSettings.units}`, titleCase(String(name))]}
               labelFormatter={(week) => `week ${week}`}

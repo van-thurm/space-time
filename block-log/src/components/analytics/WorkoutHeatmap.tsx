@@ -56,20 +56,21 @@ export function WorkoutHeatmap() {
   const completedCount = allStatuses.filter((s) => s === 'completed').length;
   const inProgressCount = allStatuses.filter((s) => s === 'in_progress').length;
   const notStartedCount = allStatuses.filter((s) => s === 'not_started').length;
+  const heatmapTileClass = 'w-11 h-11 mx-auto rounded-md border border-border touch-manipulation';
 
   return (
-    <div className="border-2 border-border p-4">
+    <div className="border border-border p-4">
       <div className="mb-3">
-        <h2 className="font-pixel font-bold">workout completion</h2>
+        <h2 className="font-display font-bold">workout completion</h2>
       </div>
-      <div className="grid grid-cols-3 gap-2 mb-4 font-mono text-[10px] md:text-xs">
-        <span className="h-6 md:h-7 px-2 inline-flex items-center justify-center border border-border bg-success/10 text-success whitespace-nowrap">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 font-sans text-xs">
+        <span className="min-h-11 px-2 inline-flex items-center justify-center border border-border bg-success/10 text-success whitespace-nowrap">
           {completedCount} completed
         </span>
-        <span className="h-6 md:h-7 px-2 inline-flex items-center justify-center border border-border bg-accent/10 text-accent whitespace-nowrap">
+        <span className="min-h-11 px-2 inline-flex items-center justify-center border border-border bg-accent/10 text-accent whitespace-nowrap">
           {inProgressCount} incomplete
         </span>
-        <span className="h-6 md:h-7 px-2 inline-flex items-center justify-center border border-border bg-surface text-muted whitespace-nowrap">
+        <span className="min-h-11 px-2 inline-flex items-center justify-center border border-border bg-surface text-muted whitespace-nowrap">
           {notStartedCount} not started
         </span>
       </div>
@@ -78,16 +79,16 @@ export function WorkoutHeatmap() {
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-separate [border-spacing:0_4px] md:[border-spacing:0_6px]">
           <colgroup>
-            <col className="w-10" />
+            <col className="w-12" />
             {dayLabels.map((label) => (
               <col key={`col-${label}`} />
             ))}
           </colgroup>
           <thead>
             <tr>
-              <th className="font-mono text-xs text-muted text-center pb-1 px-1">wk</th>
+              <th className="font-sans text-xs text-muted text-center pb-1 px-1">wk</th>
               {dayLabels.map((label) => (
-                <th key={label} className="font-mono text-xs text-muted text-center pb-1 px-1">
+                <th key={label} className="font-sans text-xs text-muted text-center pb-1 px-1">
                   {label.toLowerCase()}
                 </th>
               ))}
@@ -96,14 +97,17 @@ export function WorkoutHeatmap() {
           <tbody>
             {grid.map((week, weekIndex) => (
               <tr key={weekIndex}>
-                <td className="font-mono text-xs text-muted text-center px-1 py-0 align-middle">
+                <td className="font-sans text-xs text-muted text-center px-1 py-0 align-middle">
                   {weekIndex + 1}
                 </td>
                 {week.map((cell, dayIndex) => (
                   <td key={dayIndex} className="px-1 py-0 text-center align-middle">
                     {cell.status === 'not_started' ? (
-                      <div
-                        className={`w-7 h-7 md:w-8 md:h-8 mx-auto ${statusColors[cell.status]} border border-border`}
+                      <button
+                        type="button"
+                        disabled
+                        aria-label={`Week ${weekIndex + 1}, Day ${dayIndex + 1}: not started`}
+                        className={`${heatmapTileClass} ${statusColors[cell.status]} cursor-default`}
                         title={`Week ${weekIndex + 1}, Day ${dayIndex + 1}: not started`}
                       />
                     ) : (
@@ -116,7 +120,7 @@ export function WorkoutHeatmap() {
                               : `/workout/${cell.week}-${cell.day}`
                           )
                         }
-                        className={`w-7 h-7 md:w-8 md:h-8 mx-auto ${statusColors[cell.status]} border border-border hover:border-foreground transition-colors touch-manipulation`}
+                        className={`${heatmapTileClass} ${statusColors[cell.status]} hover:border-foreground transition-colors`}
                         title={`Week ${cell.week}, Day ${cell.day}: ${
                           cell.status === 'completed' ? 'completed (open summary)' : 'incomplete (open workout)'
                         }`}

@@ -43,28 +43,28 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
   const ctaHoverClass = status === 'completed' ? 'group-hover:text-success' : 'group-hover:text-accent';
 
   return (
-    <div className={`border-2 border-l-[3px] transition-colors group ${cardToneClass}`}>
+    <div className={`border border-l rounded-md transition-colors group ${cardToneClass}`}>
       <Link href={`/workout/${workout.week}-${workout.day}`} className="block p-4 space-y-3">
         {/* Header */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 border-2 border-current flex items-center justify-center font-pixel text-lg tabular-nums">
+            <div className="w-10 h-10 border border-current flex items-center justify-center font-display text-lg tabular-nums">
               {workout.day}
             </div>
             <div>
-              <h3 className="font-pixel font-bold">
+              <h3 className="font-display font-bold">
                 {workout.dayName}
               </h3>
             </div>
           </div>
-          <div className={`w-6 h-6 border-2 font-mono text-xs inline-flex items-center justify-center ${statusBoxClass}`}>
+          <div className={`w-6 h-6 border font-sans text-xs inline-flex items-center justify-center ${statusBoxClass}`}>
             {status === 'completed' ? <GeometricCheck size={13} /> : ''}
           </div>
         </div>
 
         {/* Footer row (fixed height keeps cards aligned across states) */}
         <div className="flex items-center justify-between pt-2 border-t border-border min-h-8">
-          <span className="text-sm font-mono text-muted inline-flex items-center gap-2">
+          <span className="text-sm font-sans text-muted inline-flex items-center gap-2">
             <span>
               {log ? `${log.completed ? 'completed' : 'last'}: ${formatDate(log.date).toLowerCase()}` : '\u00A0'}
             </span>
@@ -75,14 +75,14 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
                   event.stopPropagation();
                   router.push(reportHref);
                 }}
-                className="w-7 h-7 border border-border font-mono text-xs text-muted hover:text-foreground hover:border-foreground transition-colors touch-manipulation inline-flex items-center justify-center"
+                className="w-7 h-7 border border-border font-sans text-xs text-muted hover:text-foreground hover:border-foreground transition-colors touch-manipulation inline-flex items-center justify-center"
                 aria-label="Go to workout report"
               >
                 <ReportIcon size={12} />
               </button>
             )}
           </span>
-          <span className={`font-mono text-sm transition-colors flex items-center gap-1 ${ctaHoverClass}`}>
+          <span className={`font-sans text-sm transition-colors flex items-center gap-1 ${ctaHoverClass}`}>
             {status === 'completed' ? 'view' : status === 'in_progress' ? 'continue' : 'start'}
             <ForwardArrowIcon size={14} />
           </span>

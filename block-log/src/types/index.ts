@@ -55,6 +55,7 @@ export interface UserProgram {
   workoutDayNameOverrides?: Record<number, string>; // Per-day display name overrides (all templates)
   workoutDayOrder?: number[];         // Dashboard day-card display order (by day number)
   trackedChartExercises?: string[];   // User-selected exercises for the analytics progress chart
+  migratedToUnified?: boolean;        // Set after template exercises are hydrated into workout logs
 }
 
 export interface Exercise {
@@ -124,6 +125,7 @@ export interface AddedExercise {
   apiExerciseId?: string;
   muscleGroup?: string;
   equipment?: string;
+  wasUserAdded?: boolean;        // True when added manually in-session by the user
 }
 
 export interface ExerciseSubstitution {

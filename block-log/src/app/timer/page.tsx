@@ -134,7 +134,7 @@ export default function TimerPage() {
       <SecondaryPageHeader
         subtitle="rest timer"
         backFallbackHref={returnTo}
-        headerClassName={`border-b-2 sticky top-0 z-40 ${
+        headerClassName={`border-b sticky top-0 z-40 ${
           isComplete ? 'border-white/30' : 'border-border bg-background'
         }`}
         backButtonClassName={
@@ -142,10 +142,10 @@ export default function TimerPage() {
             ? 'border-white/60 text-white hover:border-white hover:text-white active:bg-white/10 focus-visible:ring-white focus-visible:ring-offset-danger'
             : ''
         }
-        appNameClassName={`inline-flex items-center justify-center gap-2 font-pixel font-bold text-lg leading-none transition-colors ${
+        appNameClassName={`inline-flex items-center justify-center gap-2 font-display font-bold text-lg leading-none transition-colors ${
           isComplete ? 'text-white hover:text-white/80' : 'hover:text-accent'
         }`}
-        subtitleClassName={`font-mono text-sm ${isComplete ? 'text-white/80' : 'text-muted'}`}
+        subtitleClassName={`font-sans text-sm ${isComplete ? 'text-white/80' : 'text-muted'}`}
       />
 
       {/* Main dial area */}
@@ -228,19 +228,19 @@ export default function TimerPage() {
             <div className="flex items-center justify-center gap-4">
               <button
                 onClick={() => adjustTime(-10)}
-                className="w-12 h-12 border-2 border-border font-mono text-2xl leading-none
+                className="w-12 h-12 border border-border font-sans text-2xl leading-none
                   hover:border-foreground active:bg-foreground active:text-background
                   transition-colors touch-manipulation"
                 aria-label="Decrease timer by 10 seconds"
               >
                 -
               </button>
-              <span className="font-mono text-5xl md:text-6xl font-bold tabular-nums">
+              <span className="font-sans text-5xl md:text-6xl font-bold tabular-nums">
                 {formatTime(remaining)}
               </span>
               <button
                 onClick={() => adjustTime(10)}
-                className="w-12 h-12 border-2 border-border font-mono text-2xl leading-none
+                className="w-12 h-12 border border-border font-sans text-2xl leading-none
                   hover:border-foreground active:bg-foreground active:text-background
                   transition-colors touch-manipulation"
                 aria-label="Increase timer by 10 seconds"
@@ -249,7 +249,7 @@ export default function TimerPage() {
               </button>
             </div>
           ) : (
-            <span className={`font-mono text-5xl md:text-6xl font-bold tabular-nums ${isComplete ? 'text-white' : ''}`}>
+            <span className={`font-sans text-5xl md:text-6xl font-bold tabular-nums ${isComplete ? 'text-white' : ''}`}>
               {formatTime(remaining)}
             </span>
           )}
@@ -258,7 +258,7 @@ export default function TimerPage() {
         {/* Complete message */}
         {isComplete && (
           <div className="mt-4 text-center">
-            <p className="font-pixel text-2xl text-white animate-pulse">
+            <p className="font-display text-2xl text-white animate-pulse">
               times up!
             </p>
           </div>
@@ -270,7 +270,7 @@ export default function TimerPage() {
             <button
               key={preset.value}
               onClick={() => handlePreset(preset.value)}
-              className={`px-3 py-2 font-mono text-sm border-2 transition-colors touch-manipulation
+              className={`px-3 py-2 font-sans text-sm border transition-colors touch-manipulation
                 ${duration === preset.value && !isComplete
                   ? 'border-foreground bg-foreground text-background'
                   : isComplete
@@ -285,12 +285,12 @@ export default function TimerPage() {
       </div>
 
       {/* Control buttons */}
-      <footer className={`border-t-2 ${isComplete ? 'border-white/20' : 'border-border'}`}>
+      <footer className={`border-t ${isComplete ? 'border-white/20' : 'border-border'}`}>
         <div className="max-w-md mx-auto px-4 py-4 flex gap-3">
           {isComplete ? (
             <button
               onClick={handleReset}
-              className="flex-1 py-4 bg-white text-danger font-mono font-bold
+              className="flex-1 py-4 bg-white text-danger font-sans font-bold
                 hover:bg-white/90 transition-colors touch-manipulation"
             >
               reset
@@ -299,14 +299,14 @@ export default function TimerPage() {
             <>
               <button
                 onClick={handlePause}
-                className="flex-1 py-4 border-2 border-foreground text-foreground font-mono font-bold
+                className="flex-1 py-4 border border-foreground text-foreground font-sans font-bold
                   hover:bg-foreground/10 transition-colors touch-manipulation"
               >
                 pause
               </button>
               <button
                 onClick={handleReset}
-                className="py-4 px-6 border-2 border-foreground text-foreground font-mono
+                className="py-4 px-6 border border-foreground text-foreground font-sans
                   hover:bg-foreground/10 transition-colors touch-manipulation"
               >
                 reset
@@ -316,7 +316,7 @@ export default function TimerPage() {
             <>
               <button
                 onClick={handleStart}
-                className="flex-1 py-4 bg-foreground text-background font-mono font-bold
+                className="flex-1 py-4 bg-foreground text-background font-sans font-bold
                   hover:bg-foreground/90 transition-colors touch-manipulation"
               >
                 {remaining < duration ? 'resume' : 'start'}
@@ -324,7 +324,7 @@ export default function TimerPage() {
               {remaining < duration && (
                 <button
                   onClick={handleReset}
-                  className="py-4 px-6 border-2 border-foreground text-foreground font-mono
+                  className="py-4 px-6 border border-foreground text-foreground font-sans
                     hover:bg-foreground/10 transition-colors touch-manipulation"
                 >
                   reset

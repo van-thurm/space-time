@@ -24,7 +24,7 @@ export function ThemeToggle({ className = '' }: ThemeToggleProps) {
   if (!mounted) {
     return (
       <div
-        className={`w-[42px] h-[42px] shrink-0 border-2 border-border ${className}`.trim()}
+        className={`w-[42px] h-[42px] shrink-0 border border-border rounded-md ${className}`.trim()}
         aria-hidden="true"
       />
     );
@@ -33,7 +33,7 @@ export function ThemeToggle({ className = '' }: ThemeToggleProps) {
   return (
     <button
       onClick={toggleTheme}
-      className={`w-[42px] h-[42px] shrink-0 flex items-center justify-center border-2 border-border hover:border-foreground active:bg-surface transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`.trim()}
+      className={`w-[42px] h-[42px] shrink-0 flex items-center justify-center border border-border hover:border-foreground active:bg-surface transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background ${className}`.trim()}
       title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
       aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
     >

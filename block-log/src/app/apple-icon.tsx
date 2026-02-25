@@ -19,21 +19,21 @@ export default function AppleIcon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0a0a0a',
+          background: '#C4572A',
           borderRadius: 32,
         }}
       >
         {/* 3x3 dots grid - orange and white mix */}
         <svg width="120" height="120" viewBox="0 0 24 24">
-          <circle cx="4" cy="4" r="3" fill="#ff6b35" />
-          <circle cx="12" cy="4" r="3" fill="#ffffff" />
-          <circle cx="20" cy="4" r="3" fill="#ff6b35" />
-          <circle cx="4" cy="12" r="3" fill="#ffffff" />
-          <circle cx="12" cy="12" r="3" fill="#ff6b35" />
-          <circle cx="20" cy="12" r="3" fill="#ffffff" />
-          <circle cx="4" cy="20" r="3" fill="#ff6b35" />
-          <circle cx="12" cy="20" r="3" fill="#ffffff" />
-          <circle cx="20" cy="20" r="3" fill="#ff6b35" />
+          <circle cx="4" cy="4" r="3" fill="#FAF7F2" />
+          <circle cx="12" cy="4" r="3" fill="#FAF7F2" />
+          <circle cx="20" cy="4" r="3" fill="#FAF7F2" />
+          <circle cx="4" cy="12" r="3" fill="#FAF7F2" />
+          <circle cx="12" cy="12" r="3" fill="#FAF7F2" />
+          <circle cx="20" cy="12" r="3" fill="#FAF7F2" />
+          <circle cx="4" cy="20" r="3" fill="#FAF7F2" />
+          <circle cx="12" cy="20" r="3" fill="#FAF7F2" />
+          <circle cx="20" cy="20" r="3" fill="#FAF7F2" />
         </svg>
       </div>
     ),

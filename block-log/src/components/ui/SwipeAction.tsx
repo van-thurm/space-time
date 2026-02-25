@@ -56,7 +56,7 @@ export function SwipeAction({ children, onAction, actionLabel, disabled = false 
       <button
         type="button"
         onClick={onAction}
-        className="absolute right-0 top-0 bottom-0 w-[92px] border-2 border-danger bg-danger text-background font-mono text-xs uppercase tracking-wide touch-manipulation"
+        className="absolute right-0 top-0 bottom-0 w-[92px] border border-danger bg-danger text-background font-sans text-xs uppercase tracking-wide touch-manipulation"
         aria-label={actionLabel}
       >
         {actionLabel}

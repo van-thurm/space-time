@@ -31,6 +31,18 @@ const workoutGenerators: Record<ProgramTemplateId, (week: number) => Workout[]> 
   'custom': getCustom,
 };
 
+function normalizeWorkoutCase(workouts: Workout[]): Workout[] {
+  return workouts.map((workout) => ({
+    ...workout,
+    dayName: workout.dayName.toLowerCase(),
+    exercises: workout.exercises.map((exercise) => ({
+      ...exercise,
+      name: exercise.name.toLowerCase(),
+      notes: exercise.notes ? exercise.notes.toLowerCase() : exercise.notes,
+    })),
+  }));
+}
+
 // Get workouts for a specific program template and week
 export function getProgramWorkouts(templateId: ProgramTemplateId, week: number): Workout[] {
   const generator = workoutGenerators[templateId];
@@ -38,7 +50,7 @@ export function getProgramWorkouts(templateId: ProgramTemplateId, week: number):
     console.warn(`No workout generator for template: ${templateId}`);
     return [];
   }
-  return generator(week);
+  return normalizeWorkoutCase(generator(week));
 }
 
 // Get the total weeks for a program

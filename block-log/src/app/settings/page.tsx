@@ -32,18 +32,18 @@ export default function SettingsPage() {
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         
         {/* Appearance Section */}
-        <section className="border-2 border-border p-4 space-y-4">
-          <h2 className="font-mono font-bold text-base">appearance</h2>
+        <section className="border border-border p-4 space-y-4">
+          <h2 className="font-sans font-bold text-base">appearance</h2>
           
-          <div className="flex justify-between items-center py-2">
+          <div className="flex justify-between items-start sm:items-center gap-3 py-2">
             <div>
-              <p className="font-mono text-sm">theme</p>
-              <p className="font-mono text-xs text-muted">light, dark, or system</p>
+              <p className="font-sans text-sm">theme</p>
+              <p className="font-sans text-xs text-muted max-w-[28ch] leading-snug text-pretty">light, dark, or system</p>
             </div>
             <select
               value={theme}
               onChange={(e) => setTheme(e.target.value as 'light' | 'dark' | 'system')}
-              className="px-3 pr-10 py-2 border-2 border-border bg-background font-mono text-sm
+              className="h-11 px-3 pr-10 border border-border bg-background font-sans text-sm
                 focus:border-foreground focus:outline-none"
             >
               <option value="light">light</option>
@@ -54,18 +54,18 @@ export default function SettingsPage() {
         </section>
 
         {/* Workout Settings */}
-        <section className="border-2 border-border p-4 space-y-4">
-          <h2 className="font-mono font-bold text-base">workout</h2>
+        <section className="border border-border p-4 space-y-4">
+          <h2 className="font-sans font-bold text-base">workout</h2>
           
-          <div className="flex justify-between items-center py-2">
+          <div className="flex justify-between items-start sm:items-center gap-3 py-2">
             <div>
-              <p className="font-mono text-sm">weight units</p>
-              <p className="font-mono text-xs text-muted">lbs or kg</p>
+              <p className="font-sans text-sm">weight units</p>
+              <p className="font-sans text-xs text-muted max-w-[28ch] leading-snug text-pretty">lbs or kg</p>
             </div>
             <select
               value={userSettings.units}
               onChange={(e) => updateSettings({ units: e.target.value as 'lbs' | 'kg' })}
-              className="px-3 pr-10 py-2 border-2 border-border bg-background font-mono text-sm
+              className="h-11 px-3 pr-10 border border-border bg-background font-sans text-sm
                 focus:border-foreground focus:outline-none"
             >
               <option value="lbs">lbs</option>
@@ -73,82 +73,85 @@ export default function SettingsPage() {
             </select>
           </div>
 
-          <div className="flex justify-between items-center py-2 border-t border-border">
+          <div className="flex justify-between items-start sm:items-center gap-3 py-2 border-t border-border">
             <div className="flex-1 mr-4">
-              <p className="font-mono text-sm">cascade weight to all sets</p>
-              <p className="font-mono text-xs text-muted">
+              <p className="font-sans text-sm">cascade weight to all sets</p>
+              <p className="font-sans text-xs text-muted max-w-[32ch] leading-snug text-pretty">
                 when you change the weight on set 1, automatically update sets 2+
               </p>
             </div>
             <button
+              aria-label="Toggle cascade weight to all sets"
               onClick={() => updateSettings({ cascadeWeightToSets: !userSettings.cascadeWeightToSets })}
-              className={`w-14 h-8 border-2 flex items-center px-1 transition-colors touch-manipulation
+              className={`w-16 h-11 shrink-0 border flex items-center px-1.5 transition-colors touch-manipulation
                 ${userSettings.cascadeWeightToSets 
                   ? 'bg-success border-success' 
                   : 'bg-surface border-border'
                 }`}
             >
               <div 
-                className={`w-5 h-5 bg-background border border-border transition-transform
-                  ${userSettings.cascadeWeightToSets ? 'translate-x-6' : 'translate-x-0'}`}
+                className={`w-6 h-6 bg-background border border-border transition-transform
+                  ${userSettings.cascadeWeightToSets ? 'translate-x-7' : 'translate-x-0'}`}
               />
             </button>
           </div>
 
-          <div className="flex justify-between items-center py-2 border-t border-border">
-            <div>
-              <p className="font-mono text-sm">show smart timer buttons</p>
-              <p className="font-mono text-xs text-muted">show timer shortcuts on workout cards and workout header</p>
+          <div className="flex justify-between items-start sm:items-center gap-3 py-2 border-t border-border">
+            <div className="flex-1 min-w-0 mr-4">
+              <p className="font-sans text-sm">show smart timer buttons</p>
+              <p className="font-sans text-xs text-muted max-w-[32ch] leading-snug text-pretty">show timer shortcuts on workout cards and workout header</p>
             </div>
             <button
+              aria-label="Toggle smart timer buttons"
               onClick={() => updateSettings({ showRestTimer: !userSettings.showRestTimer })}
-              className={`w-14 h-8 border-2 flex items-center px-1 transition-colors touch-manipulation
+              className={`w-16 h-11 shrink-0 border flex items-center px-1.5 transition-colors touch-manipulation
                 ${userSettings.showRestTimer 
                   ? 'bg-success border-success' 
                   : 'bg-surface border-border'
                 }`}
             >
               <div 
-                className={`w-5 h-5 bg-background border border-border transition-transform
-                  ${userSettings.showRestTimer ? 'translate-x-6' : 'translate-x-0'}`}
+                className={`w-6 h-6 bg-background border border-border transition-transform
+                  ${userSettings.showRestTimer ? 'translate-x-7' : 'translate-x-0'}`}
               />
             </button>
           </div>
 
-          <div className="flex justify-between items-center py-2 border-t border-border">
+          <div className="flex justify-between items-start sm:items-center gap-3 py-2 border-t border-border">
             <div className="flex-1 mr-4">
-              <p className="font-mono text-sm">keep screen awake</p>
-              <p className="font-mono text-xs text-muted">
+              <p className="font-sans text-sm">keep screen awake</p>
+              <p className="font-sans text-xs text-muted max-w-[32ch] leading-snug text-pretty">
                 keep display on during active workout and timer (if supported)
               </p>
             </div>
             <button
+              aria-label="Toggle keep screen awake"
               onClick={() => updateSettings({ keepScreenAwake: !userSettings.keepScreenAwake })}
-              className={`w-14 h-8 border-2 flex items-center px-1 transition-colors touch-manipulation
+              className={`w-16 h-11 shrink-0 border flex items-center px-1.5 transition-colors touch-manipulation
                 ${userSettings.keepScreenAwake
                   ? 'bg-success border-success'
                   : 'bg-surface border-border'
                 }`}
             >
               <div
-                className={`w-5 h-5 bg-background border border-border transition-transform
-                  ${userSettings.keepScreenAwake ? 'translate-x-6' : 'translate-x-0'}`}
+                className={`w-6 h-6 bg-background border border-border transition-transform
+                  ${userSettings.keepScreenAwake ? 'translate-x-7' : 'translate-x-0'}`}
               />
             </button>
           </div>
         </section>
 
         {/* Archived Programs */}
-        <section className="border-2 border-border p-4 space-y-4">
-          <h2 className="font-mono font-bold text-base">archived programs</h2>
+        <section className="border border-border p-4 space-y-4">
+          <h2 className="font-sans font-bold text-base">archived programs</h2>
           {archivedPrograms.length === 0 ? (
-            <p className="font-mono text-xs text-muted">no archived programs yet</p>
+            <p className="font-sans text-xs text-muted">no archived programs yet</p>
           ) : (
             <div className="space-y-2">
               {archivedPrograms.map((program) => (
                 <div key={program.id} className="border border-border p-3 space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="font-mono text-sm font-bold truncate">{program.name}</p>
+                    <p className="font-sans text-sm font-bold truncate">{program.name}</p>
                   </div>
                   <div className="flex gap-2">
                     {confirmRestoreArchivedId === program.id ? (
@@ -158,7 +161,7 @@ export default function SettingsPage() {
                             setConfirmRestoreArchivedId(null);
                             setConfirmDeleteArchivedId(null);
                           }}
-                          className="flex-1 h-9 border-2 border-border font-mono text-xs text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                          className="flex-1 min-h-11 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                         >
                           cancel
                         </button>
@@ -168,7 +171,7 @@ export default function SettingsPage() {
                             setConfirmDeleteArchivedId(null);
                             restoreProgram(program.id);
                           }}
-                          className="flex-1 h-9 border-2 border-foreground bg-foreground text-background font-mono text-xs hover:bg-foreground/90 transition-colors touch-manipulation"
+                          className="flex-1 min-h-11 border border-foreground bg-foreground text-background font-sans text-sm hover:bg-foreground/90 transition-colors touch-manipulation"
                         >
                           restore
                         </button>
@@ -179,7 +182,7 @@ export default function SettingsPage() {
                             restoreProgram(program.id);
                             setActiveProgram(program.id);
                           }}
-                          className="flex-1 h-9 border-2 border-border font-mono text-xs text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                          className="flex-1 min-h-11 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                         >
                           restore + open
                         </button>
@@ -191,7 +194,7 @@ export default function SettingsPage() {
                             setConfirmDeleteArchivedId(null);
                             setConfirmRestoreArchivedId(null);
                           }}
-                          className="h-9 px-3 border-2 border-border font-mono text-xs text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                          className="min-h-11 px-3 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                         >
                           cancel
                         </button>
@@ -200,7 +203,7 @@ export default function SettingsPage() {
                             deleteProgram(program.id);
                             setConfirmDeleteArchivedId(null);
                           }}
-                          className="h-9 px-3 border-2 border-danger bg-danger text-background font-mono text-xs hover:bg-danger/90 transition-colors touch-manipulation"
+                          className="min-h-11 px-3 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
                         >
                           yes, delete
                         </button>
@@ -212,7 +215,7 @@ export default function SettingsPage() {
                             setConfirmDeleteArchivedId(null);
                             setConfirmRestoreArchivedId(program.id);
                           }}
-                          className="flex-1 h-9 border-2 border-foreground bg-foreground text-background font-mono text-xs hover:bg-foreground/90 transition-colors touch-manipulation"
+                          className="flex-1 min-h-11 border border-foreground bg-foreground text-background font-sans text-sm hover:bg-foreground/90 transition-colors touch-manipulation"
                         >
                           restore
                         </button>
@@ -221,7 +224,7 @@ export default function SettingsPage() {
                             setConfirmRestoreArchivedId(null);
                             setConfirmDeleteArchivedId(program.id);
                           }}
-                          className="w-32 h-9 px-3 border-2 border-danger text-danger font-mono text-xs hover:bg-danger hover:text-background transition-colors touch-manipulation"
+                          className="w-32 min-h-11 px-3 border border-danger text-danger font-sans text-sm hover:bg-danger hover:text-background transition-colors touch-manipulation"
                         >
                           delete
                         </button>
@@ -229,7 +232,7 @@ export default function SettingsPage() {
                     )}
                   </div>
                   {confirmDeleteArchivedId === program.id && (
-                    <p className="font-mono text-xs text-muted">
+                    <p className="font-sans text-xs text-muted">
                       are you sure you want to delete? your workout data will also be deleted.
                     </p>
                   )}
@@ -240,16 +243,16 @@ export default function SettingsPage() {
         </section>
 
         {/* Danger Zone */}
-        <section className="border-2 border-danger/30 p-4 space-y-4">
-          <h2 className="font-mono font-bold text-base text-danger inline-flex items-center gap-2">
+        <section className="border border-danger/30 p-4 space-y-4">
+          <h2 className="font-sans font-bold text-base text-danger inline-flex items-center gap-2">
             <AlertMarkIcon size={16} />
             danger zone
           </h2>
           
-          <div className="flex justify-between items-center py-2">
+          <div className="flex justify-between items-start sm:items-center gap-3 py-2">
             <div className="flex-1 mr-4">
-              <p className="font-mono text-sm">clear all data</p>
-              <p className="font-mono text-xs text-muted">
+              <p className="font-sans text-sm">clear all data</p>
+              <p className="font-sans text-xs text-muted max-w-[32ch] leading-snug text-pretty">
                 delete all workout logs, substitutions, and settings
               </p>
             </div>
@@ -258,7 +261,7 @@ export default function SettingsPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => setConfirmClearData(false)}
-                    className="h-9 px-3 border-2 border-border font-mono text-xs text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                    className="min-h-11 px-3 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                   >
                     cancel
                   </button>
@@ -267,19 +270,19 @@ export default function SettingsPage() {
                       clearAllData();
                       setConfirmClearData(false);
                     }}
-                    className="h-9 px-3 border-2 border-danger bg-danger text-background font-mono text-xs hover:bg-danger/90 transition-colors touch-manipulation"
+                    className="min-h-11 px-3 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
                   >
                     yes, clear
                   </button>
                 </div>
-                <p className="font-mono text-xs text-muted text-right">
+                <p className="font-sans text-xs text-muted text-right">
                   are you sure? this will delete all your workout data and cannot be undone.
                 </p>
               </div>
             ) : (
               <button
                 onClick={() => setConfirmClearData(true)}
-                className="w-32 h-9 border-2 border-danger text-danger font-mono text-sm
+                className="w-32 min-h-11 border border-danger text-danger font-sans text-sm
                   hover:bg-danger hover:text-background active:bg-danger active:text-background 
                   transition-colors touch-manipulation"
               >
@@ -292,7 +295,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 mt-12">
-        <p className="font-mono text-xs text-muted text-center">v1.0.0</p>
+        <p className="font-sans text-xs text-muted text-center">v1.0.0</p>
       </div>
       <AppFooter className="mt-3" />
     </main>

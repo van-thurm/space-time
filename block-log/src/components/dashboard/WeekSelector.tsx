@@ -37,8 +37,8 @@ export function WeekSelector() {
   };
 
   return (
-    <div className="space-y-2">
-      <div className="flex flex-wrap gap-1.5 items-center">
+    <div className="space-y-2.5">
+      <div className="flex flex-wrap gap-2 items-center">
         {Array.from({ length: totalWeeks }, (_, i) => i + 1).map((week) => {
           const isActive = week === currentWeek;
 
@@ -47,7 +47,7 @@ export function WeekSelector() {
               key={week}
               onClick={() => setCurrentWeek(week)}
               className={`
-                w-9 h-9 font-mono text-sm font-medium transition-all border-2 touch-manipulation
+                w-11 h-11 font-sans text-sm font-medium transition-all border rounded-md touch-manipulation
                 ${isActive 
                   ? 'bg-foreground text-background border-foreground' 
                   : 'bg-background text-foreground border-border hover:border-foreground active:bg-foreground/10'
@@ -62,7 +62,7 @@ export function WeekSelector() {
         {/* Add week button */}
         <button
           onClick={handleAddWeek}
-          className="w-9 h-9 font-mono text-lg font-medium border-2 border-dashed border-border 
+          className="w-11 h-11 font-sans text-lg font-medium border rounded-md border-dashed border-border 
             text-muted hover:border-accent hover:text-accent
             transition-all touch-manipulation"
           aria-label="Add another week"
@@ -75,7 +75,7 @@ export function WeekSelector() {
       {canDeleteWeeks && (
         <button
           onClick={handleRemoveWeek}
-          className="font-mono text-xs text-muted hover:text-danger transition-colors touch-manipulation"
+          className="font-sans text-xs text-muted hover:text-danger transition-colors touch-manipulation"
         >
           − remove last week
         </button>

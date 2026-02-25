@@ -57,7 +57,7 @@ function SortableItem({ id, children, editMode }: SortableItemProps) {
           {...listeners}
           className="absolute -left-2 top-4 w-8 h-8 flex items-center justify-center
             text-accent hover:text-foreground cursor-grab active:cursor-grabbing
-            touch-manipulation z-10 bg-background border border-accent rounded"
+            touch-manipulation z-10 bg-background border border-accent rounded-md"
           aria-label="Drag to reorder"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -208,13 +208,13 @@ export function SortableExerciseList({
       <div className="flex justify-end gap-2">
         <button
           onClick={() => setCollapseAllToken((value) => value + 1)}
-          className="px-3 py-2 font-mono text-sm border transition-colors touch-manipulation border-border text-muted hover:border-foreground hover:text-foreground"
+          className="px-3 py-2 font-sans text-sm border transition-colors touch-manipulation border-border text-muted hover:border-foreground hover:text-foreground"
         >
           collapse all
         </button>
         <button
           onClick={() => setEditMode(!editMode)}
-          className={`px-3 py-2 font-mono text-sm border transition-colors touch-manipulation
+          className={`px-3 py-2 font-sans text-sm border transition-colors touch-manipulation
             ${editMode 
               ? 'border-accent text-accent bg-accent/10' 
               : 'border-border text-muted hover:border-foreground hover:text-foreground'

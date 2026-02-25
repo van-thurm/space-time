@@ -3,7 +3,6 @@
 import { useEffect, useMemo } from 'react';
 import { useAppStore } from '@/lib/store';
 import { getWeekWorkouts } from '@/data/program';
-import { getProgramWorkouts } from '@/data/programs';
 import { getCustomWorkouts } from '@/data/programs/custom';
 import { WeekSelector } from '@/components/dashboard/WeekSelector';
 import { WorkoutCard } from '@/components/dashboard/WorkoutCard';
@@ -19,42 +18,21 @@ export default function Dashboard() {
     state.programs.find((p) => p.id === state.activeProgramId)
   );
   const migrateToMultiProgram = useAppStore((state) => state.migrateToMultiProgram);
+  const migrateTemplatePrograms = useAppStore((state) => state.migrateTemplatePrograms);
   
-  // Get workouts based on active program's template
   const workouts = useMemo(() => {
     if (!activeProgram) return getWeekWorkouts(currentWeek);
-    if (activeProgram.templateId === 'custom') {
-      const dayLabels =
-        activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
-          ? activeProgram.customDayLabels
-          : ['day 1', 'day 2', 'day 3', 'day 4'];
-      return getCustomWorkouts(currentWeek, dayLabels);
-    }
-    const baseWorkouts =
-      activeProgram.templateId !== '4-day-upper-lower'
-        ? getProgramWorkouts(activeProgram.templateId, currentWeek)
-        : getWeekWorkouts(currentWeek);
-    const targetDays = activeProgram.customDaysPerWeek || baseWorkouts.length;
-    if (targetDays <= baseWorkouts.length) return baseWorkouts;
-    const dayLabels = activeProgram.customDayLabels || [];
-    const extra = Array.from({ length: targetDays - baseWorkouts.length }, (_, idx) => {
-      const day = baseWorkouts.length + idx + 1;
-      return {
-        id: `week${currentWeek}-day${day}`,
-        week: currentWeek,
-        day: day as 1 | 2 | 3 | 4 | 5,
-        dayName: dayLabels[day - 1] || `day ${day}`,
-        exercises: [],
-        estimatedDuration: 45,
-      };
-    });
-    return [...baseWorkouts, ...extra];
+    const dayLabels =
+      activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
+        ? activeProgram.customDayLabels
+        : ['day 1', 'day 2', 'day 3', 'day 4'];
+    return getCustomWorkouts(currentWeek, dayLabels);
   }, [activeProgram, currentWeek]);
 
-  // Auto-migrate legacy data on first load
   useEffect(() => {
     migrateToMultiProgram();
-  }, [migrateToMultiProgram]);
+    migrateTemplatePrograms();
+  }, [migrateToMultiProgram, migrateTemplatePrograms]);
   
   const applyWorkoutOverrides = (day: number, fallbackName: string): string => {
     const override = activeProgram?.workoutDayNameOverrides?.[day];
@@ -94,13 +72,13 @@ export default function Dashboard() {
         {!hasPrograms || !hasActiveProgram ? (
           <section className="min-h-[50vh] flex items-center justify-center">
             <div className="text-center space-y-4 max-w-sm">
-              <h2 className="font-mono text-lg">no block yet</h2>
-              <p className="font-mono text-sm text-muted">
+              <h2 className="font-sans text-lg">no block yet</h2>
+              <p className="font-sans text-sm text-muted">
                 create your first training block to start logging
               </p>
               <Link
                 href="/programs/new"
-                className="inline-block px-6 py-3 bg-foreground text-background font-mono font-medium hover:bg-foreground/90 transition-colors touch-manipulation"
+                className="inline-block px-6 py-3 bg-foreground text-background font-sans font-medium hover:bg-foreground/90 transition-colors touch-manipulation"
               >
                 + new program
               </Link>
@@ -109,7 +87,7 @@ export default function Dashboard() {
         ) : (
           <>
             <section className="px-1 py-1">
-              <h1 className="font-pixel text-lg">{activeProgram?.name || 'my block'}</h1>
+              <h1 className="font-display text-lg">{activeProgram?.name || 'my block'}</h1>
             </section>
             <section className="flex items-center">
               <WeekSelector />

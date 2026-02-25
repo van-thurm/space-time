@@ -144,28 +144,28 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
       onClick={onClose}
     >
       <div 
-        className="bg-background border-2 border-foreground max-w-lg w-full max-h-[80vh] flex flex-col"
+        className="bg-background border border-foreground rounded-md max-w-lg w-full max-h-[80vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 border-b-2 border-border">
+        <div className="p-4 border-b border-border">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="font-mono font-bold text-lg">swap exercise</h2>
-              <p className="font-mono text-sm text-muted mt-1">
+              <h2 className="font-sans font-bold text-lg">swap exercise</h2>
+              <p className="font-sans text-sm text-muted mt-1">
                 {exercise.name}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="font-mono text-muted hover:text-foreground p-1"
+              className="w-11 h-11 inline-flex items-center justify-center border border-border font-sans text-muted text-base font-medium leading-none hover:text-foreground hover:border-foreground transition-colors touch-manipulation"
             >
               ×
             </button>
           </div>
 
           {/* Exercise info */}
-          <div className="flex flex-wrap gap-2 mt-3 text-xs font-mono text-muted">
+          <div className="flex flex-wrap gap-2 mt-3 text-xs font-sans text-muted">
             <span>target: {exercise.muscleGroup.join(', ')}</span>
             <span>|</span>
             <span>equipment: {exercise.equipment.join(', ')}</span>
@@ -177,7 +177,7 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="search alternatives..."
-            className="w-full mt-3 px-3 py-2 border-2 border-border bg-background font-mono text-sm
+            className="w-full mt-3 px-3 py-2 border border-border bg-background font-sans text-sm
               focus:border-foreground focus:outline-none"
           />
         </div>
@@ -185,20 +185,20 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-4">
           {(loading || searching) && (
-            <p className="font-mono text-sm text-muted text-center py-8">
+            <p className="font-sans text-sm text-muted text-center py-8">
               {searching ? 'searching...' : 'loading alternatives...'}
             </p>
           )}
 
           {error && (
-            <div className="bg-danger/10 border-2 border-danger p-4">
-              <p className="font-mono text-sm text-danger">{error}</p>
+            <div className="bg-danger/10 border border-danger p-4">
+              <p className="font-sans text-sm text-danger">{error}</p>
             </div>
           )}
 
           {!loading && !searching && !error && displayedExercises.length === 0 && (
             <div className="text-center py-8">
-              <p className="font-mono text-sm text-muted">
+              <p className="font-sans text-sm text-muted">
                 {searchError 
                   ? `search error: ${searchError}`
                   : searchQuery.length >= 2 
@@ -214,7 +214,7 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
           {!loading && !searching && !error && displayedExercises.length > 0 && (
             <div className="space-y-2">
               {displayedExercises.map((alt) => (
-                <div key={alt.id} className="border-2 border-border">
+                <div key={alt.id} className="border border-border">
                   <button
                     onClick={() => setSelectedId(selectedId === alt.id ? null : alt.id)}
                     className={`w-full p-3 text-left transition-colors ${
@@ -223,8 +223,8 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
                   >
                     <div className="flex items-start gap-3">
                       <div className={`
-                        w-5 h-5 border-2 flex-shrink-0 mt-0.5
-                        flex items-center justify-center font-mono text-xs
+                        w-5 h-5 border flex-shrink-0 mt-0.5
+                        flex items-center justify-center font-sans text-xs
                         ${selectedId === alt.id 
                           ? 'bg-foreground text-background border-foreground' 
                           : 'border-border'
@@ -234,8 +234,8 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <p className="font-mono font-medium">{alt.name}</p>
-                        <div className="flex flex-wrap gap-2 mt-1 text-xs font-mono text-muted">
+                        <p className="font-sans font-medium">{alt.name}</p>
+                        <div className="flex flex-wrap gap-2 mt-1 text-xs font-sans text-muted">
                           <span>target: {alt.target}</span>
                           <span>|</span>
                           <span>{alt.equipment}</span>
@@ -251,11 +251,11 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t-2 border-border space-y-2">
+        <div className="p-4 border-t border-border space-y-2">
           {currentSubstitution && (
             <button
               onClick={handleRevert}
-              className="w-full py-2 px-4 border-2 border-accent text-accent font-mono text-sm hover:bg-accent/10"
+              className="w-full py-2 px-4 border border-accent text-accent font-sans text-sm hover:bg-accent/10"
             >
               revert to original ({currentSubstitution.originalName})
             </button>
@@ -264,14 +264,14 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
           <div className="flex gap-2">
             <button
               onClick={onClose}
-              className="flex-1 py-2 px-4 border-2 border-border font-mono hover:border-foreground"
+              className="flex-1 py-2 px-4 border border-border font-sans hover:border-foreground"
             >
               cancel
             </button>
             <button
               onClick={handleSwap}
               disabled={!selectedId}
-              className="flex-1 py-2 px-4 bg-foreground text-background font-mono 
+              className="flex-1 py-2 px-4 bg-foreground text-background font-sans 
                 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-foreground/90"
             >
               swap exercise

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Silkscreen } from "next/font/google";
+import { Sora } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
@@ -23,16 +23,10 @@ const themeScript = `
 })();
 `;
 
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
+const sora = Sora({
+  variable: "--font-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-});
-
-const silkscreen = Silkscreen({
-  variable: "--font-pixel",
-  subsets: ["latin"],
-  weight: ["400", "700"],
 });
 
 export const viewport: Viewport = {
@@ -40,8 +34,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+    { media: "(prefers-color-scheme: light)", color: "#FAF7F2" },
+    { media: "(prefers-color-scheme: dark)", color: "#121110" },
   ],
 };
 
@@ -69,7 +63,7 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${jetbrainsMono.variable} ${silkscreen.variable} antialiased`}
+        className={`${sora.variable} antialiased`}
       >
         <ThemeProvider>
           {children}

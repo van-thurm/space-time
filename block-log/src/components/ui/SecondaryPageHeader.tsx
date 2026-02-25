@@ -18,16 +18,18 @@ interface SecondaryPageHeaderProps {
 }
 
 const ICON_BUTTON_CLASS =
-  'w-[42px] h-[42px] shrink-0 inline-flex items-center justify-center border-2 border-border text-foreground hover:border-foreground hover:text-foreground transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  'w-[42px] h-[42px] shrink-0 inline-flex items-center justify-center border border-border rounded-md text-foreground hover:border-foreground hover:text-foreground transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+const MENU_ITEM_BASE_CLASS =
+  "relative h-10 px-3 font-sans text-sm transition-colors flex items-center before:content-[''] before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:bg-transparent";
 
 export function SecondaryPageHeader({
   subtitle,
   backFallbackHref,
   maxWidthClassName = 'w-full',
-  headerClassName = 'border-b-2 border-border sticky top-0 bg-background z-40',
+  headerClassName = 'border-b border-border sticky top-0 bg-background z-40',
   backButtonClassName = '',
-  appNameClassName = 'inline-flex items-center justify-center gap-2 font-pixel font-bold text-lg leading-none hover:text-accent transition-colors',
-  subtitleClassName = 'font-mono text-sm text-muted',
+  appNameClassName = 'inline-flex items-center justify-center gap-2 font-display font-bold text-lg leading-none hover:text-accent transition-colors',
+  subtitleClassName = 'font-sans text-sm text-muted',
 }: SecondaryPageHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -107,16 +109,16 @@ export function SecondaryPageHeader({
             className={ICON_BUTTON_CLASS}
             aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
-            <span className="font-mono text-xl leading-none">+</span>
+            <span className="font-sans text-xl leading-none">+</span>
           </button>
 
           {menuOpen && (
-            <div className="absolute top-[calc(100%+8px)] right-0 w-44 border-2 border-border bg-background z-50">
+            <div className="absolute top-[calc(100%+8px)] right-0 w-44 border border-border rounded-md overflow-hidden bg-background z-50">
               <nav className="py-1">
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  className="w-full h-10 px-3 font-mono text-sm uppercase tracking-wide transition-colors flex items-center border-l-2 text-muted border-l-transparent hover:text-foreground hover:bg-foreground/10 hover:border-l-accent/70"
+                  className={`${MENU_ITEM_BASE_CLASS} w-full text-muted hover:text-foreground hover:bg-foreground/10 hover:before:bg-accent/70`}
                 >
                   <span className="mr-2 text-accent">+</span>
                   {mounted ? (resolvedTheme === 'dark' ? 'light mode' : 'dark mode') : 'theme'}
@@ -126,10 +128,10 @@ export function SecondaryPageHeader({
                     key={item.href}
                     href={item.href}
                     onClick={() => setMenuOpen(false)}
-                    className={`h-10 px-3 font-mono text-sm uppercase tracking-wide transition-colors flex items-center border-l-2 ${
+                    className={`${MENU_ITEM_BASE_CLASS} ${
                       pathname === item.href
-                        ? 'text-foreground bg-foreground/12 border-l-accent'
-                        : 'text-muted border-l-transparent hover:text-foreground hover:bg-foreground/10 hover:border-l-accent/70'
+                        ? 'text-foreground bg-foreground/12 before:bg-accent'
+                        : 'text-muted hover:text-foreground hover:bg-foreground/10 hover:before:bg-accent/70'
                     }`}
                   >
                     <span className="mr-2 text-accent">+</span>

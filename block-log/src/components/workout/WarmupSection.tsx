@@ -95,8 +95,8 @@ function SortableWarmupItem({
         <button
           onClick={onToggle}
           className={`
-            w-6 h-6 border-2 flex-shrink-0
-            flex items-center justify-center font-mono text-xs
+            w-6 h-6 border flex-shrink-0
+            flex items-center justify-center font-sans text-xs
             transition-colors touch-manipulation
             ${isComplete 
               ? 'bg-foreground text-background border-foreground' 
@@ -109,14 +109,14 @@ function SortableWarmupItem({
         
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <span className={`font-mono text-sm ${isComplete ? 'line-through text-muted' : ''}`}>
+            <span className={`font-sans text-sm ${isComplete ? 'line-through text-muted' : ''}`}>
               {item.name}
             </span>
-            <span className="font-mono text-xs text-muted">
+            <span className="font-sans text-xs text-muted">
               {item.reps}
             </span>
             {isCustom && (
-              <span className="font-mono text-xs text-accent">+</span>
+              <span className="font-sans text-xs text-accent">+</span>
             )}
           </div>
         </div>
@@ -245,31 +245,31 @@ export function WarmupSection() {
   const allComplete = completedCount === activeItems.length && activeItems.length > 0;
 
   return (
-    <div className="border-2 border-border">
+    <div className="border border-border">
       {/* Header - clickable to expand/collapse */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full p-3 flex justify-between items-center hover:bg-surface transition-colors touch-manipulation"
       >
         <div className="flex items-center gap-3">
-          <span className="font-mono font-bold">warmup</span>
-          <span className={`font-mono text-sm ${allComplete ? 'text-success' : 'text-muted'}`}>
+          <span className="font-sans font-bold">warmup</span>
+          <span className={`font-sans text-sm ${allComplete ? 'text-success' : 'text-muted'}`}>
             {completedCount}/{activeItems.length}
           </span>
         </div>
-        <span className="font-mono text-muted">
+        <span className="font-sans text-muted">
           {isExpanded ? '−' : '+'}
         </span>
       </button>
 
       {/* Expandable content */}
       {isExpanded && (
-        <div className="border-t-2 border-border">
+        <div className="border-t border-border">
           {/* Edit mode toggle */}
           <div className="px-3 py-2 flex justify-end border-b border-border">
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className={`px-2 py-1 font-mono text-xs border transition-colors touch-manipulation
+              className={`px-2 py-1 font-sans text-xs border transition-colors touch-manipulation
                 ${isEditing 
                   ? 'border-accent text-accent bg-accent/10' 
                   : 'border-border text-muted hover:border-foreground hover:text-foreground'
@@ -309,7 +309,7 @@ export function WarmupSection() {
                 value={newItemName}
                 onChange={(e) => setNewItemName(e.target.value)}
                 placeholder="exercise name"
-                className="w-full p-2 border-2 border-border bg-background font-mono text-sm
+                className="w-full p-2 border border-border bg-background font-sans text-sm
                   focus:border-foreground focus:outline-none touch-manipulation"
                 autoFocus
               />
@@ -319,12 +319,12 @@ export function WarmupSection() {
                   value={newItemReps}
                   onChange={(e) => setNewItemReps(e.target.value)}
                   placeholder="reps (e.g., 10)"
-                  className="flex-1 p-2 border-2 border-border bg-background font-mono text-sm
+                  className="flex-1 p-2 border border-border bg-background font-sans text-sm
                     focus:border-foreground focus:outline-none touch-manipulation"
                 />
                 <button
                   onClick={() => setIsAdding(false)}
-                  className="px-3 py-2 border-2 border-border font-mono text-sm 
+                  className="px-3 py-2 border border-border font-sans text-sm 
                     hover:border-foreground touch-manipulation"
                 >
                   cancel
@@ -332,7 +332,7 @@ export function WarmupSection() {
                 <button
                   onClick={addCustomItem}
                   disabled={!newItemName.trim()}
-                  className="px-3 py-2 bg-foreground text-background font-mono text-sm 
+                  className="px-3 py-2 bg-foreground text-background font-sans text-sm 
                     disabled:opacity-50 touch-manipulation"
                 >
                   add
@@ -343,7 +343,7 @@ export function WarmupSection() {
             <button
               onClick={() => setIsAdding(true)}
               className="w-full p-3 border-t border-dashed border-border text-muted hover:text-accent 
-                font-mono text-sm text-left touch-manipulation transition-colors"
+                font-sans text-sm text-left touch-manipulation transition-colors"
             >
               + add warmup exercise
             </button>
@@ -352,7 +352,7 @@ export function WarmupSection() {
           {/* Skipped items - restore option */}
           {skippedItems.size > 0 && (
             <div className="p-3 border-t border-border">
-              <p className="font-mono text-xs text-muted mb-2">skipped:</p>
+              <p className="font-sans text-xs text-muted mb-2">skipped:</p>
               <div className="flex flex-wrap gap-2">
                 {Array.from(skippedItems).map(id => {
                   const item = allItems.find(i => i.id === id);
@@ -361,7 +361,7 @@ export function WarmupSection() {
                     <button
                       key={id}
                       onClick={() => restoreItem(id)}
-                      className="px-2 py-1 border border-border font-mono text-xs text-muted 
+                      className="px-2 py-1 border border-border font-sans text-xs text-muted 
                         hover:text-foreground hover:border-foreground touch-manipulation"
                     >
                       {item.name} ↩

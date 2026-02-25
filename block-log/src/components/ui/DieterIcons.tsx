@@ -120,7 +120,7 @@ export function TallyIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="square"
+      strokeLinecap="round"
     >
       <line x1="5" y1="7" x2="19" y2="7" />
       <line x1="5" y1="12" x2="15" y2="12" />
@@ -392,10 +392,10 @@ export function BackArrowIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="square"
+      strokeLinecap="round"
     >
       <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 5 5 12 12 19" strokeLinejoin="miter" />
+      <polyline points="12 5 5 12 12 19" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -411,10 +411,10 @@ export function ForwardArrowIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="square"
+      strokeLinecap="round"
     >
       <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" strokeLinejoin="miter" />
+      <polyline points="12 5 19 12 12 19" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -430,8 +430,8 @@ export function GeometricCheck({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="3.25"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <polyline points="5.5 12.5 10 17 18.5 8.5" />
     </svg>
@@ -499,8 +499,8 @@ export function AlertMarkIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <rect x="4" y="3" width="16" height="18" />
       <line x1="12" y1="7" x2="12" y2="14" />
@@ -520,8 +520,8 @@ export function TrashIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2.25"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       {/* Lid + handle */}
       <line x1="4" y1="7" x2="20" y2="7" />
@@ -546,8 +546,8 @@ export function ReportIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <rect x="4" y="3" width="16" height="18" />
       <line x1="8" y1="9" x2="16" y2="9" />
@@ -568,8 +568,8 @@ export function EditIcon({ size = 24, className = '' }: IconProps) {
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
-      strokeLinecap="square"
-      strokeLinejoin="miter"
+      strokeLinecap="round"
+      strokeLinejoin="round"
     >
       <path d="M4 17.5V20h2.5L17 9.5 14.5 7 4 17.5z" />
       <line x1="13.5" y1="8" x2="16" y2="10.5" />

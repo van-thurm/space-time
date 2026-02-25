@@ -67,9 +67,9 @@ export function ProgressSummary() {
 
   if (!hasData) {
     return (
-      <div className="border-2 border-border p-4">
-        <h2 className="font-mono font-bold mb-2">key lifts progress</h2>
-        <p className="text-muted font-mono text-sm">
+      <div className="border border-border rounded-md p-4">
+        <h2 className="font-sans font-bold mb-2">key lifts progress</h2>
+        <p className="text-muted font-sans text-sm">
           complete workouts to track your progress
         </p>
       </div>
@@ -77,24 +77,24 @@ export function ProgressSummary() {
   }
 
   return (
-    <div className="border-2 border-border p-4 space-y-4">
-      <h2 className="font-mono font-bold">key lifts progress</h2>
+    <div className="border border-border rounded-md p-4 space-y-4">
+      <h2 className="font-sans font-bold">key lifts progress</h2>
       
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {liftProgress.map((lift) => (
           <div key={lift.name} className="space-y-1">
-            <div className="font-mono text-sm text-muted">{lift.name}</div>
+            <div className="font-sans text-sm text-muted">{lift.name}</div>
             {lift.first > 0 ? (
               <>
-                <div className="font-mono font-bold text-lg">
+                <div className="font-sans font-bold text-lg">
                   {lift.last} <span className="text-sm">{unit}</span>
                 </div>
-                <div className={`font-mono text-sm ${lift.change >= 0 ? 'text-success' : 'text-danger'}`}>
+                <div className={`font-sans text-sm ${lift.change >= 0 ? 'text-success' : 'text-danger'}`}>
                   {lift.change >= 0 ? '+' : ''}{lift.change} {unit}
                 </div>
               </>
             ) : (
-              <div className="font-mono text-muted">—</div>
+              <div className="font-sans text-muted">—</div>
             )}
           </div>
         ))}

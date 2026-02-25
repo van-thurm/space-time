@@ -99,7 +99,11 @@ export default function NewProgramPage() {
         customDayLabels: customDayNames.map((name) => name.trim().slice(0, WORKOUT_DAY_NAME_MAX)),
       });
     } else {
-      createProgram(selectedTemplate.id, programName.trim().slice(0, PROGRAM_NAME_MAX));
+      createProgram(selectedTemplate.id, programName.trim().slice(0, PROGRAM_NAME_MAX), {
+        customWeeksTotal: selectedTemplate.weeksTotal,
+        customDaysPerWeek: selectedTemplate.daysPerWeek,
+        customDayLabels: selectedTemplate.dayLabels,
+      });
     }
     router.push('/');
   };
@@ -151,7 +155,7 @@ export default function NewProgramPage() {
           <div className="flex gap-2 overflow-x-auto pb-2">
             <button
               onClick={() => setDayFilter(null)}
-              className={`px-3 py-1.5 font-mono text-sm border-2 flex-shrink-0 transition-colors touch-manipulation
+              className={`px-3 py-1.5 font-sans text-sm border flex-shrink-0 transition-colors touch-manipulation
                 ${dayFilter === null 
                   ? 'border-foreground bg-foreground text-background' 
                   : 'border-border hover:border-foreground'
@@ -163,7 +167,7 @@ export default function NewProgramPage() {
               <button
                 key={day}
                 onClick={() => setDayFilter(day)}
-                className={`px-3 py-1.5 font-mono text-sm border-2 flex-shrink-0 transition-colors touch-manipulation
+                className={`px-3 py-1.5 font-sans text-sm border flex-shrink-0 transition-colors touch-manipulation
                   ${dayFilter === day 
                     ? 'border-foreground bg-foreground text-background' 
                     : 'border-border hover:border-foreground'
@@ -175,7 +179,7 @@ export default function NewProgramPage() {
             {customTemplates.length > 0 && (
               <button
                 onClick={() => savedTemplatesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="px-3 py-1.5 font-mono text-sm border-2 flex-shrink-0 transition-colors touch-manipulation border-accent/40 text-accent hover:border-accent"
+                className="px-3 py-1.5 font-sans text-sm border flex-shrink-0 transition-colors touch-manipulation border-accent/40 text-accent hover:border-accent"
               >
                 saved
               </button>
@@ -194,15 +198,15 @@ export default function NewProgramPage() {
                   onClick={() => handleSelectTemplate(template)}
                   className={`w-full text-left p-3 transition-colors touch-manipulation
                     ${isCustom 
-                      ? 'border-2 border-dashed border-accent/50 hover:border-accent hover:bg-accent/5' 
-                      : 'border-2 border-border hover:border-foreground hover:bg-foreground/5'
+                      ? 'border border-dashed border-accent/50 hover:border-accent hover:bg-accent/5' 
+                      : 'border border-border hover:border-foreground hover:bg-foreground/5'
                     }`}
                 >
                   <div className="flex items-start gap-3">
                     {/* Visual indicator - geometric */}
                     <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
                       {isCustom ? (
-                        <div className="w-8 h-8 border-2 border-dashed border-accent flex items-center justify-center">
+                        <div className="w-8 h-8 border border-dashed border-accent flex items-center justify-center">
                           <span className="text-accent text-lg">+</span>
                         </div>
                       ) : (
@@ -222,30 +226,30 @@ export default function NewProgramPage() {
                     {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2">
-                        <h3 className="font-mono font-bold text-sm truncate">
+                        <h3 className="font-sans font-bold text-sm truncate">
                           {template.shortName || template.name}
                         </h3>
                         {!isCustom && (
-                          <span className="font-mono text-xs text-muted flex-shrink-0">
+                          <span className="font-sans text-xs text-muted flex-shrink-0">
                             {template.daysPerWeek}d · {template.weeksTotal}w
                           </span>
                         )}
                       </div>
-                      <p className="font-mono text-xs text-muted mt-0.5 line-clamp-1">
+                      <p className="font-sans text-xs text-muted mt-0.5 line-clamp-1">
                         {template.description}
                       </p>
                       {!isCustom && (
                         <div className="flex flex-wrap gap-1.5 mt-1.5">
                           {/* Days chip */}
-                          <span className="font-mono text-[10px] px-1.5 py-0.5 bg-surface border border-border">
+                          <span className="font-sans text-[10px] px-1.5 py-0.5 bg-surface border border-border">
                             {template.daysPerWeek} days
                           </span>
                           {/* Weeks chip */}
-                          <span className="font-mono text-[10px] px-1.5 py-0.5 bg-surface border border-border">
+                          <span className="font-sans text-[10px] px-1.5 py-0.5 bg-surface border border-border">
                             {template.weeksTotal} weeks
                           </span>
                           {/* Equipment chip */}
-                          <span className={`font-mono text-[10px] px-1.5 py-0.5 ${
+                          <span className={`font-sans text-[10px] px-1.5 py-0.5 ${
                             template.equipment === 'minimal' 
                               ? 'bg-accent/10 text-accent border border-accent/30' 
                               : 'bg-surface border border-border'
@@ -253,7 +257,7 @@ export default function NewProgramPage() {
                             {template.equipment === 'minimal' ? 'minimal gear' : 'full gym'}
                           </span>
                           {/* Focus chip */}
-                          <span className="font-mono text-[10px] px-1.5 py-0.5 bg-foreground/5 text-muted">
+                          <span className="font-sans text-[10px] px-1.5 py-0.5 bg-foreground/5 text-muted">
                             {template.focus}
                           </span>
                         </div>
@@ -267,21 +271,21 @@ export default function NewProgramPage() {
 
           {customTemplates.length > 0 && dayFilter === null && (
             <section ref={savedTemplatesRef} className="pt-4 border-t border-border/60 space-y-2">
-              <h2 className="font-mono text-sm text-muted">saved custom templates</h2>
+              <h2 className="font-sans text-sm text-muted">saved custom templates</h2>
               {customTemplates.map((template) => (
                 <button
                   key={template.id}
                   onClick={() => handleSelectCustomTemplate(template)}
-                  className="w-full text-left p-3 border-2 border-border hover:border-accent hover:bg-accent/5 transition-colors touch-manipulation"
+                  className="w-full text-left p-3 border border-border hover:border-accent hover:bg-accent/5 transition-colors touch-manipulation"
                 >
                   <div className="flex items-center justify-between gap-2">
                     <div className="min-w-0">
-                      <p className="font-mono font-bold text-sm truncate">{template.name}</p>
-                      <p className="font-mono text-xs text-muted">
+                      <p className="font-sans font-bold text-sm truncate">{template.name}</p>
+                      <p className="font-sans text-xs text-muted">
                         {template.daysPerWeek} days · {template.weeksTotal} weeks
                       </p>
                     </div>
-                    <span className="font-mono text-xs text-muted">duplicate</span>
+                    <span className="font-sans text-xs text-muted">duplicate</span>
                   </div>
                 </button>
               ))}
@@ -291,29 +295,29 @@ export default function NewProgramPage() {
       ) : (
         <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
           {/* Selected template summary */}
-          <div className="border-2 border-accent bg-accent/5 p-4">
+          <div className="border border-accent bg-accent/5 p-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-mono text-xs text-accent uppercase">selected</p>
-                <h3 className="font-mono font-bold text-lg mt-1">
+                <p className="font-sans text-xs text-accent uppercase">selected</p>
+                <h3 className="font-sans font-bold text-lg mt-1">
                   {selectedCustomTemplate ? `${selectedCustomTemplate.name} template` : selectedTemplate?.name}
                 </h3>
               </div>
               <button
                 onClick={() => setStep('select')}
-                className="font-mono text-sm text-muted hover:text-foreground"
+                className="font-sans text-sm text-muted hover:text-foreground"
               >
                 change
               </button>
             </div>
             {selectedTemplate?.id !== 'custom' && (
-              <div className="flex gap-4 mt-2 font-mono text-sm text-muted">
+              <div className="flex gap-4 mt-2 font-sans text-sm text-muted">
                 <span>{selectedTemplate?.daysPerWeek} days/week</span>
                 <span>{selectedTemplate?.weeksTotal} weeks</span>
               </div>
             )}
             {selectedTemplate?.id === 'custom' && (
-              <div className="flex gap-4 mt-2 font-mono text-sm text-muted">
+              <div className="flex gap-4 mt-2 font-sans text-sm text-muted">
                 <span>{customDayNames.length} days/week</span>
                 <span>{customWeeks} weeks</span>
               </div>
@@ -321,29 +325,29 @@ export default function NewProgramPage() {
           </div>
 
           {selectedTemplate?.id === 'custom' && (
-            <section className="border-2 border-border p-4 space-y-4">
-              <h3 className="font-mono font-bold text-sm">custom structure</h3>
+            <section className="border border-border p-4 space-y-4">
+              <h3 className="font-sans font-bold text-sm">custom structure</h3>
 
               <div className="space-y-2">
-                <label className="font-mono text-sm text-muted">weeks</label>
+                <label className="font-sans text-sm text-muted">weeks</label>
                 <input
                   type="number"
                   min={1}
                   max={52}
                   value={customWeeks}
                   onChange={(e) => setCustomWeeks(Math.max(1, Math.min(52, parseInt(e.target.value) || 1)))}
-                  className="w-full h-11 px-3 border-2 border-border bg-background font-mono
+                  className="w-full h-11 px-3 border border-border bg-background font-sans
                     focus:border-foreground focus:outline-none"
                 />
               </div>
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="font-mono text-sm text-muted">days</label>
+                  <label className="font-sans text-sm text-muted">days</label>
                   <button
                     onClick={addCustomDay}
                     disabled={customDayNames.length >= 5}
-                    className="px-2 py-1 border border-border font-mono text-xs
+                    className="px-2 py-1 border border-border font-sans text-xs
                       hover:border-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     + add day
@@ -358,7 +362,7 @@ export default function NewProgramPage() {
                       onChange={(e) => updateCustomDayName(index, e.target.value)}
                       maxLength={WORKOUT_DAY_NAME_MAX}
                       placeholder="enter workout name"
-                      className={`h-10 px-3 border-2 bg-background font-mono text-sm
+                      className={`h-10 px-3 border bg-background font-sans text-sm
                         focus:border-foreground focus:outline-none placeholder:text-muted/50
                         ${dayNameError && !dayName.trim() ? 'border-danger' : 'border-border'}`}
                     />
@@ -366,7 +370,7 @@ export default function NewProgramPage() {
                       <button
                         onClick={() => moveCustomDay(index, -1)}
                         disabled={index === 0}
-                        className="w-8 h-8 border border-border font-mono text-xs
+                        className="w-8 h-8 border border-border font-sans text-xs
                           hover:border-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         aria-label="Move day up"
                       >
@@ -375,7 +379,7 @@ export default function NewProgramPage() {
                       <button
                         onClick={() => moveCustomDay(index, 1)}
                         disabled={index === customDayNames.length - 1}
-                        className="w-8 h-8 border border-border font-mono text-xs
+                        className="w-8 h-8 border border-border font-sans text-xs
                           hover:border-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         aria-label="Move day down"
                       >
@@ -384,7 +388,7 @@ export default function NewProgramPage() {
                       <button
                         onClick={() => removeCustomDay(index)}
                         disabled={customDayNames.length <= 1}
-                        className="w-8 h-8 border border-border font-mono text-xs text-muted
+                        className="w-8 h-8 border border-border font-sans text-xs text-muted
                           hover:border-danger hover:text-danger disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                         aria-label="Remove day"
                       >
@@ -394,7 +398,7 @@ export default function NewProgramPage() {
                   </div>
                 ))}
                 {dayNameError && (
-                  <p className="font-mono text-xs text-danger">{dayNameError}</p>
+                  <p className="font-sans text-xs text-danger">{dayNameError}</p>
                 )}
               </div>
             </section>
@@ -402,20 +406,20 @@ export default function NewProgramPage() {
 
           {/* Name input */}
           <div className="space-y-2">
-            <label className="font-mono text-sm text-muted">program name</label>
+            <label className="font-sans text-sm text-muted">program name</label>
             <input
               type="text"
               value={programName}
               onChange={(e) => setProgramName(e.target.value)}
               maxLength={PROGRAM_NAME_MAX}
               placeholder="e.g., spring strength block"
-              className="w-full h-12 px-4 border-2 border-border bg-background font-mono
+              className="w-full h-12 px-4 border border-border bg-background font-sans
                 focus:border-foreground focus:outline-none"
             />
-            <p className="font-mono text-xs text-muted">
+            <p className="font-sans text-xs text-muted">
               give it a name you'll recognize
             </p>
-            <p className="font-mono text-xs text-muted border border-border/60 bg-surface/30 px-2 py-1.5">
+            <p className="font-sans text-xs text-muted border border-border/60 bg-surface/30 px-2 py-1.5">
               on the next page, open each day to build your workout.
             </p>
           </div>
@@ -428,7 +432,7 @@ export default function NewProgramPage() {
           <div className="max-w-2xl mx-auto px-4 py-4 flex gap-3">
             <button
               onClick={() => setStep('select')}
-              className="py-3 px-4 border-2 border-background text-background font-mono font-medium 
+              className="py-3 px-4 border border-background text-background font-sans font-medium 
                 hover:bg-background/10 transition-colors touch-manipulation"
             >
               cancel
@@ -436,7 +440,7 @@ export default function NewProgramPage() {
             <button
               onClick={handleCreate}
               disabled={!programName.trim() || (selectedTemplate?.id === 'custom' && customDayNames.some((n) => !n.trim()))}
-              className="flex-1 py-3 px-4 bg-background text-foreground font-mono font-medium 
+              className="flex-1 py-3 px-4 bg-background text-foreground font-sans font-medium 
                 hover:bg-background/90 active:bg-accent active:text-background 
                 disabled:opacity-50 disabled:cursor-not-allowed
                 transition-colors touch-manipulation"

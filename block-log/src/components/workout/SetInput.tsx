@@ -171,22 +171,22 @@ export function SetInput({
   return (
     <div className="py-1">
       {showColumnLabels && (
-        <div className="grid grid-cols-[34px_minmax(0,0.94fr)_10px_minmax(0,0.8fr)_84px] gap-1.5 items-center pb-1">
+        <div className="grid grid-cols-[44px_minmax(52px,1.15fr)_12px_minmax(42px,0.9fr)_minmax(52px,0.95fr)] gap-2 items-center pb-1.5">
           <span aria-hidden="true" />
-          <span className={`h-5 px-1.5 inline-flex items-center justify-center border font-mono text-[10px] uppercase tracking-wide ${chipClass}`}>
+          <span className={`h-6 px-2 inline-flex items-center justify-center border font-sans text-[10px] uppercase tracking-wide ${chipClass}`}>
             {units}
           </span>
-          <span className="font-mono text-[10px] text-muted text-center">x</span>
-          <span className={`h-5 px-1.5 inline-flex items-center justify-center border font-mono text-[10px] uppercase tracking-wide ${chipClass}`}>
+          <span className="font-sans text-[11px] text-muted text-center">x</span>
+          <span className={`h-6 px-2 inline-flex items-center justify-center border font-sans text-[10px] uppercase tracking-wide ${chipClass}`}>
             {repsLabel}
           </span>
-          <span className={`h-5 px-1.5 inline-flex items-center justify-center border font-mono text-[10px] uppercase tracking-wide ${chipClass}`}>
+          <span className={`h-6 px-2 inline-flex items-center justify-center border font-sans text-[10px] uppercase tracking-wide ${chipClass}`}>
             rpe
           </span>
         </div>
       )}
       {/* Compact single-row grid layout */}
-      <div className="grid grid-cols-[34px_1fr] gap-1.5 items-center">
+      <div className="grid grid-cols-[44px_1fr] gap-2 items-center">
         {/* Left: Complete button */}
         <button
           onClick={cycleSetState}
@@ -200,8 +200,8 @@ export function SetInput({
                 : 'Mark set complete'
           }
           className={`
-            w-9 h-9 border-2 flex-shrink-0
-            flex items-center justify-center font-mono text-sm leading-none
+            w-11 h-11 border flex-shrink-0
+            flex items-center justify-center font-sans text-sm leading-none
             transition-colors touch-manipulation
             ${setToggleClass}
             disabled:opacity-30
@@ -211,7 +211,7 @@ export function SetInput({
         </button>
 
         {/* Right: Input row */}
-        <div className="grid grid-cols-[minmax(0,0.94fr)_10px_minmax(0,0.8fr)_84px] gap-1.5 items-center">
+        <div className="grid grid-cols-[minmax(52px,1.15fr)_12px_minmax(42px,0.9fr)_minmax(52px,0.95fr)] gap-2 items-center">
           {/* Weight group */}
           <div className="min-w-0">
             <input
@@ -225,13 +225,13 @@ export function SetInput({
               onFocus={onActivateRow}
               placeholder={placeholderWeight}
               aria-label="Weight"
-              className={`w-full h-9 px-2 border-2 bg-background font-mono text-right text-sm
+              className={`w-full h-11 px-2 border bg-background font-sans text-right text-sm
                 focus:border-foreground focus:outline-none touch-manipulation
                 ${inputBorderClass} placeholder:text-muted/50`}
             />
           </div>
 
-          <div className="font-mono text-[11px] text-muted text-center">x</div>
+          <div className="font-sans text-xs text-muted text-center">x</div>
 
           {/* Reps group */}
           <div className="min-w-0">
@@ -246,7 +246,7 @@ export function SetInput({
               onFocus={onActivateRow}
               placeholder={String(defaultReps)}
               aria-label={isTimeBased ? 'Seconds' : 'Reps'}
-              className={`w-full h-9 px-2 border-2 bg-background font-mono text-right text-sm
+              className={`w-full h-11 px-2 border bg-background font-sans text-right text-sm
                 focus:border-foreground focus:outline-none touch-manipulation
                 ${inputBorderClass}`}
             />
@@ -259,7 +259,7 @@ export function SetInput({
               onChange={(e) => handleRpeChange(parseInt(e.target.value, 10) || 0)}
               onFocus={onActivateRow}
               aria-label="RPE (rating of perceived exertion)"
-              className={`w-full h-9 pl-2 pr-7 border-2 ${inputBorderClass} bg-background font-mono text-sm
+              className={`w-full h-11 pl-2 pr-7 border ${inputBorderClass} bg-background font-sans text-sm
                 focus:border-foreground focus:outline-none text-left touch-manipulation`}
             >
               <option value="">-</option>

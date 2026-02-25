@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getTemplate } from '@/data/program-templates';
+import { getProgramWorkouts } from '@/data/programs';
 import type { 
   WorkoutLog, 
   ExerciseSubstitution, 
@@ -109,6 +110,7 @@ interface AppState {
   getWorkoutStatus: (workoutId: string) => 'not_started' | 'in_progress' | 'completed';
   clearAllData: () => void;
   migrateToMultiProgram: () => void;
+  migrateTemplatePrograms: () => void;
 }
 
 const defaultSettings: UserSettings = {
@@ -121,6 +123,48 @@ const defaultSettings: UserSettings = {
 // Generate unique ID
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+function exerciseToAdded(exercise: Exercise): AddedExercise {
+  return {
+    id: exercise.id,
+    name: exercise.name,
+    sets: exercise.sets,
+    reps: exercise.reps,
+    targetRPE: exercise.targetRPE,
+    restSeconds: exercise.restSeconds,
+    category: exercise.category,
+    addedAt: new Date().toISOString(),
+    muscleGroup: exercise.muscleGroup?.[0],
+    equipment: exercise.equipment?.[0],
+    wasUserAdded: false,
+  };
+}
+
+function hydrateTemplateWorkoutLogs(
+  templateId: ProgramTemplateId,
+  weeksTotal: number,
+  daysPerWeek: number,
+): WorkoutLog[] {
+  const logs: WorkoutLog[] = [];
+  for (let week = 1; week <= weeksTotal; week++) {
+    const workouts = getProgramWorkouts(templateId, week);
+    for (let dayIdx = 0; dayIdx < Math.min(workouts.length, daysPerWeek); dayIdx++) {
+      const workout = workouts[dayIdx];
+      const workingExercises = workout.exercises.filter(e => e.category !== 'warmup');
+      if (workingExercises.length === 0) continue;
+      const added = workingExercises.map(exerciseToAdded);
+      logs.push({
+        workoutId: `week${week}-day${workout.day}`,
+        date: new Date().toISOString(),
+        exercises: [],
+        completed: false,
+        addedExercises: added,
+        exerciseOrder: added.map(e => e.id),
+      });
+    }
+  }
+  return logs;
 }
 
 // Normalize user-entered labels for UI consistency.
@@ -250,7 +294,6 @@ export const useAppStore = create<AppState>()(
 
       getCustomTemplates: () => get().customTemplates,
 
-      // Create a new program from a template
       createProgram: (templateId, name, options) => {
         const id = generateId();
         const template = getTemplate(templateId);
@@ -258,29 +301,34 @@ export const useAppStore = create<AppState>()(
         const hasCustomWeeks = typeof options?.customWeeksTotal === 'number';
         const hasCustomDays = typeof options?.customDaysPerWeek === 'number';
         const initialWeeks = hasCustomWeeks ? (options?.customWeeksTotal || template.weeksTotal) : template.weeksTotal;
+        const daysPerWeek = hasCustomDays ? (options?.customDaysPerWeek || template.daysPerWeek) : template.daysPerWeek;
+
+        const dayLabels = options?.customDayLabels && options.customDayLabels.length > 0
+          ? options.customDayLabels.map((label) => normalizeTextEntry(label))
+          : template.dayLabels.length > 0
+            ? template.dayLabels.slice(0, daysPerWeek)
+            : Array.from({ length: daysPerWeek }, (_, i) => `day ${i + 1}`);
+
+        const hydratedLogs = templateId !== 'custom'
+          ? hydrateTemplateWorkoutLogs(templateId, initialWeeks, daysPerWeek)
+          : [];
+
         const newProgram: UserProgram = {
           id,
           templateId,
           name: normalizedProgramName || name.trim(),
           createdAt: new Date().toISOString(),
           currentWeek: 1,
-          workoutLogs: [],
+          workoutLogs: hydratedLogs,
           exerciseSubstitutions: {},
           isActive: true,
           isArchived: false,
           minWeeksTotal: initialWeeks,
-          customWeeksTotal: hasCustomWeeks ? options?.customWeeksTotal : undefined,
-          customDaysPerWeek: hasCustomDays ? options?.customDaysPerWeek : undefined,
-          customDayLabels: options?.customDayLabels && options.customDayLabels.length > 0
-            ? options.customDayLabels.map((label) => normalizeTextEntry(label))
-            : (hasCustomDays
-                ? Array.from({ length: options?.customDaysPerWeek || template.daysPerWeek }, (_, i) => `day ${i + 1}`)
-                : undefined),
+          customWeeksTotal: initialWeeks,
+          customDaysPerWeek: daysPerWeek,
+          customDayLabels: dayLabels,
           workoutDayNameOverrides: {},
-          workoutDayOrder: Array.from(
-            { length: hasCustomDays ? (options?.customDaysPerWeek || template.daysPerWeek) : template.daysPerWeek },
-            (_, i) => i + 1
-          ),
+          workoutDayOrder: Array.from({ length: daysPerWeek }, (_, i) => i + 1),
         };
         
         set((state) => ({
@@ -288,8 +336,8 @@ export const useAppStore = create<AppState>()(
           activeProgramId: id,
           lastTrainedProgramId: state.lastTrainedProgramId,
           currentWeek: 1,
-          workoutLogs: [],           // Sync to new program (empty)
-          exerciseSubstitutions: {}, // Sync to new program (empty)
+          workoutLogs: hydratedLogs,
+          exerciseSubstitutions: {},
         }));
         
         return id;
@@ -522,7 +570,7 @@ export const useAppStore = create<AppState>()(
         const state = get();
         if (!state.activeProgramId) return false;
         const activeProgram = state.programs.find((program) => program.id === state.activeProgramId);
-        if (!activeProgram || activeProgram.templateId !== 'custom') return false;
+        if (!activeProgram) return false;
 
         const weekMatch = /week(\d+)/.exec(workoutId);
         const dayMatch = /day(\d+)/.exec(workoutId);
@@ -666,7 +714,66 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      // Set current week (updates active program)
+      migrateTemplatePrograms: () => {
+        const state = get();
+        const programsToMigrate = state.programs.filter(
+          (p) => p.templateId !== 'custom' && !p.migratedToUnified
+        );
+        if (programsToMigrate.length === 0) return;
+
+        const updatedPrograms = state.programs.map((program) => {
+          if (program.templateId === 'custom') return program;
+          if (program.migratedToUnified) return program;
+
+          const template = getTemplate(program.templateId);
+          const weeksTotal = program.customWeeksTotal || template.weeksTotal;
+          const daysPerWeek = program.customDaysPerWeek || template.daysPerWeek;
+          const dayLabels = program.customDayLabels || template.dayLabels;
+          const existingLogIds = new Set(program.workoutLogs.map((l) => l.workoutId));
+
+          const hydratedLogs = hydrateTemplateWorkoutLogs(program.templateId, weeksTotal, daysPerWeek);
+          const newLogs = hydratedLogs.filter((l) => !existingLogIds.has(l.workoutId));
+
+          const mergedLogs = [...program.workoutLogs, ...newLogs];
+          const mergedWithStructure = program.workoutLogs.map((existing) => {
+            const hydrated = hydratedLogs.find((h) => h.workoutId === existing.workoutId);
+            if (!hydrated) return existing;
+            if (existing.addedExercises && existing.addedExercises.length > 0) return existing;
+            return {
+              ...existing,
+              addedExercises: hydrated.addedExercises,
+              exerciseOrder: existing.exerciseOrder || hydrated.exerciseOrder,
+            };
+          });
+
+          const finalLogs = [
+            ...mergedWithStructure,
+            ...newLogs,
+          ];
+
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`[migration] Hydrated program "${program.name}" (${program.templateId}): ${newLogs.length} new logs added`);
+          }
+
+          return {
+            ...program,
+            workoutLogs: finalLogs,
+            customWeeksTotal: weeksTotal,
+            customDaysPerWeek: daysPerWeek,
+            customDayLabels: dayLabels.length > 0 ? dayLabels : undefined,
+            migratedToUnified: true,
+          } as UserProgram;
+        });
+
+        const activeId = state.activeProgramId;
+        const activeUpdated = updatedPrograms.find((p) => p.id === activeId);
+
+        set({
+          programs: updatedPrograms,
+          workoutLogs: activeUpdated ? activeUpdated.workoutLogs : state.workoutLogs,
+        });
+      },
+
       setCurrentWeek: (week) => set((state) => {
         // Update active program if exists
         if (state.activeProgramId) {
@@ -966,6 +1073,7 @@ export const useAppStore = create<AppState>()(
         const normalizedExercise = {
           ...exercise,
           name: normalizeTextEntry(exercise.name) || exercise.name.trim(),
+          wasUserAdded: true,
         };
         
         let newLogs: WorkoutLog[];

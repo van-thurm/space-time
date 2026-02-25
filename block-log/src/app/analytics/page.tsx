@@ -51,12 +51,12 @@ export default function AnalyticsPage() {
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
         {/* Summary stats */}
-        <section className="border-2 border-border p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-pixel font-bold">summary</h2>
+        <section className="border border-border p-4">
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <h2 className="font-display font-bold text-balance">summary</h2>
             <button
               onClick={() => setShowDataScopeInfo((value) => !value)}
-              className="w-7 h-7 border border-border text-muted hover:text-foreground hover:border-foreground transition-colors font-mono text-sm touch-manipulation"
+              className="w-11 h-11 border border-border text-muted hover:text-foreground hover:border-foreground transition-colors font-sans text-base font-medium leading-none touch-manipulation"
               aria-label={showDataScopeInfo ? 'Hide analytics data source info' : 'Show analytics data source info'}
             >
               i
@@ -65,26 +65,26 @@ export default function AnalyticsPage() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <div className="font-mono text-sm text-muted">workouts completed</div>
-              <div className="font-mono font-bold text-2xl">
+              <div className="font-sans text-sm text-muted">workouts completed</div>
+              <div className="font-sans font-bold text-2xl">
                 {summary.completedWorkouts}
                 <span className="text-muted text-sm font-normal">/{summary.totalWorkouts}</span>
               </div>
             </div>
             <div>
-              <div className="font-mono text-sm text-muted">total sets</div>
-              <div className="font-mono font-bold text-2xl">{summary.totalSets}</div>
+              <div className="font-sans text-sm text-muted">total sets</div>
+              <div className="font-sans font-bold text-2xl">{summary.totalSets}</div>
             </div>
             <div>
-              <div className="font-mono text-sm text-muted">total volume</div>
-              <div className="font-mono font-bold text-2xl">
+              <div className="font-sans text-sm text-muted">total volume</div>
+              <div className="font-sans font-bold text-2xl">
                 {summary.totalVolume.toLocaleString()}
                 <span className="text-sm font-normal"> {userSettings.units}</span>
               </div>
             </div>
             <div>
-              <div className="font-mono text-sm text-muted">date range</div>
-              <div className="font-mono text-sm">
+              <div className="font-sans text-sm text-muted">date range</div>
+              <div className="font-sans text-sm">
                 {summary.dateRange 
                   ? `${summary.dateRange.start} - ${summary.dateRange.end}`
                   : '—'
@@ -93,25 +93,25 @@ export default function AnalyticsPage() {
             </div>
           </div>
           {showDataScopeInfo && (
-            <div className="mt-4 border-2 border-border p-4 space-y-3">
+            <div className="mt-4 border border-border p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="font-pixel font-bold text-base">analytics scope</h2>
+                <h2 className="font-display font-bold text-base">analytics scope</h2>
                 <button
                   onClick={() => setShowDataScopeInfo(false)}
-                  className="w-10 h-8 border border-border font-mono text-sm leading-none hover:border-foreground transition-colors touch-manipulation inline-flex items-center justify-center"
+                  className="w-11 h-11 border border-border font-sans text-base font-medium leading-none hover:border-foreground transition-colors touch-manipulation inline-flex items-center justify-center"
                   aria-label="Close analytics scope details"
                 >
                   ×
                 </button>
               </div>
-              <p className="h-9 px-3 inline-flex items-center border border-border bg-surface/70 font-mono text-xs uppercase tracking-wide text-muted">
+              <p className="min-h-11 px-3 inline-flex items-center border border-border bg-surface/70 font-sans text-xs uppercase tracking-wide text-muted">
                 data source: {activeProgram ? 'active block only' : 'no active block selected'}
               </p>
-              <p className="h-9 px-3 inline-flex items-center border border-border bg-surface/70 font-mono text-xs uppercase tracking-wide text-muted">
+              <p className="min-h-11 px-3 inline-flex items-center border border-border bg-surface/70 font-sans text-xs uppercase tracking-wide text-muted">
                 current block: {activeProgram ? activeProgram.name : 'none selected'}
               </p>
-              <p className="font-mono text-sm text-muted">
-                switch active block on the main page to inspect another block&apos;s history.
+              <p className="font-sans text-sm text-muted text-pretty">
+                switch active block on the programs page to inspect another block&apos;s history.
               </p>
             </div>
           )}
@@ -128,16 +128,16 @@ export default function AnalyticsPage() {
         </section>
 
         {/* Settings + Export */}
-        <section className="border-2 border-border p-4 space-y-4">
-          <h2 className="font-pixel font-bold">settings + export</h2>
+        <section className="border border-border p-4 space-y-4">
+          <h2 className="font-display font-bold text-balance">settings + export</h2>
           
           <div className="flex flex-wrap items-center gap-3">
             {/* Units toggle */}
             <div className="flex items-center gap-2">
-              <span className="font-mono text-sm text-muted">units:</span>
+              <span className="font-sans text-sm text-muted">units:</span>
               <button
                 onClick={toggleUnits}
-                className="font-mono text-sm border-2 border-border px-3 py-1 hover:border-foreground"
+                className="font-sans text-sm border border-border px-3 min-h-11 hover:border-foreground touch-manipulation"
               >
                 {userSettings.units}
               </button>
@@ -145,13 +145,13 @@ export default function AnalyticsPage() {
             <button
               onClick={handleExport}
               disabled={workoutLogs.length === 0}
-              className="font-mono px-4 py-2 bg-foreground text-background hover:bg-foreground/90 
-                disabled:opacity-50 disabled:cursor-not-allowed"
+              className="font-sans px-4 min-h-11 bg-foreground text-background hover:bg-foreground/90 
+                disabled:opacity-50 disabled:cursor-not-allowed touch-manipulation"
             >
               export csv
             </button>
           </div>
-          <p className="font-mono text-xs text-muted">
+          <p className="font-sans text-xs text-muted text-pretty">
             download workout data as csv
           </p>
         </section>

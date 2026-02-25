@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { getWorkout } from '@/data/program';
-import { getWeekWorkouts } from '@/data/program';
-import { getProgramWorkouts } from '@/data/programs';
 import { getCustomWorkouts } from '@/data/programs/custom';
 import { getTemplate } from '@/data/program-templates';
 import { calculateRecommendedWeight } from '@/lib/progression';
@@ -63,43 +61,16 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   const daysPerWeek = activeProgram?.customDaysPerWeek || template?.daysPerWeek || 4;
   const dayNameOverride = activeProgram?.workoutDayNameOverrides?.[day];
 
-  // Get workout from program-specific workouts
   const workout = useMemo(() => {
     if (isNaN(week) || week < 1 || week > totalWeeks || isNaN(day) || day < 1 || day > daysPerWeek) {
       return null;
     }
     if (!activeProgram) return getWorkout(week, day);
-    if (activeProgram.templateId === 'custom') {
-      const dayLabels =
-        activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
-          ? activeProgram.customDayLabels
-          : Array.from({ length: daysPerWeek }, (_, i) => `day ${i + 1}`);
-      const workouts = getCustomWorkouts(week, dayLabels);
-      return workouts.find((w) => w.day === day) || workouts[0] || null;
-    }
-    const baseWorkouts =
-      activeProgram.templateId !== '4-day-upper-lower'
-        ? getProgramWorkouts(activeProgram.templateId, week)
-        : getWeekWorkouts(week);
-    const targetDays = activeProgram.customDaysPerWeek || baseWorkouts.length;
-    const dayLabels = activeProgram.customDayLabels || [];
-    const workouts =
-      targetDays > baseWorkouts.length
-        ? [
-            ...baseWorkouts,
-            ...Array.from({ length: targetDays - baseWorkouts.length }, (_, idx) => {
-              const extraDay = baseWorkouts.length + idx + 1;
-              return {
-                id: `week${week}-day${extraDay}`,
-                week,
-                day: extraDay as WorkoutDay,
-                dayName: dayLabels[extraDay - 1] || `day ${extraDay}`,
-                exercises: [],
-                estimatedDuration: 45,
-              };
-            }),
-          ]
-        : baseWorkouts;
+    const dayLabels =
+      activeProgram.customDayLabels && activeProgram.customDayLabels.length > 0
+        ? activeProgram.customDayLabels
+        : Array.from({ length: daysPerWeek }, (_, i) => `day ${i + 1}`);
+    const workouts = getCustomWorkouts(week, dayLabels);
     return workouts.find((w) => w.day === day) || workouts[0] || null;
   }, [activeProgram, week, day, totalWeeks, daysPerWeek]);
   const workoutId = workout?.id;
@@ -127,8 +98,8 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <p className="font-mono text-muted">invalid workout</p>
-          <Link href="/" className="font-mono text-sm underline mt-2 inline-block">
+          <p className="font-sans text-muted">invalid workout</p>
+          <Link href="/" className="font-sans text-sm underline mt-2 inline-block">
             back to block
           </Link>
         </div>
@@ -315,12 +286,12 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
 
       <section className="max-w-2xl mx-auto px-4 pt-3">
         <div className="px-1 py-1.5 space-y-2">
-          <h1 className="font-pixel text-lg">{activeProgram?.name || 'my block'}</h1>
+          <h1 className="font-display text-lg">{activeProgram?.name || 'my block'}</h1>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-mono text-xs uppercase tracking-wide text-muted">
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-sans text-xs uppercase tracking-wide text-muted">
               week {week}
             </span>
-            <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-mono text-xs uppercase tracking-wide text-muted">
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-sans text-xs uppercase tracking-wide text-muted">
               {dayNameOverride || workout.dayName || `day ${day}`}
             </span>
           </div>
@@ -329,7 +300,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
 
       {/* Header progress bar */}
       <div className="max-w-2xl mx-auto px-4 pt-3">
-        <div className="flex justify-between text-xs font-mono text-muted mb-1">
+        <div className="flex justify-between text-xs font-sans text-muted mb-1">
           <span>progress</span>
           <span className="tabular-nums">{completedSets}/{totalSets} sets</span>
         </div>
@@ -368,11 +339,11 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           onReorder={(order) => reorderExercises(workout.id, order)}
         />
 
-        {activeProgram?.templateId === 'custom' && (
+        {activeProgram && (
           <div className="flex justify-end">
             <button
               onClick={handleCopyDayAcrossBlock}
-              className={`h-9 px-3 border font-mono text-xs transition-colors touch-manipulation ${
+              className={`min-h-11 px-4 border font-sans text-sm transition-colors touch-manipulation ${
                 copyDayStatus === 'done'
                   ? 'border-success text-success bg-success/10'
                   : copyDayStatus === 'needs_setup'
@@ -392,8 +363,8 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
         {/* Add exercise button */}
         <button
           onClick={() => setShowAddExerciseModal(true)}
-          className="w-full py-4 border-2 border-dashed border-border hover:border-accent 
-            text-muted hover:text-accent active:bg-accent/10 font-mono text-sm
+          className="w-full py-4 border border-dashed border-border hover:border-accent 
+            text-muted hover:text-accent active:bg-accent/10 font-sans text-sm
             transition-colors touch-manipulation flex items-center justify-center gap-2"
         >
           <span className="text-lg">+</span>
@@ -405,7 +376,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
             {!confirmClearWorkout ? (
               <button
                 onClick={handleClearWorkoutProgress}
-                className="w-full py-2.5 px-4 border border-danger/70 text-muted font-mono text-xs uppercase tracking-wide
+                className="w-full py-2.5 px-4 border border-danger/70 text-muted font-sans text-xs uppercase tracking-wide
                   hover:border-danger hover:text-danger transition-colors touch-manipulation"
               >
                 clear workout
@@ -414,14 +385,14 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
               <div className="flex gap-2">
                 <button
                   onClick={() => setConfirmClearWorkout(false)}
-                  className="flex-1 py-2.5 px-3 border border-border font-mono text-xs text-muted
+                  className="flex-1 py-2.5 px-3 border border-border font-sans text-xs text-muted
                     hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                 >
                   cancel clear
                 </button>
                 <button
                   onClick={handleConfirmClearWorkout}
-                  className="flex-1 py-2.5 px-3 border border-danger bg-danger text-background font-mono text-xs
+                  className="flex-1 py-2.5 px-3 border border-danger bg-danger text-background font-sans text-xs
                     hover:bg-danger/90 transition-colors touch-manipulation"
                 >
                   yes, clear
@@ -439,7 +410,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
             <div className="flex gap-3">
               <button
                 onClick={handleSaveExit}
-                className="flex-1 py-3 px-4 border-2 border-background/30 text-background font-mono font-medium 
+                className="flex-1 py-3 px-4 border border-background/30 text-background font-sans font-medium 
                   hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
               >
                 save & exit
@@ -447,7 +418,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
               <button
                 onClick={handleComplete}
                 disabled={totalSets === 0 || completedSets === 0}
-                className="flex-1 py-3 px-4 bg-background text-foreground font-mono font-medium 
+                className="flex-1 py-3 px-4 bg-background text-foreground font-sans font-medium 
                   hover:bg-background/90 active:bg-success active:text-background transition-colors touch-manipulation
                   disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -459,7 +430,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
               <div className="flex gap-3">
                 <button
                   onClick={handleUnfinishWorkout}
-                  className="flex-1 py-3 px-4 border-2 border-background/30 text-background font-mono font-medium 
+                  className="flex-1 py-3 px-4 border border-background/30 text-background font-sans font-medium 
                     hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
                 >
                   mark as unfinished
@@ -467,7 +438,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
                 {!confirmResetReady ? (
                   <button
                     onClick={handleResetToReady}
-                    className="flex-1 py-3 px-4 border-2 border-background/30 text-background font-mono font-medium 
+                    className="flex-1 py-3 px-4 border border-background/30 text-background font-sans font-medium 
                       hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
                   >
                     clear + reset to ready
@@ -476,14 +447,14 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
                   <div className="flex-1 flex gap-2">
                     <button
                       onClick={() => setConfirmResetReady(false)}
-                      className="flex-1 py-3 px-2 border-2 border-background/30 text-background font-mono text-xs
+                      className="flex-1 py-3 px-2 border border-background/30 text-background font-sans text-xs
                         hover:bg-background/10 transition-colors touch-manipulation"
                     >
                       cancel
                     </button>
                     <button
                       onClick={handleConfirmResetToReady}
-                      className="flex-1 py-3 px-2 border-2 border-background bg-background text-foreground font-mono text-xs
+                      className="flex-1 py-3 px-2 border border-background bg-background text-foreground font-sans text-xs
                         hover:bg-background/90 transition-colors touch-manipulation"
                     >
                       confirm

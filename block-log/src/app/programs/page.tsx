@@ -99,7 +99,7 @@ function SortableProgramCard({
       : template.shortName;
   const isProgramComplete = totalWorkouts > 0 && completedWorkouts >= totalWorkouts;
   const cardToneClass = isProgramComplete
-    ? 'border-success/50 border-l-[3px] border-l-success bg-success/5'
+    ? 'border-success/50 border-l-2 border-l-success bg-success/5'
     : isRecentActive
       ? 'border-accent bg-accent/5'
       : 'border-border hover:border-foreground';
@@ -114,7 +114,7 @@ function SortableProgramCard({
     <div
       ref={setNodeRef}
       style={style}
-      className={`w-full text-left border-2 p-4 transition-colors ${cardToneClass}`}
+      className={`w-full text-left border p-4 transition-colors ${cardToneClass}`}
     >
       <div className="flex justify-between items-start gap-2">
         {editModeEnabled && (
@@ -137,20 +137,20 @@ function SortableProgramCard({
         )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-mono font-bold text-base truncate">{program.name}</h3>
+            <h3 className="font-sans font-bold text-base truncate">{program.name}</h3>
             {isRecentActive && (
-              <span className="font-mono text-xs text-accent flex-shrink-0">active</span>
+              <span className="font-sans text-xs text-accent flex-shrink-0">active</span>
             )}
             {isProgramComplete && (
-              <span className="font-mono text-xs text-success flex-shrink-0">complete</span>
+              <span className="font-sans text-xs text-success flex-shrink-0">complete</span>
             )}
           </div>
-          <p className="font-mono text-sm text-muted mt-1">
+          <p className="font-sans text-sm text-muted mt-1">
             {templateLabel} · week {program.currentWeek}/{program.customWeeksTotal || template.weeksTotal}
           </p>
         </div>
         <div className="text-right flex-shrink-0">
-          <span className="font-mono text-sm">{progressPercent}%</span>
+          <span className="font-sans text-sm">{progressPercent}%</span>
         </div>
       </div>
 
@@ -163,7 +163,7 @@ function SortableProgramCard({
       </div>
 
       <div className="flex justify-between items-center mt-2">
-        <div className="font-mono text-xs text-muted space-y-0.5">
+        <div className="font-sans text-xs text-muted space-y-0.5">
           <p>{completedWorkouts} workouts done · {daysPerWeek} days/week</p>
           <p>started: {formatShortDate(startedDate)}</p>
           {safeCompletionDate && <p>completed: {formatShortDate(safeCompletionDate)}</p>}
@@ -171,21 +171,21 @@ function SortableProgramCard({
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenEdit}
-            className="h-9 px-3 font-mono text-xs border border-border text-muted hover:text-foreground hover:border-foreground transition-colors touch-manipulation"
+            className="h-9 px-3 font-sans text-xs border border-border text-muted hover:text-foreground hover:border-foreground transition-colors touch-manipulation"
           >
             edit
           </button>
           {isProgramComplete && (
             <button
               onClick={onOpenAnalytics}
-              className="h-9 px-3 font-mono text-xs border border-success text-success hover:bg-success/10 transition-colors touch-manipulation"
+              className="h-9 px-3 font-sans text-xs border border-success text-success hover:bg-success/10 transition-colors touch-manipulation"
             >
               report
             </button>
           )}
           <button
             onClick={onSelect}
-            className={`h-9 px-3 font-mono text-xs border transition-colors touch-manipulation ${openButtonClass}`}
+            className={`h-9 px-3 font-sans text-xs border transition-colors touch-manipulation ${openButtonClass}`}
           >
             open
           </button>
@@ -209,6 +209,7 @@ export default function ProgramsPage() {
   const saveAsTemplate = useAppStore((state) => state.saveAsTemplate);
   const updateProgramStructure = useAppStore((state) => state.updateProgramStructure);
   const migrateToMultiProgram = useAppStore((state) => state.migrateToMultiProgram);
+  const migrateTemplatePrograms = useAppStore((state) => state.migrateTemplatePrograms);
   const workoutLogs = useAppStore((state) => state.workoutLogs);
   const currentWeek = useAppStore((state) => state.currentWeek);
   
@@ -235,10 +236,10 @@ export default function ProgramsPage() {
     })
   );
 
-  // Migrate legacy data on first load
   useEffect(() => {
     migrateToMultiProgram();
-  }, [migrateToMultiProgram]);
+    migrateTemplatePrograms();
+  }, [migrateToMultiProgram, migrateTemplatePrograms]);
 
   // Filter to non-archived programs and keep active program at the top.
   const sortedPrograms = useMemo(() => {
@@ -292,13 +293,13 @@ export default function ProgramsPage() {
 
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <div className="text-center space-y-4 max-w-sm">
-            <h2 className="font-mono text-lg">welcome to block log</h2>
-            <p className="font-mono text-sm text-muted">
+            <h2 className="font-sans text-lg">welcome to block log</h2>
+            <p className="font-sans text-sm text-muted">
               start your first training program
             </p>
             <Link
               href="/programs/new"
-              className="inline-block mt-4 px-6 py-3 bg-foreground text-background font-mono font-medium
+              className="inline-block mt-4 px-6 py-3 bg-foreground text-background font-sans font-medium
                 hover:bg-foreground/90 active:bg-accent transition-colors touch-manipulation"
             >
               + new program
@@ -418,7 +419,7 @@ export default function ProgramsPage() {
           <div className="flex justify-end">
             <button
               onClick={() => setEditModeEnabled(!editModeEnabled)}
-              className={`px-3 py-2 font-mono text-sm border transition-colors touch-manipulation
+              className={`px-3 py-2 font-sans text-sm border transition-colors touch-manipulation
                 ${editModeEnabled 
                   ? 'border-accent text-accent bg-accent/10' 
                   : 'border-border text-muted hover:border-foreground hover:text-foreground'
@@ -452,8 +453,8 @@ export default function ProgramsPage() {
         {/* Add new program button */}
         <Link
           href="/programs/new"
-          className="block w-full text-center py-4 border-2 border-dashed border-border 
-            hover:border-accent text-muted hover:text-accent font-mono
+          className="block w-full text-center py-4 border border-dashed border-border 
+            hover:border-accent text-muted hover:text-accent font-sans
             transition-colors touch-manipulation"
         >
           + new program
@@ -471,14 +472,14 @@ export default function ProgramsPage() {
             onClick={closeEditModal}
           />
           <div
-            className="relative w-full max-w-md border-2 border-border bg-background p-4 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-md border border-border bg-background p-4 space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-pixel font-bold text-base">edit program</h2>
+              <h2 className="font-display font-bold text-base">edit program</h2>
               <button
                 onClick={closeEditModal}
-                className="w-9 h-9 border border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                className="w-11 h-11 border border-border font-sans text-base font-medium leading-none hover:border-foreground transition-colors touch-manipulation"
                 aria-label="Close program editor"
               >
                 ✕
@@ -486,13 +487,13 @@ export default function ProgramsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="font-mono text-xs text-muted uppercase tracking-wide">name</label>
+              <label className="font-sans text-xs text-muted uppercase tracking-wide">name</label>
               <input
                 type="text"
                 value={draftName}
                 onChange={(e) => setDraftName(e.target.value)}
                 maxLength={PROGRAM_NAME_MAX}
-                className="w-full h-11 px-3 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+                className="w-full h-11 px-3 border border-border bg-background font-sans text-sm focus:border-foreground focus:outline-none"
               />
             </div>
 
@@ -504,14 +505,14 @@ export default function ProgramsPage() {
               if (!isComplete) return null;
               return (
                 <div className="border border-success/60 bg-success/10 px-3 py-2 space-y-1">
-                  <p className="font-mono text-xs uppercase tracking-wide text-success">program complete</p>
-                  <p className="font-mono text-xs text-muted">keep visible, archive it, or extend weeks/days to continue this block.</p>
+                  <p className="font-sans text-xs uppercase tracking-wide text-success">program complete</p>
+                  <p className="font-sans text-xs text-muted">keep visible, archive it, or extend weeks/days to continue this block.</p>
                 </div>
               );
             })()}
 
             <div className="space-y-2 border-t border-border pt-3">
-              <label className="font-mono text-xs text-muted uppercase tracking-wide">block length</label>
+              <label className="font-sans text-xs text-muted uppercase tracking-wide">block length</label>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
@@ -522,11 +523,11 @@ export default function ProgramsPage() {
                       return next;
                     });
                   }}
-                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                  className="w-11 h-11 border border-border font-sans text-lg hover:border-foreground transition-colors touch-manipulation"
                 >
                   -
                 </button>
-                <div className="flex-1 h-11 border-2 border-border bg-background font-mono text-sm flex items-center justify-center px-2">
+                <div className="flex-1 h-11 border border-border bg-background font-sans text-sm flex items-center justify-center px-2">
                   <input
                     type="text"
                     inputMode="numeric"
@@ -545,7 +546,7 @@ export default function ProgramsPage() {
                       setDraftWeeks(safe);
                       setDraftWeeksInput(String(safe));
                     }}
-                    className="w-16 bg-transparent text-center font-mono text-sm focus:outline-none"
+                    className="w-16 bg-transparent text-center font-sans text-sm focus:outline-none"
                     aria-label="Weeks total"
                   />
                   <span className="text-muted">weeks</span>
@@ -559,7 +560,7 @@ export default function ProgramsPage() {
                       return next;
                     });
                   }}
-                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                  className="w-11 h-11 border border-border font-sans text-lg hover:border-foreground transition-colors touch-manipulation"
                 >
                   +
                 </button>
@@ -579,12 +580,12 @@ export default function ProgramsPage() {
                       return next;
                     });
                   }}
-                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                  className="w-11 h-11 border border-border font-sans text-lg hover:border-foreground transition-colors touch-manipulation"
                   aria-label="Remove one day from this program"
                 >
                   -
                 </button>
-                <div className="flex-1 h-11 border-2 border-border font-mono text-sm flex items-center justify-center">
+                <div className="flex-1 h-11 border border-border font-sans text-sm flex items-center justify-center">
                   {daysTotal} days/week
                 </div>
                 <button
@@ -603,26 +604,26 @@ export default function ProgramsPage() {
                       return next;
                     });
                   }}
-                  className="w-11 h-11 border-2 border-border font-mono text-lg hover:border-foreground transition-colors touch-manipulation"
+                  className="w-11 h-11 border border-border font-sans text-lg hover:border-foreground transition-colors touch-manipulation"
                   aria-label="Add one day to this program"
                 >
                   +
                 </button>
               </div>
               {structureError && (
-                <p className="font-mono text-xs text-danger">{structureError}</p>
+                <p className="font-sans text-xs text-danger">{structureError}</p>
               )}
-              <p className="font-mono text-xs text-muted">
-                For data integrity, exercise structure is edited from the workout flow.
+              <p className="font-sans text-xs text-muted">
+                for data integrity, exercise structure is edited from the workout flow.
               </p>
             </div>
 
             <div className="space-y-2 border-t border-border pt-3">
-              <label className="font-mono text-xs text-muted uppercase tracking-wide">workout day names</label>
+              <label className="font-sans text-xs text-muted uppercase tracking-wide">workout day names</label>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {Array.from({ length: draftDays }, (_, index) => (
                   <div key={index} className="flex items-center gap-2">
-                    <span className="w-12 text-right font-mono text-xs text-muted">day {index + 1}</span>
+                    <span className="w-12 text-right font-sans text-xs text-muted">day {index + 1}</span>
                     <input
                       type="text"
                       value={draftDayNames[index] || ''}
@@ -637,7 +638,7 @@ export default function ProgramsPage() {
                           return next;
                         });
                       }}
-                      className={`flex-1 h-10 px-3 border-2 bg-background font-mono text-sm focus:border-foreground focus:outline-none placeholder:text-muted/50
+                      className={`flex-1 h-10 px-3 border bg-background font-sans text-sm focus:border-foreground focus:outline-none placeholder:text-muted/50
                         ${structureError && !(draftDayNames[index] || '').trim() ? 'border-danger' : 'border-border'}`}
                       aria-label={`Workout day ${index + 1} name`}
                     />
@@ -650,7 +651,7 @@ export default function ProgramsPage() {
               {!templateExpanded ? (
                 <button
                   onClick={() => setTemplateExpanded(true)}
-                  className="w-full h-11 border-2 border-accent text-accent font-mono text-sm hover:bg-accent/10 transition-colors touch-manipulation"
+                  className="w-full h-11 border border-accent text-accent font-sans text-sm hover:bg-accent/10 transition-colors touch-manipulation"
                 >
                   save as template
                 </button>
@@ -661,19 +662,19 @@ export default function ProgramsPage() {
                     value={templateName}
                     onChange={(e) => setTemplateName(e.target.value)}
                     maxLength={TEMPLATE_NAME_MAX}
-                    className="w-full h-11 px-3 border-2 border-border bg-background font-mono text-sm focus:border-foreground focus:outline-none"
+                    className="w-full h-11 px-3 border border-border bg-background font-sans text-sm focus:border-foreground focus:outline-none"
                   />
                   <div className="flex gap-2">
                     <button
                       onClick={() => setTemplateExpanded(false)}
-                      className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
                     >
                       cancel
                     </button>
                     <button
                       onClick={handleSaveTemplate}
                       disabled={!templateName.trim()}
-                      className="flex-1 h-11 border-2 border-accent text-accent font-mono text-sm hover:bg-accent/10 disabled:opacity-50 transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-accent text-accent font-sans text-sm hover:bg-accent/10 disabled:opacity-50 transition-colors touch-manipulation"
                     >
                       {templateSaveState === 'saved' ? 'saved!' : 'save template'}
                     </button>
@@ -685,13 +686,13 @@ export default function ProgramsPage() {
             <div className="border-t border-border pt-3 space-y-2">
               {confirmDelete ? (
                 <div className="space-y-2">
-                  <p className="font-mono text-sm text-muted">
+                  <p className="font-sans text-sm text-muted">
                     are you sure you want to delete? your workout data will also be deleted.
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setConfirmDelete(false)}
-                      className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
                     >
                       cancel
                     </button>
@@ -700,7 +701,7 @@ export default function ProgramsPage() {
                         deleteProgram(selectedProgram.id);
                         closeEditModal();
                       }}
-                      className="flex-1 h-11 border-2 border-danger bg-danger text-background font-mono text-sm hover:bg-danger/90 transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
                     >
                       yes, delete
                     </button>
@@ -708,13 +709,13 @@ export default function ProgramsPage() {
                 </div>
               ) : confirmDangerAction ? (
                 <div className="space-y-2">
-                  <p className="font-mono text-sm text-muted">
+                  <p className="font-sans text-sm text-muted">
                     delete/archive this program? deleting removes workout data. archiving keeps it in settings.
                   </p>
                   <div className="flex gap-2">
                     <button
                       onClick={() => setConfirmDangerAction(false)}
-                      className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
                     >
                       cancel
                     </button>
@@ -723,7 +724,7 @@ export default function ProgramsPage() {
                         archiveProgram(selectedProgram.id);
                         closeEditModal();
                       }}
-                      className="flex-1 h-11 border-2 border-border font-mono text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                     >
                       archive
                     </button>
@@ -732,7 +733,7 @@ export default function ProgramsPage() {
                         setConfirmDangerAction(false);
                         setConfirmDelete(true);
                       }}
-                      className="flex-1 h-11 border-2 border-danger bg-danger text-background font-mono text-sm hover:bg-danger/90 transition-colors touch-manipulation"
+                      className="flex-1 h-11 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
                     >
                       delete
                     </button>
@@ -742,21 +743,21 @@ export default function ProgramsPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setConfirmDangerAction(true)}
-                    className="w-11 h-11 border-2 border-danger text-danger inline-flex items-center justify-center hover:bg-danger hover:text-background transition-colors touch-manipulation"
+                    className="w-11 h-11 border border-danger text-danger inline-flex items-center justify-center hover:bg-danger hover:text-background transition-colors touch-manipulation"
                     aria-label="Delete or archive program"
                   >
                     <TrashIcon size={16} />
                   </button>
                   <button
                     onClick={closeEditModal}
-                    className="flex-1 h-11 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                    className="flex-1 h-11 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
                   >
                     cancel
                   </button>
                   <button
                     onClick={handleSaveProgram}
                     disabled={!draftName.trim() || draftDayNames.slice(0, draftDays).some((n) => !(n || '').trim())}
-                    className="flex-1 h-11 border-2 border-foreground bg-foreground text-background font-mono text-sm hover:bg-foreground/90 disabled:opacity-50 transition-colors touch-manipulation"
+                    className="flex-1 h-11 border border-foreground bg-foreground text-background font-sans text-sm hover:bg-foreground/90 disabled:opacity-50 transition-colors touch-manipulation"
                   >
                     save
                   </button>

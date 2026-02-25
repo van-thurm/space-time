@@ -31,6 +31,11 @@ export function AddedExerciseCard({
   defaultCollapsed = false,
   onSwap,
 }: AddedExerciseCardProps) {
+  const isSessionAdded =
+    exercise.wasUserAdded ||
+    exercise.id.startsWith('api-') ||
+    exercise.id.startsWith('custom-') ||
+    Boolean(exercise.apiExerciseId);
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -103,14 +108,14 @@ export function AddedExerciseCard({
       <div className="border border-border/30 bg-surface/30 opacity-50">
         <div className="p-3 flex justify-between items-center gap-2">
           <div className="flex-1 min-w-0 flex items-center gap-2">
-            <span className="font-mono text-xs text-muted line-through">{exercise.name}</span>
-            <span className="font-mono text-[10px] text-muted border border-border px-1">skipped</span>
+            <span className="font-sans text-xs text-muted line-through">{exercise.name}</span>
+            <span className="font-sans text-[10px] text-muted border border-border px-1">skipped</span>
           </div>
           {onRestoreClick && (
             <button
               onClick={onRestoreClick}
-              className="font-mono text-xs text-accent active:bg-accent active:text-background
-                px-2 py-1 border border-accent hover:bg-accent hover:text-background transition-colors touch-manipulation"
+              className="font-sans text-sm text-accent active:bg-accent active:text-background
+                px-3 min-h-11 border border-accent hover:bg-accent hover:text-background transition-colors touch-manipulation"
             >
               restore exercise
             </button>
@@ -123,25 +128,29 @@ export function AddedExerciseCard({
   if (isCollapsed) {
     return (
       <div
-        className={`border-l-[3px] border-l-accent/60 border cursor-pointer ${
+        className={`border-l-2 border cursor-pointer ${
           compactStatus === 'completed'
             ? 'border-success/40 border-l-success bg-success/5'
             : compactStatus === 'resolved'
               ? 'border-success/60 border-l-success'
-              : 'border-accent/40'
+              : isSessionAdded
+                ? 'border-accent/40 border-l-accent/60'
+                : 'border-border border-l-accent/40'
         }`}
         onClick={() => setIsCollapsed(false)}
       >
         <div className="p-3 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className={`w-6 h-6 border-2 font-mono text-xs inline-flex items-center justify-center ${compactStatusBoxClass}`}>
+            <span className={`w-6 h-6 border font-sans text-xs inline-flex items-center justify-center ${compactStatusBoxClass}`}>
               {compactStatus === 'completed' || compactStatus === 'resolved' ? <GeometricCheck size={13} /> : ''}
             </span>
-            <span className="font-mono text-[10px] uppercase text-accent">added</span>
-            <span className="font-mono text-sm font-bold">{exercise.name}</span>
+            {isSessionAdded && (
+              <span className="font-sans text-[10px] uppercase text-accent">added</span>
+            )}
+            <span className="font-sans text-sm font-bold">{exercise.name}</span>
           </div>
           <div className="text-right">
-            <span className="font-mono text-sm text-muted">
+            <span className="font-sans text-sm text-muted">
               {completedSets}/{exercise.sets} sets finished
             </span>
           </div>
@@ -151,35 +160,40 @@ export function AddedExerciseCard({
   }
 
   const cardContent = (
-    <div className={`border-2 border-dashed border-l-[3px] ${
+    <div className={`border border-l-2 ${
       isExerciseComplete
         ? 'border-success/50 border-l-success bg-success/5'
         : isExerciseResolved
           ? 'border-success/60 border-l-success'
-          : 'border-accent/50 border-l-accent'
+          : isSessionAdded
+            ? 'border-accent/50 border-dashed border-l-accent'
+            : 'border-border border-l-accent/40'
     }`}>
       {/* Header */}
-      <div className="p-4 cursor-pointer" onClick={() => setIsCollapsed(true)}>
-        <div className="flex justify-between items-start gap-2">
+      <div className="p-3.5 cursor-pointer" onClick={() => setIsCollapsed(true)}>
+        <div className="flex justify-between items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono text-[10px] text-muted">tap to collapse</span>
+              <span className="font-sans text-[10px] text-muted whitespace-nowrap">tap to collapse</span>
+              {isSessionAdded && (
+                <span className="font-sans text-[10px] uppercase text-accent">added</span>
+              )}
             </div>
-            <h3 className="font-mono font-bold text-lg mt-1">
+            <h3 className="font-sans font-bold text-lg mt-1">
               {exercise.name}
             </h3>
           </div>
           
-          <div className="flex gap-1">
+          <div className="flex gap-2 flex-wrap justify-end">
             {onOpenTimer && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   onOpenTimer(exercise.restSeconds > 0 ? exercise.restSeconds : 60);
                 }}
-                className="px-2 h-8 flex items-center justify-center font-mono text-xs text-muted
-                  border border-border text-sm hover:border-foreground hover:text-foreground
-                  active:bg-foreground active:text-background transition-colors touch-manipulation gap-1"
+                className="px-3 min-h-11 flex items-center justify-center font-sans text-sm text-muted
+                  border border-border hover:border-foreground hover:text-foreground
+                  active:bg-foreground active:text-background transition-colors touch-manipulation gap-1.5"
                 aria-label={`Open ${exercise.restSeconds > 0 ? exercise.restSeconds : 60} second timer`}
               >
                 <TimerIcon size={12} />
@@ -193,7 +207,7 @@ export function AddedExerciseCard({
                   onSkipClick();
                 }}
                 aria-label="Skip this exercise"
-                className="px-2 h-8 flex items-center justify-center font-mono text-sm text-muted
+                className="px-3 min-h-11 flex items-center justify-center font-sans text-sm text-muted
                   border border-border hover:border-danger hover:text-danger
                   active:text-danger transition-colors touch-manipulation"
               >
@@ -212,7 +226,7 @@ export function AddedExerciseCard({
                 setIsEditing(!isEditing);
               }}
               aria-label="Edit this exercise"
-              className="w-8 h-8 flex items-center justify-center text-muted 
+              className="w-11 h-11 flex items-center justify-center text-muted 
                 border border-border hover:border-accent hover:text-accent 
                 active:bg-accent active:text-background transition-colors touch-manipulation"
             >
@@ -229,48 +243,48 @@ export function AddedExerciseCard({
           <div className="mt-3 space-y-3" onClick={(e) => e.stopPropagation()}>
             <div className="grid grid-cols-4 gap-2">
               <div>
-                <label className="font-mono text-xs text-muted">sets</label>
+                <label className="font-sans text-xs text-muted">sets</label>
                 <input
                   type="number"
                   value={editedSets}
                   onChange={(e) => setEditedSets(parseInt(e.target.value) || 1)}
                   min={1}
                   max={10}
-                  className="w-full h-10 px-2 border-2 border-border bg-background font-mono text-sm
+                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
                     focus:border-accent focus:outline-none"
                 />
               </div>
               <div>
-                <label className="font-mono text-xs text-muted">reps</label>
+                <label className="font-sans text-xs text-muted">reps</label>
                 <input
                   type="text"
                   value={editedReps}
                   onChange={(e) => setEditedReps(e.target.value)}
                   placeholder="8-10"
-                  className="w-full h-10 px-2 border-2 border-border bg-background font-mono text-sm
+                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
                     focus:border-accent focus:outline-none"
                 />
               </div>
               <div>
-                <label className="font-mono text-xs text-muted">rpe</label>
+                <label className="font-sans text-xs text-muted">rpe</label>
                 <input
                   type="text"
                   value={editedRPE}
                   onChange={(e) => setEditedRPE(e.target.value)}
                   placeholder="7-8"
-                  className="w-full h-10 px-2 border-2 border-border bg-background font-mono text-sm
+                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
                     focus:border-accent focus:outline-none"
                 />
               </div>
               <div>
-                <label className="font-mono text-xs text-muted">rest</label>
+                <label className="font-sans text-xs text-muted">rest</label>
                 <input
                   type="number"
                   value={editedRestSeconds}
                   onChange={(e) => setEditedRestSeconds(parseInt(e.target.value, 10) || 0)}
                   min={5}
                   max={600}
-                  className="w-full h-10 px-2 border-2 border-border bg-background font-mono text-sm
+                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
                     focus:border-accent focus:outline-none"
                 />
               </div>
@@ -281,7 +295,7 @@ export function AddedExerciseCard({
                   e.stopPropagation();
                   handleSaveEdit();
                 }}
-                className="flex-1 py-2 bg-accent text-background font-mono text-sm
+                className="flex-1 py-2 bg-accent text-background font-sans text-sm
                   hover:bg-accent/90 transition-colors touch-manipulation"
               >
                 save
@@ -291,7 +305,7 @@ export function AddedExerciseCard({
                   e.stopPropagation();
                   handleCancelEdit();
                 }}
-                className="py-2 px-4 border border-border font-mono text-sm
+                className="py-2 px-4 border border-border font-sans text-sm
                   hover:border-foreground transition-colors touch-manipulation"
               >
                 cancel
@@ -302,7 +316,7 @@ export function AddedExerciseCard({
                   e.stopPropagation();
                   onSwap();
                 }}
-                className="py-2 px-4 border border-border font-mono text-sm
+                className="py-2 px-4 border border-border font-sans text-sm
                   hover:border-foreground transition-colors touch-manipulation"
               >
                 swap
@@ -313,7 +327,7 @@ export function AddedExerciseCard({
                   e.stopPropagation();
                   setConfirmRemove(true);
                 }}
-                className="w-10 h-10 border-2 border-danger text-danger inline-flex items-center justify-center
+                className="w-10 h-10 border border-danger text-danger inline-flex items-center justify-center
                   hover:bg-danger hover:text-background transition-colors touch-manipulation"
                 aria-label="Delete added exercise"
               >
@@ -323,7 +337,7 @@ export function AddedExerciseCard({
           </div>
         ) : (
           /* Exercise info */
-          <div className="flex flex-wrap gap-3 mt-2 font-mono text-sm text-muted">
+          <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 font-sans text-sm text-muted">
             <span>{exercise.sets} sets × {exercise.reps}</span>
             <span>rest {exercise.restSeconds}s</span>
             <span>rpe {exercise.targetRPE}</span>
@@ -332,7 +346,7 @@ export function AddedExerciseCard({
       </div>
 
       {/* Sets - use editedSets if editing, otherwise exercise.sets */}
-      <div className="p-4 space-y-1">
+      <div className="p-3.5 space-y-1">
         {Array.from({ length: isEditing ? editedSets : exercise.sets }, (_, i) => (
           <SetInput
             key={i}
@@ -354,12 +368,12 @@ export function AddedExerciseCard({
       </div>
 
       {/* Notes toggle */}
-      <div className="px-4 pb-4">
+      <div className="px-3.5 pb-3.5">
         <button
           onClick={() => setShowNotes(!showNotes)}
           aria-expanded={showNotes}
           aria-controls={notesFieldId}
-          className={`h-9 px-3 border-2 font-mono text-xs transition-colors touch-manipulation ${
+          className={`min-h-11 px-4 border font-sans text-sm transition-colors touch-manipulation ${
             showNotes
               ? 'border-foreground text-foreground bg-surface/40'
               : 'border-border text-muted hover:border-foreground hover:text-foreground'
@@ -374,7 +388,7 @@ export function AddedExerciseCard({
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="how did this feel?"
-            className="w-full mt-2 p-2 border-2 border-border bg-background font-mono text-sm
+            className="w-full mt-2 p-2 border border-border bg-background font-sans text-sm
               focus:border-foreground focus:outline-none resize-none"
             rows={2}
           />
@@ -387,16 +401,16 @@ export function AddedExerciseCard({
           onClick={() => setConfirmRemove(false)}
         >
           <div
-            className="w-full max-w-md border-2 border-border bg-background p-4 space-y-3"
+            className="w-full max-w-md border border-border bg-background p-4 space-y-3"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="font-mono text-sm text-muted">
+            <p className="font-sans text-sm text-muted">
               are you sure you want to delete? your workout data will also be deleted.
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setConfirmRemove(false)}
-                className="flex-1 h-10 border-2 border-border font-mono text-sm hover:border-foreground transition-colors touch-manipulation"
+                className="flex-1 h-10 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
               >
                 cancel
               </button>
@@ -406,7 +420,7 @@ export function AddedExerciseCard({
                   setIsEditing(false);
                   onDeleteExercise();
                 }}
-                className="flex-1 h-10 border-2 border-danger bg-danger text-background font-mono text-sm hover:bg-danger/90 transition-colors touch-manipulation"
+                className="flex-1 h-10 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
               >
                 yes, delete
               </button>

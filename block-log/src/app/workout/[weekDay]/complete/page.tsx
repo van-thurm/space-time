@@ -115,52 +115,52 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
       <SecondaryPageHeader subtitle="work complete" backFallbackHref="/" />
 
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-        <section className="border-2 border-border border-l-4 border-l-success bg-success/5 p-4 space-y-3">
+        <section className="border border-border border-l-2 border-l-success bg-success/5 p-4 space-y-3">
           <div className="flex items-center justify-between gap-3">
-            <p className="font-pixel text-xl tracking-wide text-success">session complete</p>
+            <p className="font-display text-xl tracking-wide text-success">session complete</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="h-8 px-3 inline-flex items-center border border-border bg-background font-mono text-xs uppercase tracking-wide text-muted">
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-background font-sans text-xs uppercase tracking-wide text-muted">
               {blockName}
             </span>
-            <span className="h-8 px-3 inline-flex items-center border border-border bg-background font-mono text-xs uppercase tracking-wide text-muted">
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-background font-sans text-xs uppercase tracking-wide text-muted">
               week {week}
             </span>
-            <span className="h-8 px-3 inline-flex items-center border border-border bg-background font-mono text-xs uppercase tracking-wide text-muted">
+            <span className="h-8 px-3 inline-flex items-center border border-border bg-background font-sans text-xs uppercase tracking-wide text-muted">
               day {day}
             </span>
           </div>
         </section>
 
-        <section className="border-2 border-border p-4 grid grid-cols-2 gap-3">
+        <section className="border border-border p-4 grid grid-cols-2 gap-3">
           <div>
-            <p className="font-mono text-xs text-muted">total volume</p>
-            <p className="font-mono text-xl">{stats.totalVolume.toLocaleString()} {userUnits}</p>
+            <p className="font-sans text-xs text-muted">total volume</p>
+            <p className="font-sans text-xl">{stats.totalVolume.toLocaleString()} {userUnits}</p>
           </div>
           <div>
-            <p className="font-mono text-xs text-muted">finished sets</p>
-            <p className="font-mono text-xl">{stats.finishedSets}</p>
+            <p className="font-sans text-xs text-muted">finished sets</p>
+            <p className="font-sans text-xl">{stats.finishedSets}</p>
           </div>
           <div>
-            <p className="font-mono text-xs text-muted">total reps</p>
-            <p className="font-mono text-xl">{stats.totalReps}</p>
+            <p className="font-sans text-xs text-muted">total reps</p>
+            <p className="font-sans text-xl">{stats.totalReps}</p>
           </div>
           <div>
-            <p className="font-mono text-xs text-muted">average rpe</p>
-            <p className="font-mono text-xl">{stats.averageRpe ?? '—'}</p>
+            <p className="font-sans text-xs text-muted">average rpe</p>
+            <p className="font-sans text-xl">{stats.averageRpe ?? '—'}</p>
           </div>
           <div>
-            <p className="font-mono text-xs text-muted">tracked exercises</p>
-            <p className="font-mono text-xl">{stats.trackedExercises}</p>
+            <p className="font-sans text-xs text-muted">tracked exercises</p>
+            <p className="font-sans text-xl">{stats.trackedExercises}</p>
           </div>
           <div>
-            <p className="font-mono text-xs text-muted">skipped sets</p>
-            <p className="font-mono text-xl">{stats.skippedSets}</p>
+            <p className="font-sans text-xs text-muted">skipped sets</p>
+            <p className="font-sans text-xl">{stats.skippedSets}</p>
           </div>
         </section>
 
         <section className="px-1 py-2 flex flex-col items-center justify-center gap-4 text-center">
-          <p className="font-mono text-base leading-relaxed text-foreground lowercase max-w-xl" style={{ textWrap: 'balance' }}>
+          <p className="font-sans text-base leading-relaxed text-foreground lowercase max-w-xl" style={{ textWrap: 'balance' }}>
             {quoteNoOrphan}
           </p>
         </section>
@@ -168,13 +168,13 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
         <div className="flex gap-3">
           <Link
             href={`/workout/${resolvedParams.weekDay}`}
-            className="flex-1 h-11 border-2 border-border font-mono text-sm inline-flex items-center justify-center hover:border-foreground transition-colors touch-manipulation"
+            className="flex-1 h-11 border border-border font-sans text-sm inline-flex items-center justify-center hover:border-foreground transition-colors touch-manipulation"
           >
             review workout
           </Link>
           <Link
             href="/"
-            className="flex-1 h-11 bg-foreground text-background border-2 border-foreground font-mono text-sm inline-flex items-center justify-center hover:bg-foreground/90 transition-colors touch-manipulation"
+            className="flex-1 h-11 bg-foreground text-background border border-foreground font-sans text-sm inline-flex items-center justify-center hover:bg-foreground/90 transition-colors touch-manipulation"
           >
             back to block
           </Link>
