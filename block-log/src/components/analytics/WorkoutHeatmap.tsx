@@ -56,7 +56,8 @@ export function WorkoutHeatmap() {
   const completedCount = allStatuses.filter((s) => s === 'completed').length;
   const inProgressCount = allStatuses.filter((s) => s === 'in_progress').length;
   const notStartedCount = allStatuses.filter((s) => s === 'not_started').length;
-  const heatmapTileClass = 'w-11 h-11 mx-auto border border-border touch-manipulation rounded-none';
+  const heatmapTileClass = 'w-11 h-11 mx-auto border border-border touch-manipulation';
+  const heatmapTileStyle = { borderRadius: 0 } as const;
 
   return (
     <div className="border border-border p-4">
@@ -108,6 +109,7 @@ export function WorkoutHeatmap() {
                         disabled
                         aria-label={`Week ${weekIndex + 1}, Day ${dayIndex + 1}: not started`}
                         className={`${heatmapTileClass} ${statusColors[cell.status]} cursor-default`}
+                        style={heatmapTileStyle}
                         title={`Week ${weekIndex + 1}, Day ${dayIndex + 1}: not started`}
                       />
                     ) : (
@@ -121,6 +123,7 @@ export function WorkoutHeatmap() {
                           )
                         }
                         className={`${heatmapTileClass} ${statusColors[cell.status]} hover:border-foreground transition-colors`}
+                        style={heatmapTileStyle}
                         title={`Week ${cell.week}, Day ${cell.day}: ${
                           cell.status === 'completed' ? 'completed (open summary)' : 'incomplete (open workout)'
                         }`}
