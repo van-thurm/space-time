@@ -51,12 +51,12 @@ export function BrutalistMarkIcon({ size = 24, className = '' }: IconProps) {
 }
 
 export function BlockLogWordmark({ height = 20, className = '' }: { height?: number; className?: string }) {
-  const aspectRatio = 572 / 100;
-  const width = height * aspectRatio;
+  const width = Math.round(height * (572 / 100));
   return (
     <svg
       width={width}
       height={height}
+      style={{ width, height, flexShrink: 0 }}
       viewBox="0 0 572 100"
       className={className}
       fill="none"

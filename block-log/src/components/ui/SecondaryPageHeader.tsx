@@ -97,11 +97,11 @@ export function SecondaryPageHeader({
             <BackArrowIcon size={18} />
           </button>
 
-          <div className="min-w-0 justify-self-center text-center">
-            <Link href="/" className={appNameClassName}>
+          <div className="min-w-0 flex flex-col items-center text-center">
+            <Link href="/" className="inline-flex items-center justify-center hover:text-accent transition-colors">
               <BlockLogWordmark height={18} className="text-foreground" />
             </Link>
-            <div className="mt-0.5 min-w-0">
+            <div className="mt-0.5">
               <p suppressHydrationWarning className={`${subtitleClassName} break-words`}>
                 {subtitle}
               </p>
