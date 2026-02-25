@@ -15,6 +15,7 @@ export default function NewProgramPage() {
   const router = useRouter();
   const createProgram = useAppStore((state) => state.createProgram);
   const customTemplates = useAppStore((state) => state.customTemplates);
+  const deleteCustomTemplate = useAppStore((state) => state.deleteCustomTemplate);
   
   const [selectedTemplate, setSelectedTemplate] = useState<ProgramTemplate | null>(null);
   const [selectedCustomTemplate, setSelectedCustomTemplate] = useState<UserCustomTemplate | null>(null);
@@ -24,6 +25,7 @@ export default function NewProgramPage() {
   const [customWeeks, setCustomWeeks] = useState(12);
   const [customDayNames, setCustomDayNames] = useState<string[]>(['', '', '', '']);
   const [dayNameError, setDayNameError] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const savedTemplatesRef = useRef<HTMLElement | null>(null);
 
   const allTemplates = getAllTemplates();
@@ -128,9 +130,34 @@ export default function NewProgramPage() {
   };
 
   const addCustomDay = () => {
-    if (customDayNames.length >= 5) return;
+    if (customDayNames.length >= 7) return;
     setDayNameError('');
     setCustomDayNames((prev) => [...prev, '']);
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    deleteCustomTemplate(templateId);
+    setConfirmDeleteId(null);
+    if (selectedCustomTemplate?.id === templateId) {
+      setSelectedCustomTemplate(null);
+      setSelectedTemplate(null);
+      setStep('select');
+    }
+  };
+
+  const handleDuplicateTemplateOnly = (template: UserCustomTemplate) => {
+    const copyName = `${template.name} copy`;
+    const newTemplate: UserCustomTemplate = {
+      ...template,
+      id: `user-template-${Date.now()}`,
+      name: copyName,
+      shortName: copyName.length > 12 ? copyName.substring(0, 12) + '...' : copyName,
+      description: `Copy of ${template.name}`,
+      createdAt: new Date().toISOString(),
+    };
+    useAppStore.setState((state) => ({
+      customTemplates: [...state.customTemplates, newTemplate],
+    }));
   };
 
   // Visual indicator based on equipment/intensity
@@ -147,6 +174,7 @@ export default function NewProgramPage() {
       <SecondaryPageHeader
         subtitle="new program"
         backFallbackHref="/programs"
+        onBack={step === 'name' ? () => setStep('select') : undefined}
       />
 
       {step === 'select' ? (
@@ -273,21 +301,57 @@ export default function NewProgramPage() {
             <section ref={savedTemplatesRef} className="pt-4 border-t border-border/60 space-y-2">
               <h2 className="font-sans text-sm text-muted">saved custom templates</h2>
               {customTemplates.map((template) => (
-                <button
-                  key={template.id}
-                  onClick={() => handleSelectCustomTemplate(template)}
-                  className="w-full text-left p-3 border border-border hover:border-accent hover:bg-accent/5 transition-colors touch-manipulation"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <p className="font-sans font-bold text-sm truncate">{template.name}</p>
-                      <p className="font-sans text-xs text-muted">
-                        {template.daysPerWeek} days · {template.weeksTotal} weeks
+                <div key={template.id} className="border border-border transition-colors">
+                  {confirmDeleteId === template.id ? (
+                    <div className="p-3 space-y-2">
+                      <p className="font-sans text-sm">
+                        delete <strong>{template.name}</strong>? this won&apos;t affect any existing programs.
                       </p>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setConfirmDeleteId(null)}
+                          className="flex-1 h-10 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
+                        >
+                          cancel
+                        </button>
+                        <button
+                          onClick={() => handleDeleteTemplate(template.id)}
+                          className="flex-1 h-10 border border-danger text-danger font-sans text-sm hover:bg-danger/10 transition-colors touch-manipulation"
+                        >
+                          delete template
+                        </button>
+                      </div>
                     </div>
-                    <span className="font-sans text-xs text-muted">duplicate</span>
-                  </div>
-                </button>
+                  ) : (
+                    <div className="flex items-center">
+                      <button
+                        onClick={() => handleSelectCustomTemplate(template)}
+                        className="flex-1 text-left p-3 min-w-0 hover:bg-accent/5 transition-colors touch-manipulation"
+                      >
+                        <p className="font-sans font-bold text-sm truncate">{template.name}</p>
+                        <p className="font-sans text-xs text-muted">
+                          {template.daysPerWeek} days · {template.weeksTotal} weeks
+                        </p>
+                      </button>
+                      <div className="flex items-center gap-1 px-2 flex-shrink-0">
+                        <button
+                          onClick={() => handleDuplicateTemplateOnly(template)}
+                          className="px-2 py-1.5 font-sans text-xs text-muted hover:text-foreground transition-colors touch-manipulation"
+                          aria-label={`Duplicate ${template.name} template`}
+                        >
+                          copy
+                        </button>
+                        <button
+                          onClick={() => setConfirmDeleteId(template.id)}
+                          className="px-2 py-1.5 font-sans text-xs text-muted hover:text-danger transition-colors touch-manipulation"
+                          aria-label={`Delete ${template.name} template`}
+                        >
+                          delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </section>
           )}
@@ -346,7 +410,7 @@ export default function NewProgramPage() {
                   <label className="font-sans text-sm text-muted">days</label>
                   <button
                     onClick={addCustomDay}
-                    disabled={customDayNames.length >= 5}
+                    disabled={customDayNames.length >= 7}
                     className="px-2 py-1 border border-border font-sans text-xs
                       hover:border-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
@@ -417,12 +481,46 @@ export default function NewProgramPage() {
                 focus:border-foreground focus:outline-none"
             />
             <p className="font-sans text-xs text-muted">
-              give it a name you'll recognize
+              give it a name you&apos;ll recognize
             </p>
             <p className="font-sans text-xs text-muted border border-border/60 bg-surface/30 px-2 py-1.5">
               on the next page, open each day to build your workout.
             </p>
           </div>
+
+          {selectedCustomTemplate && (
+            <div className="border-t border-border pt-3">
+              {confirmDeleteId === selectedCustomTemplate.id ? (
+                <div className="space-y-2">
+                  <p className="font-sans text-sm">
+                    delete <strong>{selectedCustomTemplate.name}</strong>? this won&apos;t affect any existing programs.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setConfirmDeleteId(null)}
+                      className="flex-1 h-10 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
+                    >
+                      cancel
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTemplate(selectedCustomTemplate.id)}
+                      className="flex-1 h-10 border border-danger text-danger font-sans text-sm hover:bg-danger/10 transition-colors touch-manipulation"
+                    >
+                      delete template
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmDeleteId(selectedCustomTemplate.id)}
+                  className="font-sans text-xs text-muted hover:text-danger transition-colors touch-manipulation"
+                  aria-label={`Delete ${selectedCustomTemplate.name} template`}
+                >
+                  delete this template
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 

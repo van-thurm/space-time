@@ -28,25 +28,6 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 
-// Script to run inline to prevent flash
-const THEME_SCRIPT = `
-(function() {
-  try {
-    var stored = localStorage.getItem('block-log-theme');
-    var theme = stored || 'system';
-    var resolved = theme;
-    if (theme === 'system') {
-      resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-    }
-    if (resolved === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  } catch (e) {}
-})();
-`;
-
 export function ThemeProvider({ children }: ThemeProviderProps) {
   const [theme, setThemeState] = useState<Theme>('system');
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');

@@ -4,12 +4,13 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from '@/components/ui/ThemeProvider';
-import { BackArrowIcon, BrutalistMarkIcon } from '@/components/ui/DieterIcons';
+import { BackArrowIcon, BlockLogWordmark } from '@/components/ui/DieterIcons';
 
 interface SecondaryPageHeaderProps {
   subtitle: string;
   subtitleIcon?: ReactNode;
   backFallbackHref: string;
+  onBack?: () => void;
   maxWidthClassName?: string;
   headerClassName?: string;
   backButtonClassName?: string;
@@ -25,6 +26,7 @@ const MENU_ITEM_BASE_CLASS =
 export function SecondaryPageHeader({
   subtitle,
   backFallbackHref,
+  onBack,
   maxWidthClassName = 'w-full',
   headerClassName = 'border-b border-border sticky top-0 bg-background z-40',
   backButtonClassName = '',
@@ -38,6 +40,11 @@ export function SecondaryPageHeader({
   const menuRef = useRef<HTMLDivElement>(null);
 
   const handleBack = () => {
+    if (onBack) {
+      onBack();
+      return;
+    }
+
     const hasHistory = typeof window !== 'undefined' && window.history.length > 1;
 
     if (hasHistory) {
@@ -92,10 +99,7 @@ export function SecondaryPageHeader({
 
           <div className="min-w-0 justify-self-center text-center">
             <Link href="/" className={appNameClassName}>
-              <span aria-hidden="true" className="w-6 h-6 shrink-0 inline-flex items-center justify-center text-foreground">
-                <BrutalistMarkIcon size={24} />
-              </span>
-              block log
+              <BlockLogWordmark height={18} className="text-foreground" />
             </Link>
             <div className="mt-0.5 min-w-0">
               <p suppressHydrationWarning className={`${subtitleClassName} break-words`}>

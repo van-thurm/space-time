@@ -472,7 +472,7 @@ export default function ProgramsPage() {
             onClick={closeEditModal}
           />
           <div
-            className="relative w-full max-w-md border border-border bg-background p-4 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative w-full max-w-md border border-border bg-background p-4 pb-6 space-y-4 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">

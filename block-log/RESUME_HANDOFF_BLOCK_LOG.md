@@ -332,5 +332,65 @@ These rules enforce:
 - `node qa-sweep-clean.mjs` -> still reports pre-existing hydration mismatch in theme/layout area and related hook-order console warning during sweep runs.
 
 ### Remaining known risk
-- Hydration mismatch (`layout.tsx` / `ThemeProvider`) remains the top unresolved production-cleanliness issue.
 - No functional regressions detected in required matrix/smoke sequence after this pass.
+
+---
+
+## 11) Hydration Mismatch Fix (2026-02-25)
+
+### Root cause
+`layout.tsx` used `<Script strategy="beforeInteractive">` from `next/script` to inject the theme detection script. In Next.js 16 App Router with React 19, the `<Script>` component has its own injection lifecycle that creates a React-managed element inside `<head>`. This element becomes a hydration boundary that React can't reconcile when the script modifies `document.documentElement.classList` before hydration completes.
+
+### Fix applied
+- Replaced `<Script strategy="beforeInteractive">{themeScript}</Script>` with `<script dangerouslySetInnerHTML={{ __html: themeScript }} />` in `layout.tsx`
+- Removed `import Script from 'next/script'`
+- Removed unused `THEME_SCRIPT` constant from `ThemeProvider.tsx` (was defined but never referenced)
+
+A raw `<script>` tag renders directly in the server HTML, runs synchronously during document parsing (before React hydrates), and does not create a React element needing reconciliation.
+
+### Files edited
+- `src/app/layout.tsx`
+- `src/components/ui/ThemeProvider.tsx`
+
+### Validation results
+- `npm run build` -> pass
+- `npm run qa:matrix` -> pass (flow: 13/13, api: 6/6)
+- `node qa-sweep-clean.mjs` -> **hydration mismatch finding eliminated** (0 console errors across 2 passes)
+- Browser console on dev server: 0 errors
+
+### Remaining known risks
+- Sweep script has pre-existing dashboard/timer selector failures when run against empty localStorage state (not caused by this change, not a regression)
+- No functional regressions detected
+
+### Resume point
+1. UI fixes pass (see kickoff prompt below)
+2. Deploy and run post-deploy smoke
+3. Optional: fix sweep script to handle empty-state dashboard gracefully
+
+---
+
+## Kickoff Prompt (UI Fixes)
+
+```text
+Resume Block Log from commit after hydration fix (see block-log/RESUME_HANDOFF_BLOCK_LOG.md, section 11).
+
+Context:
+- Branch: main
+- Hydration mismatch is resolved. Build, QA matrix (19/19), and sweep all pass.
+- No uncommitted changes.
+
+Focus: UI fixes. Run a visual sweep of all pages (dashboard, programs, programs/new, workout, timer, analytics, settings) in the browser at mobile viewport (390x844) and fix any visual/interaction issues found.
+
+Constraints:
+- Do not use destructive git cleanup.
+- Preserve existing workout/program data logic and regression guardrails.
+- Follow .cursor/rules/block-log-navigation.mdc and block-log-interactions.mdc.
+- Follow block-log/DESIGN_SYSTEM.md for geometry/spacing/color tokens.
+
+Validation required before finishing:
+1) npm run build
+2) npm run qa:matrix
+3) Browser visual check of all pages at 390x844
+
+Then update block-log/RESUME_HANDOFF_BLOCK_LOG.md with changes, results, and next resume point.
+```
