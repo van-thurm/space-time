@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>form form</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2563eb">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="form form">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+<!-- Open Graph -->
+<meta property="og:title" content="form form">
+<meta property="og:description" content="Build beautiful Google Apps Script forms — visually. Design, preview, and export.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og-image.png">
+
+<!-- Prevent Safari Reader -->
+<meta name="robots" content="noindex">
+
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f4; color: #1c1917; }
+
+  .layout { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
+
+  .editor { padding: 24px; overflow-y: auto; border-right: 1px solid #e7e5e4; background: #fff; }
+  .preview-pane { overflow-y: auto; background: #fafaf9; }
+  .preview-pane iframe { width: 100%; height: 100%; border: none; }
+
+  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
+  .subtitle { font-size: 13px; color: #78716c; margin-bottom: 24px; }
+
+  .form-meta { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e7e5e4; }
+  .form-meta label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; margin-bottom: 4px; }
+  .form-meta input, .form-meta textarea {
+    width: 100%; padding: 8px 10px; border: 1px solid #d6d3d1; border-radius: 6px;
+    font-family: inherit; font-size: 14px; margin-bottom: 12px;
+  }
+  .form-meta textarea { min-height: 60px; resize: vertical; }
+
+  .question-card {
+    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 10px;
+    padding: 16px; margin-bottom: 12px; position: relative;
+  }
+  .question-card.dragging { opacity: 0.5; }
+  .question-card .q-header { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .question-card .q-num {
+    width: 24px; height: 24px; border-radius: 50%; background: #2563eb; color: #fff;
+    font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .question-card .q-title-input {
+    flex: 1; padding: 6px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+  }
+  .question-card .q-actions { display: flex; gap: 4px; }
+  .question-card .q-actions button {
+    background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 4px;
+    font-size: 16px; color: #78716c;
+  }
+  .question-card .q-actions button:hover { background: #e7e5e4; }
+
+  .q-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .q-row label { font-size: 12px; font-weight: 600; color: #78716c; min-width: 60px; }
+  .q-row select, .q-row input[type="text"], .q-row input[type="number"] {
+    padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    font-family: inherit; font-size: 13px;
+  }
+  .q-row select { min-width: 140px; }
+  .q-row input[type="number"] { width: 60px; }
+
+  .q-hint-input {
+    width: 100%; padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    font-family: inherit; font-size: 13px; color: #57534e;
+  }
+
+  .options-list { margin-top: 8px; }
+  .option-row {
+    display: flex; gap: 6px; align-items: center; margin-bottom: 6px;
+  }
+  .option-row input {
+    flex: 1; padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    font-family: inherit; font-size: 13px;
+  }
+  .option-row .sub-input { font-size: 12px; color: #78716c; }
+  .option-row button {
+    background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 2px 4px;
+  }
+  .add-option-btn {
+    background: none; border: 1px dashed #d6d3d1; border-radius: 6px; padding: 5px 10px;
+    font-family: inherit; font-size: 12px; color: #78716c; cursor: pointer; margin-top: 4px;
+  }
+  .add-option-btn:hover { border-color: #2563eb; color: #2563eb; }
+
+  .checkbox-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+  .checkbox-row input[type="checkbox"] { margin: 0; }
+  .checkbox-row label { font-size: 12px; color: #78716c; min-width: auto; }
+
+  .add-question-btn {
+    width: 100%; padding: 12px; border: 2px dashed #d6d3d1; border-radius: 10px;
+    background: none; font-family: inherit; font-size: 14px; font-weight: 600;
+    color: #78716c; cursor: pointer; margin-bottom: 16px;
+  }
+  .add-question-btn:hover { border-color: #2563eb; color: #2563eb; }
+
+  .bottom-bar {
+    display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid #e7e5e4;
+    position: sticky; bottom: 0; background: #fff; padding-bottom: 16px;
+  }
+  .btn {
+    padding: 10px 20px; border: none; border-radius: 8px; font-family: inherit;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #f5f5f4; color: #1c1917; border: 1px solid #d6d3d1; }
+  .btn-secondary:hover { background: #e7e5e4; }
+
+  .include-name { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+  .include-name input { margin: 0; }
+  .include-name label { font-size: 13px; color: #57534e; }
+
+  .design-controls { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e7e5e4; }
+  .design-controls h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; margin-bottom: 12px; }
+  .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .theme-swatch {
+    border: 2px solid #e7e5e4; border-radius: 8px; padding: 10px; cursor: pointer;
+    text-align: center; transition: all 0.15s ease; position: relative;
+  }
+  .theme-swatch:hover { border-color: #a8a29e; }
+  .theme-swatch.active { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+  .theme-swatch .swatch-preview {
+    height: 40px; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 4px;
+  }
+  .theme-swatch .swatch-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3); }
+  .theme-swatch .swatch-name { font-size: 11px; font-weight: 600; color: #57534e; }
+  .design-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .design-row label { font-size: 12px; font-weight: 600; color: #78716c; min-width: 80px; }
+  .design-row select { padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
+  .design-row input[type="text"] { padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
+
+  /* Mobile: stack layout with tab toggle */
+  .mobile-tabs {
+    display: none; background: #fff; border-bottom: 1px solid #e7e5e4;
+    padding: 0 16px; position: sticky; top: 0; z-index: 10;
+  }
+  .mobile-tabs button {
+    padding: 12px 16px; border: none; background: none; font-family: inherit;
+    font-size: 14px; font-weight: 600; color: #78716c; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .mobile-tabs button.active { color: #2563eb; border-bottom-color: #2563eb; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
+    .mobile-tabs { display: flex; }
+    .editor { border-right: none; min-height: calc(100vh - 45px); }
+    .preview-pane { min-height: calc(100vh - 45px); }
+    .preview-pane iframe { min-height: calc(100vh - 45px); }
+    .layout > .hidden { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="mobile-tabs" id="mobileTabs" role="tablist">
+  <button class="active" onclick="showTab('edit')" role="tab">Edit</button>
+  <button onclick="showTab('preview')" role="tab">Preview</button>
+</nav>
+
+<div class="layout">
+  <div class="editor" id="editor">
+    <h1>form form</h1>
+    <p class="subtitle">Build a form, get Apps Script files.</p>
+
+    <div class="form-meta">
+      <label>Form title</label>
+      <input type="text" id="formTitle" value="Your form title" oninput="renderPreview()">
+      <label>Eyebrow label</label>
+      <input type="text" id="formLabel" value="Team Name" oninput="renderPreview()">
+      <label>Intro text</label>
+      <textarea id="formIntro" oninput="renderPreview()">A short description of what this form is for and how long it takes.</textarea>
+      <label>Callout box (optional)</label>
+      <textarea id="formCallout" oninput="renderPreview()"></textarea>
+    </div>
+
+    <div class="design-controls">
+      <h3>Theme</h3>
+      <div class="theme-grid">
+        <div class="theme-swatch active" onclick="setTheme('clean')" data-theme="clean">
+          <div class="swatch-preview" style="background: #fafaf9; border: 1px solid #e7e5e4;">
+            <div class="swatch-dot" style="background: #2563eb; border-color: #1d4ed8;"></div>
+            <div class="swatch-dot" style="background: #eff6ff; border-color: #bfdbfe;"></div>
+            <div class="swatch-dot" style="background: #ffffff; border-color: #e7e5e4;"></div>
+          </div>
+          <div class="swatch-name">Clean</div>
+        </div>
+        <div class="theme-swatch" onclick="setTheme('samsara')" data-theme="samsara">
+          <div class="swatch-preview" style="background: #f0f4f8; border: 1px solid #d9e2ec;">
+            <div class="swatch-dot" style="background: #0065FF; border-color: #0050cc;"></div>
+            <div class="swatch-dot" style="background: #e6f0ff; border-color: #b3d4ff;"></div>
+            <div class="swatch-dot" style="background: #ffffff; border-color: #d9e2ec;"></div>
+          </div>
+          <div class="swatch-name">Samsara</div>
+        </div>
+        <div class="theme-swatch" onclick="setTheme('samsara-dark')" data-theme="samsara-dark">
+          <div class="swatch-preview" style="background: #0f172a; border: 1px solid #1e293b;">
+            <div class="swatch-dot" style="background: #38bdf8; border-color: #0ea5e9;"></div>
+            <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
+            <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
+          </div>
+          <div class="swatch-name">Dark</div>
+        </div>
+      </div>
+      <div class="design-row">
+        <label>Corners</label>
+        <select id="borderRadius" onchange="renderPreview()">
+          <option value="12px">Rounded (default)</option>
+          <option value="8px">Slightly rounded</option>
+          <option value="4px">Subtle</option>
+          <option value="0px">Sharp</option>
+          <option value="20px">Pill</option>
+        </select>
+      </div>
+      <div class="design-row">
+        <label>Submit text</label>
+        <input type="text" id="submitText" value="Submit" oninput="renderPreview()">
+      </div>
+      <div class="design-row">
+        <label>Success title</label>
+        <input type="text" id="successTitle" value="Got it — thank you!" oninput="renderPreview()">
+      </div>
+      <div class="design-row">
+        <label>Success text</label>
+        <input type="text" id="successText" value="Your input shapes what we build next." oninput="renderPreview()">
+      </div>
+    </div>
+
+    <div class="include-name">
+      <input type="checkbox" id="includeName" checked onchange="renderPreview()">
+      <label for="includeName">Include a "Your name" field as question 1</label>
+    </div>
+
+    <div id="questionList"></div>
+
+    <button class="add-question-btn" onclick="addQuestion()">+ Add question</button>
+
+    <div class="bottom-bar">
+      <button class="btn btn-primary" onclick="renderPreview()">Preview</button>
+      <button class="btn btn-secondary" onclick="downloadFiles()">Download Files</button>
+    </div>
+  </div>
+
+  <div class="preview-pane" id="previewPane">
+    <iframe id="previewFrame"></iframe>
+  </div>
+</div>
+
+<script>
+const themes = {
+  clean: {
+    surface: '#fafaf9', card: '#ffffff', text: '#1c1917', textSecondary: '#57534e',
+    textTertiary: '#a8a29e', accent: '#2563eb', accentLight: '#eff6ff',
+    accentBorder: '#bfdbfe', border: '#e7e5e4', borderFocus: '#2563eb',
+    success: '#16a34a', successLight: '#f0fdf4', btnHover: '#1d4ed8',
+    btnShadow: 'rgba(37, 99, 235, 0.3)', focusRing: 'rgba(37, 99, 235, 0.1)'
+  },
+  samsara: {
+    surface: '#f0f4f8', card: '#ffffff', text: '#0B1F3F', textSecondary: '#486581',
+    textTertiary: '#9fb3c8', accent: '#0065FF', accentLight: '#e6f0ff',
+    accentBorder: '#b3d4ff', border: '#d9e2ec', borderFocus: '#0065FF',
+    success: '#27AB83', successLight: '#effcf6', btnHover: '#0050cc',
+    btnShadow: 'rgba(0, 101, 255, 0.3)', focusRing: 'rgba(0, 101, 255, 0.1)'
+  },
+  'samsara-dark': {
+    surface: '#0f172a', card: '#1e293b', text: '#f1f5f9', textSecondary: '#94a3b8',
+    textTertiary: '#64748b', accent: '#38bdf8', accentLight: '#0f2942',
+    accentBorder: '#1e3a5f', border: '#334155', borderFocus: '#38bdf8',
+    success: '#34d399', successLight: '#064e3b', btnHover: '#0ea5e9',
+    btnShadow: 'rgba(56, 189, 248, 0.3)', focusRing: 'rgba(56, 189, 248, 0.15)'
+  }
+};
+
+let currentTheme = 'clean';
+
+function setTheme(name) {
+  currentTheme = name;
+  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === name));
+  renderPreview();
+}
+
+function showTab(tab) {
+  const editor = document.getElementById('editor');
+  const preview = document.getElementById('previewPane');
+  const buttons = document.querySelectorAll('#mobileTabs button');
+  if (tab === 'edit') {
+    editor.classList.remove('hidden');
+    preview.classList.add('hidden');
+    buttons[0].classList.add('active');
+    buttons[1].classList.remove('active');
+  } else {
+    editor.classList.add('hidden');
+    preview.classList.remove('hidden');
+    buttons[1].classList.add('active');
+    buttons[0].classList.remove('active');
+    renderPreview();
+  }
+}
+
+let questions = [
+  {
+    id: 'q1', title: 'Which option best describes you?',
+    hint: 'Pick the one that fits best.',
+    type: 'radio', required: true, maxSelect: 3,
+    options: [
+      { label: 'Option A', sub: 'A short description', value: 'option_a' },
+      { label: 'Option B', sub: 'A short description', value: 'option_b' },
+      { label: 'Option C', sub: 'A short description', value: 'option_c' },
+    ]
+  },
+  {
+    id: 'q2', title: 'What are you most interested in?',
+    hint: 'Pick up to 3.',
+    type: 'checkbox', required: true, maxSelect: 3, includeOther: true,
+    options: [
+      { label: 'Topic A', sub: '', value: 'topic_a' },
+      { label: 'Topic B', sub: '', value: 'topic_b' },
+      { label: 'Topic C', sub: '', value: 'topic_c' },
+    ]
+  },
+  {
+    id: 'q3', title: 'Rate your experience with each area',
+    hint: 'For each row, select your current level.',
+    type: 'matrix', required: false,
+    levels: ['Not yet', 'Beginner', 'Comfortable', 'Advanced'],
+    matrixRows: [
+      { label: 'Area A', sub: 'A short description', value: 'area_a' },
+      { label: 'Area B', sub: 'A short description', value: 'area_b' },
+    ]
+  },
+  {
+    id: 'q4', title: 'Any additional thoughts?',
+    hint: '',
+    type: 'textarea', required: false, placeholder: 'Type here...'
+  },
+];
+
+let nextId = 5;
+
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '').substring(0, 30);
+}
+
+function renderEditor() {
+  const list = document.getElementById('questionList');
+  list.innerHTML = '';
+  questions.forEach((q, idx) => {
+    const num = document.getElementById('includeName').checked ? idx + 2 : idx + 1;
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.dataset.idx = idx;
+
+    let optionsHtml = '';
+    if (q.type === 'radio' || q.type === 'checkbox') {
+      optionsHtml = `<div class="options-list">
+        ${(q.options || []).map((o, oi) => `
+          <div class="option-row">
+            <input type="text" value="${esc(o.label)}" placeholder="Option label" onchange="updateOption(${idx},${oi},'label',this.value)">
+            <input type="text" class="sub-input" value="${esc(o.sub || '')}" placeholder="Subtitle (optional)" onchange="updateOption(${idx},${oi},'sub',this.value)">
+            <button onclick="removeOption(${idx},${oi})">&times;</button>
+          </div>
+        `).join('')}
+        <button class="add-option-btn" onclick="addOption(${idx})">+ Add option</button>
+        ${q.type === 'checkbox' ? `
+          <div class="q-row" style="margin-top:8px">
+            <label>Max select</label>
+            <input type="number" value="${q.maxSelect || 3}" min="1" max="20" onchange="questions[${idx}].maxSelect=+this.value;renderPreview()">
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" ${q.includeOther ? 'checked' : ''} onchange="questions[${idx}].includeOther=this.checked;renderPreview()">
+            <label>Include "Something else" option with text field</label>
+          </div>
+        ` : ''}
+      </div>`;
+    }
+
+    if (q.type === 'matrix') {
+      const levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
+      optionsHtml = `<div class="options-list">
+        <div class="q-row"><label>Levels</label>
+          <input type="text" style="flex:1" value="${esc(levels.join(', '))}" onchange="questions[${idx}].levels=this.value.split(',').map(s=>s.trim()).filter(Boolean);renderPreview()" placeholder="Comma-separated level names">
+        </div>
+        ${(q.matrixRows || []).map((r, ri) => `
+          <div class="option-row">
+            <input type="text" value="${esc(r.label)}" placeholder="Row label" onchange="updateMatrixRow(${idx},${ri},'label',this.value)">
+            <input type="text" class="sub-input" value="${esc(r.sub || '')}" placeholder="Subtitle" onchange="updateMatrixRow(${idx},${ri},'sub',this.value)">
+            <button onclick="removeMatrixRow(${idx},${ri})">&times;</button>
+          </div>
+        `).join('')}
+        <button class="add-option-btn" onclick="addMatrixRow(${idx})">+ Add row</button>
+      </div>`;
+    }
+
+    if (q.type === 'text' || q.type === 'textarea') {
+      optionsHtml = `<div class="q-row">
+        <label>Placeholder</label>
+        <input type="text" style="flex:1" value="${esc(q.placeholder || '')}" onchange="questions[${idx}].placeholder=this.value;renderPreview()">
+      </div>`;
+    }
+
+    card.innerHTML = `
+      <div class="q-header">
+        <div class="q-num">${num}</div>
+        <input class="q-title-input" value="${esc(q.title)}" onchange="questions[${idx}].title=this.value;renderPreview()">
+        <div class="q-actions">
+          <button onclick="moveQuestion(${idx},-1)" title="Move up">&uarr;</button>
+          <button onclick="moveQuestion(${idx},1)" title="Move down">&darr;</button>
+          <button onclick="removeQuestion(${idx})" title="Delete">&times;</button>
+        </div>
+      </div>
+      <div class="q-row">
+        <label>Type</label>
+        <select onchange="questions[${idx}].type=this.value;if(this.value==='radio'||this.value==='checkbox'){questions[${idx}].options=questions[${idx}].options||[];}if(this.value==='matrix'){questions[${idx}].levels=questions[${idx}].levels||['Not yet','Exploring','Capable','Confident'];questions[${idx}].matrixRows=questions[${idx}].matrixRows||[];}renderEditor();renderPreview()">
+          <option value="radio" ${q.type==='radio'?'selected':''}>Single select</option>
+          <option value="checkbox" ${q.type==='checkbox'?'selected':''}>Multi-select</option>
+          <option value="matrix" ${q.type==='matrix'?'selected':''}>Matrix (segmented)</option>
+          <option value="text" ${q.type==='text'?'selected':''}>Short text</option>
+          <option value="textarea" ${q.type==='textarea'?'selected':''}>Long text</option>
+        </select>
+        <div class="checkbox-row">
+          <input type="checkbox" ${q.required ? 'checked' : ''} onchange="questions[${idx}].required=this.checked;renderPreview()">
+          <label>Required</label>
+        </div>
+      </div>
+      <div class="q-row">
+        <label>Hint</label>
+        <input class="q-hint-input" value="${esc(q.hint || '')}" onchange="questions[${idx}].hint=this.value;renderPreview()">
+      </div>
+      ${optionsHtml}
+    `;
+    list.appendChild(card);
+  });
+}
+
+function esc(s) { return (s||'').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+function escJs(s) { return (s||'').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n'); }
+
+function addQuestion() {
+  questions.push({
+    id: 'q' + nextId++, title: 'New question', hint: '', type: 'text', required: false, options: [], placeholder: ''
+  });
+  renderEditor(); renderPreview();
+}
+
+function removeQuestion(idx) {
+  questions.splice(idx, 1);
+  renderEditor(); renderPreview();
+}
+
+function moveQuestion(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= questions.length) return;
+  [questions[idx], questions[newIdx]] = [questions[newIdx], questions[idx]];
+  renderEditor(); renderPreview();
+}
+
+function addOption(qIdx) {
+  if (!questions[qIdx].options) questions[qIdx].options = [];
+  const n = questions[qIdx].options.length + 1;
+  questions[qIdx].options.push({ label: 'Option ' + n, sub: '', value: 'option_' + n });
+  renderEditor(); renderPreview();
+}
+
+function removeOption(qIdx, oIdx) {
+  questions[qIdx].options.splice(oIdx, 1);
+  renderEditor(); renderPreview();
+}
+
+function updateOption(qIdx, oIdx, field, value) {
+  questions[qIdx].options[oIdx][field] = value;
+  if (field === 'label') questions[qIdx].options[oIdx].value = slugify(value);
+  renderPreview();
+}
+
+function addMatrixRow(qIdx) {
+  if (!questions[qIdx].matrixRows) questions[qIdx].matrixRows = [];
+  const n = questions[qIdx].matrixRows.length + 1;
+  questions[qIdx].matrixRows.push({ label: 'Activity ' + n, sub: '', value: 'activity_' + n });
+  renderEditor(); renderPreview();
+}
+
+function removeMatrixRow(qIdx, rIdx) {
+  questions[qIdx].matrixRows.splice(rIdx, 1);
+  renderEditor(); renderPreview();
+}
+
+function updateMatrixRow(qIdx, rIdx, field, value) {
+  questions[qIdx].matrixRows[rIdx][field] = value;
+  if (field === 'label') questions[qIdx].matrixRows[rIdx].value = slugify(value);
+  renderPreview();
+}
+
+function generateFormHtml() {
+  const title = document.getElementById('formTitle').value;
+  const label = document.getElementById('formLabel').value;
+  const intro = document.getElementById('formIntro').value;
+  const callout = document.getElementById('formCallout').value;
+  const includeName = document.getElementById('includeName').checked;
+
+  let qNum = includeName ? 2 : 1;
+  let sectionsHtml = '';
+  let jsHandlers = '';
+  let dataFields = '';
+  let validationJs = '';
+  let sheetColumns = ['data.submitted_at'];
+
+  if (includeName) {
+    sectionsHtml += `
+    <div class="section">
+      <div class="section-number">1</div>
+      <h2>Your name</h2>
+      <p class="hint">So we know who to follow up with.</p>
+      <input type="text" name="respondent_name" placeholder="First and last name" required>
+    </div>`;
+    dataFields += `      name: document.querySelector('input[name="respondent_name"]').value.trim(),\n`;
+    validationJs += `
+    var nameInput = document.querySelector('input[name="respondent_name"]');
+    if (!nameInput.value.trim()) { nameInput.scrollIntoView({behavior:'smooth',block:'center'}); nameInput.focus(); return; }\n`;
+    sheetColumns.push('data.name');
+  }
+
+  questions.forEach((q, idx) => {
+    const num = qNum++;
+    const fieldName = slugify(q.title) || ('field_' + idx);
+    const optionalBadge = q.required ? '' : ' <span class="optional-badge">Optional</span>';
+
+    if (q.type === 'radio') {
+      let optHtml = (q.options || []).map(o => `
+        <label class="option" data-group="${fieldName}">
+          <input type="radio" name="${fieldName}" value="${escJs(o.value)}">
+          <span class="indicator"></span>
+          <div>
+            <div class="option-text">${esc(o.label)}</div>
+            ${o.sub ? `<div class="option-sub">${esc(o.sub)}</div>` : ''}
+          </div>
+        </label>`).join('');
+
+      sectionsHtml += `
+    <div class="section">
+      <div class="section-number">${num}</div>
+      <h2>${esc(q.title)}${optionalBadge}</h2>
+      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
+      <div class="option-grid">${optHtml}
+      </div>
+    </div>`;
+
+      jsHandlers += `
+  document.querySelectorAll('.option[data-group="${fieldName}"]').forEach(function(option) {
+    option.addEventListener('click', function(e) {
+      e.preventDefault(); e.stopPropagation();
+      document.querySelectorAll('.option[data-group="${fieldName}"]').forEach(function(o){o.classList.remove('selected')});
+      option.classList.add('selected');
+      option.querySelector('input').checked = true;
+    });
+  });\n`;
+
+      dataFields += `      ${fieldName}: (document.querySelector('input[name="${fieldName}"]:checked')||{value:''}).value,\n`;
+      if (q.required) {
+        validationJs += `
+    if (!document.querySelector('input[name="${fieldName}"]:checked')) {
+      document.querySelector('[data-group="${fieldName}"]').closest('.section').scrollIntoView({behavior:'smooth',block:'center'}); return;
+    }\n`;
+      }
+      sheetColumns.push(`data.${fieldName}`);
+
+    } else if (q.type === 'checkbox') {
+      const max = q.maxSelect || 3;
+      let optHtml = (q.options || []).map(o => `
+        <label class="option" data-group="${fieldName}">
+          <input type="checkbox" name="${fieldName}" value="${escJs(o.value)}">
+          <span class="indicator checkbox"></span>
+          <div>
+            <div class="option-text">${esc(o.label)}</div>
+            ${o.sub ? `<div class="option-sub">${esc(o.sub)}</div>` : ''}
+          </div>
+        </label>`).join('');
+
+      if (q.includeOther) {
+        optHtml += `
+        <label class="option" data-group="${fieldName}">
+          <input type="checkbox" name="${fieldName}" value="other">
+          <span class="indicator checkbox"></span>
+          <div><div class="option-text">Something else</div></div>
+        </label>`;
+      }
+
+      sectionsHtml += `
+    <div class="section">
+      <div class="section-number">${num}</div>
+      <h2>${esc(q.title)}${optionalBadge}</h2>
+      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
+      <div class="option-grid">${optHtml}
+      </div>
+      <div class="counter" id="${fieldName}-counter"><span class="count">0</span>/${max} selected</div>
+      ${q.includeOther ? `<div class="other-input" id="${fieldName}-other"><input type="text" name="${fieldName}_other" placeholder="What else?"></div>` : ''}
+    </div>`;
+
+      jsHandlers += `
+  (function(){
+    var max = ${max};
+    var counter = document.getElementById('${fieldName}-counter');
+    ${q.includeOther ? `var otherBox = document.getElementById('${fieldName}-other');` : ''}
+    function counted() { return document.querySelectorAll('.option[data-group="${fieldName}"].selected').length; }
+    document.querySelectorAll('.option[data-group="${fieldName}"]').forEach(function(option) {
+      option.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var input = option.querySelector('input');
+        var isSelected = option.classList.contains('selected');
+        if (!isSelected && counted() >= max) { counter.style.color='#dc2626'; setTimeout(function(){counter.style.color=''},600); return; }
+        option.classList.toggle('selected');
+        input.checked = !isSelected;
+        var c = counted();
+        counter.querySelector('.count').textContent = c;
+        counter.classList.toggle('at-max', c === max);
+        ${q.includeOther ? `if (input.value==='other') otherBox.classList.toggle('visible',!isSelected);` : ''}
+      });
+    });
+  })();\n`;
+
+      dataFields += `      ${fieldName}: Array.from(document.querySelectorAll('input[name="${fieldName}"]:checked')).map(function(i){return i.value}),\n`;
+      if (q.includeOther) dataFields += `      ${fieldName}_other: (document.querySelector('input[name="${fieldName}_other"]')||{value:''}).value,\n`;
+
+      if (q.required) {
+        validationJs += `
+    if (document.querySelectorAll('input[name="${fieldName}"]:checked').length===0) {
+      document.querySelector('[data-group="${fieldName}"]').closest('.section').scrollIntoView({behavior:'smooth',block:'center'}); return;
+    }\n`;
+      }
+      sheetColumns.push(`data.${fieldName}.join(', ')`);
+      if (q.includeOther) sheetColumns.push(`data.${fieldName}_other`);
+
+    } else if (q.type === 'matrix') {
+      const levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
+      const rows = q.matrixRows || [];
+      let rowsHtml = rows.map(r => {
+        const rv = slugify(r.label) || r.value;
+        return `
+        <div class="matrix-row" data-activity="${rv}">
+          <div class="matrix-label">
+            <div class="label-text">${esc(r.label)}</div>
+            ${r.sub ? `<div class="label-sub">${esc(r.sub)}</div>` : ''}
+          </div>
+          <div class="seg-control">
+            ${levels.map(lv => `<button type="button" class="seg-option" data-value="${slugify(lv)}">${esc(lv)}</button>`).join('\n            ')}
+          </div>
+        </div>`;
+      }).join('');
+
+      sectionsHtml += `
+    <div class="section">
+      <div class="section-number">${num}</div>
+      <h2>${esc(q.title)}${optionalBadge}</h2>
+      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
+      <div class="proficiency-matrix" id="${fieldName}-matrix">${rowsHtml}
+      </div>
+    </div>`;
+
+      jsHandlers += `
+  document.querySelectorAll('#${fieldName}-matrix .seg-option').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var control = btn.closest('.seg-control');
+      control.querySelectorAll('.seg-option').forEach(function(b){b.classList.remove('active')});
+      btn.classList.add('active');
+      btn.closest('.matrix-row').classList.add('has-selection');
+    });
+  });\n`;
+
+      rows.forEach(r => {
+        const rv = slugify(r.label) || r.value;
+        const colName = fieldName + '_' + rv;
+        dataFields += `      ${colName}: (function(){ var a = document.querySelector('#${fieldName}-matrix [data-activity="${rv}"] .seg-option.active'); return a ? a.dataset.value : ''; })(),\n`;
+        sheetColumns.push(`data.${colName}`);
+      });
+
+    } else if (q.type === 'text') {
+      sectionsHtml += `
+    <div class="section">
+      <div class="section-number">${num}</div>
+      <h2>${esc(q.title)}${optionalBadge}</h2>
+      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
+      <input type="text" name="${fieldName}" placeholder="${escJs(q.placeholder || '')}">
+    </div>`;
+      dataFields += `      ${fieldName}: document.querySelector('input[name="${fieldName}"]').value,\n`;
+      sheetColumns.push(`data.${fieldName}`);
+
+    } else if (q.type === 'textarea') {
+      sectionsHtml += `
+    <div class="section">
+      <div class="section-number">${num}</div>
+      <h2>${esc(q.title)}${optionalBadge}</h2>
+      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
+      <textarea name="${fieldName}" placeholder="${escJs(q.placeholder || '')}"></textarea>
+    </div>`;
+      dataFields += `      ${fieldName}: document.querySelector('textarea[name="${fieldName}"]').value,\n`;
+      sheetColumns.push(`data.${fieldName}`);
+    }
+  });
+
+  const calloutHtml = callout ? `
+    <div class="highlight"><strong>${callout.split(':')[0]}:</strong>${callout.includes(':') ? callout.substring(callout.indexOf(':')+1) : ''}</div>` : '';
+
+  const t = themes[currentTheme];
+  const radius = document.getElementById('borderRadius').value;
+  const radiusSm = Math.max(0, parseInt(radius) - 4) + 'px';
+  const submitText = document.getElementById('submitText').value || 'Submit';
+  const successTitleText = document.getElementById('successTitle').value || 'Got it — thank you!';
+  const successBodyText = document.getElementById('successText').value || 'Your input shapes what we build next.';
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<sty` + `le>
+  :root {
+    --surface: ${t.surface}; --card: ${t.card}; --text: ${t.text}; --text-secondary: ${t.textSecondary};
+    --text-tertiary: ${t.textTertiary}; --accent: ${t.accent}; --accent-light: ${t.accentLight};
+    --accent-border: ${t.accentBorder}; --border: ${t.border}; --border-focus: ${t.borderFocus};
+    --success: ${t.success}; --success-light: ${t.successLight}; --radius: ${radius}; --radius-sm: ${radiusSm};
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--surface); color: var(--text); line-height: 1.6; min-height: 100vh; padding: 24px 16px 80px; }
+  .container { max-width: 640px; margin: 0 auto; }
+  .hero { padding: 48px 0 40px; }
+  .hero-label { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .hero h1 { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.02em; }
+  .hero p { font-size: 16px; color: var(--text-secondary); max-width: 540px; }
+  .hero p + p { margin-top: 12px; }
+  .highlight { background: var(--accent-light); border: 1px solid var(--accent-border); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 20px; font-size: 14px; color: var(--text); line-height: 1.5; }
+  .highlight strong { font-weight: 600; }
+  .section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; }
+  .section-number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+  .section h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .section .hint { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+  .option-grid { display: flex; flex-direction: column; gap: 8px; }
+  .option { position: relative; display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; user-select: none; }
+  .option:hover { border-color: var(--accent); background: var(--accent-light); }
+  .option.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 1px var(--accent); }
+  .option input { position: absolute; opacity: 0; pointer-events: none; }
+  .option .indicator { flex-shrink: 0; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; margin-top: 1px; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; }
+  .option .indicator.checkbox { border-radius: 5px; }
+  .option.selected .indicator { border-color: var(--accent); background: var(--accent); }
+  .option.selected .indicator::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
+  .option.selected .indicator.checkbox::after { content: ''; width: 10px; height: 7px; border-radius: 0; background: none; border-bottom: 2.5px solid white; border-left: 2.5px solid white; transform: rotate(-45deg); margin-top: -2px; }
+  .option .option-text { font-size: 15px; font-weight: 500; line-height: 1.4; }
+  .option .option-sub { font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
+  .counter { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }
+  .counter .count { font-weight: 600; color: var(--accent); }
+  .counter.at-max .count { color: var(--success); }
+  textarea, input[type="text"] { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; line-height: 1.5; color: var(--text); background: ${t.card}; resize: vertical; transition: border-color 0.15s ease; }
+  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px ${t.focusRing}; }
+  textarea::placeholder, input[type="text"]::placeholder { color: var(--text-tertiary); }
+  textarea { min-height: 100px; }
+  .other-input { margin-top: 10px; display: none; }
+  .other-input.visible { display: block; }
+  .optional-badge { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); background: var(--surface); padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+  .submit-section { text-align: center; padding: 12px 0; }
+  .submit-btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 48px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
+  .submit-btn:hover { background: ${t.btnHover}; transform: translateY(-1px); box-shadow: 0 4px 12px ${t.btnShadow}; }
+  .success-state { display: none; text-align: center; padding: 60px 32px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
+  .success-state.visible { display: block; }
+  .success-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--success-light); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
+  .success-icon svg { width: 28px; height: 28px; color: var(--success); }
+  .success-state h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
+  .success-state p { color: var(--text-secondary); font-size: 15px; }
+  .footer-note { text-align: center; font-size: 13px; color: var(--text-tertiary); margin-top: 16px; }
+  .proficiency-matrix { display: flex; flex-direction: column; gap: 10px; }
+  .matrix-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); transition: all 0.15s ease; }
+  .matrix-row.has-selection { border-color: var(--accent); background: var(--accent-light); }
+  .matrix-label { flex: 1; min-width: 0; }
+  .matrix-label .label-text { font-size: 15px; font-weight: 500; line-height: 1.4; }
+  .matrix-label .label-sub { font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
+  .seg-control { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2px; gap: 2px; flex-shrink: 0; }
+  .seg-option { padding: 6px 10px; font-size: 12px; font-weight: 500; border-radius: 4px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; color: var(--text-secondary); user-select: none; border: none; background: none; font-family: inherit; }
+  .seg-option:hover { color: var(--text); background: var(--card); }
+  .seg-option.active { background: var(--accent); color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+  @media (max-width: 640px) { .matrix-row { flex-direction: column; align-items: stretch; gap: 10px; } .seg-control { width: 100%; } .seg-option { flex: 1; text-align: center; padding: 8px 6px; } }
+  @media (max-width: 480px) { .section { padding: 24px 20px; } .hero h1 { font-size: 26px; } }
+</sty` + `le>
+</head>
+<body>
+<div class="container">
+  <header class="hero">
+    <div class="hero-label">${esc(label)}</div>
+    <h1>${esc(title)}</h1>
+    <p>${esc(intro)}</p>${calloutHtml}
+  </header>
+  <form id="learningForm">${sectionsHtml}
+    <div class="submit-section">
+      <button type="submit" class="submit-btn">${esc(submitText)}</button>
+      <p class="footer-note">Responses are collected securely. Takes effect immediately.</p>
+    </div>
+  </form>
+  <div class="success-state" id="success">
+    <div class="success-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>
+    <h2>${esc(successTitleText)}</h2>
+    <p>${esc(successBodyText)}</p>
+  </div>
+</div>
+<scr` + `ipt>
+${jsHandlers}
+  document.getElementById('learningForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+${validationJs}
+    var data = {
+${dataFields}      submitted_at: new Date().toISOString()
+    };
+
+    var btn = document.querySelector('.submit-btn');
+    btn.textContent = 'Submitting\u2026';
+    btn.disabled = true;
+    btn.style.opacity = '0.7';
+
+    google.script.run
+      .withSuccessHandler(function() {
+        document.getElementById('learningForm').style.display = 'none';
+        document.getElementById('success').classList.add('visible');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .withFailureHandler(function() {
+        btn.textContent = 'Something went wrong \u2014 try again';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        setTimeout(function() { btn.textContent = '${escJs(submitText)}'; }, 3000);
+      })
+      .processForm(data);
+  });
+</scr` + `ipt>
+</body>
+</html>`;
+
+  return { html, sheetColumns };
+}
+
+function generateCodeGs(sheetColumns) {
+  return `function doGet() {
+  return HtmlService.createHtmlOutputFromFile('form')
+    .setTitle('${escJs(document.getElementById('formTitle').value)}')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function processForm(data) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  sheet.appendRow([
+    ${sheetColumns.join(',\n    ')}
+  ]);
+  return { status: 'ok' };
+}
+`;
+}
+
+function renderPreview() {
+  const { html } = generateFormHtml();
+  const previewHtml = html.replace('google.script.run', '// google.script.run (preview)')
+    .replace('.processForm(data);', `
+        document.getElementById('learningForm').style.display = 'none';
+        document.getElementById('success').classList.add('visible');
+        window.scrollTo({ top: 0, behavior: 'smooth' });`);
+  const frame = document.getElementById('previewFrame');
+  frame.srcdoc = previewHtml;
+}
+
+function downloadFiles() {
+  const { html, sheetColumns } = generateFormHtml();
+  const codeGs = generateCodeGs(sheetColumns);
+
+  download('form.html', html);
+  setTimeout(() => download('Code.gs', codeGs), 300);
+}
+
+function download(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+renderEditor();
+renderPreview();
+</script>
+</body>
+</html>
