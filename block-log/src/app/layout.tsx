@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Sora } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
 
@@ -56,7 +57,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <Script id="theme-script" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
       </head>
       <body
         suppressHydrationWarning
