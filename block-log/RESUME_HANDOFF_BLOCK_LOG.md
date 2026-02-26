@@ -369,28 +369,103 @@ A raw `<script>` tag renders directly in the server HTML, runs synchronously dur
 
 ---
 
-## Kickoff Prompt (UI Fixes)
+---
+
+## 12) UI Polish & Infrastructure Session (2026-02-25)
+
+### Branding updates
+- Replaced header icon+text with full SVG wordmark (`BlockLogWordmark` component in `DieterIcons.tsx`)
+  - Uses `currentColor` for automatic light/dark theme support
+  - Fixed pixel width rounded to integer to prevent sub-pixel layout jitter
+  - Center column switched from `justify-self-center` to `flex flex-col items-center` for stable positioning
+- Updated favicon (`icon.tsx`) and apple touch icon (`apple-icon.tsx`) to use geometric brandmark from brand SVG (vertical bar + stacked squares, cream on dark)
+
+### Custom template management
+- Added **delete** action to saved custom templates list with inline "are you sure?" confirmation
+- Added **delete** action on template detail page (step 'name') with confirmation
+- Added **copy** action to duplicate a template without creating a program
+- Deleting a template has no effect on existing programs
+- Files: `src/app/programs/new/page.tsx`
+
+### Bug fixes
+- Custom program day limit raised from 5 to 7 (both `addCustomDay` guard and button `disabled` prop)
+- Edit modal bottom padding increased (`p-4` → `p-4 pb-6`) to prevent focus ring clipping on last element
+- Edit modal positioning changed from `items-end sm:items-center` to always `items-center` to fix odd-size viewport layout
+- Heatmap tiles forced to sharp corners with inline `style={{ borderRadius: 0 }}` (global CSS `button { border-radius: var(--radius-ui) }` was overriding Tailwind `rounded-none` due to CSS layer precedence)
+
+### Navigation fixes
+- Added `onBack` prop to `SecondaryPageHeader` — allows parent pages to intercept the back button
+- New program page: back button on template detail step now returns to template selection instead of navigating to `/programs`
+
+### Infrastructure
+- **Deleted accidental `space-time` Vercel project** created by running `vercel --prod` from repo root
+- Added `.cursor/rules/block-log-deployment.mdc` — always-applied rules covering:
+  - Deploy via git push only, never from repo root
+  - Manifest must exist with `scope: "/"` for iOS PWA
+  - Use `next/script` with `beforeInteractive` for theme script
+  - localStorage is domain-scoped (different domain = "missing" data)
+- Cleaned up root `.vercel/` directory
+
+### Known issues requiring next-session attention
+1. **Hydration mismatch regression**: `layout.tsx` was reverted to `<Script strategy="beforeInteractive">` to investigate a PWA navigation issue. This re-introduces the hydration mismatch that section 11 fixed with `dangerouslySetInnerHTML`. Next session should resolve this conflict — either confirm `dangerouslySetInnerHTML` doesn't break PWA nav (it probably doesn't — the PWA issue was a missing manifest, not the script tag) and revert back, or find another approach.
+2. **User data loss**: User's program data was lost from `block-log.vercel.app` localStorage. Root cause unclear — possibly iOS clearing PWA storage when home screen app was re-added, or storage pressure purge. **Priority: add data export/import feature in settings to prevent future loss.**
+3. **Data export/import**: Not yet implemented. User explicitly wants this. Should be a JSON download button in settings and a file upload restore.
+
+### Files edited this session
+- `src/app/layout.tsx`
+- `src/app/icon.tsx`
+- `src/app/apple-icon.tsx`
+- `src/app/programs/page.tsx`
+- `src/app/programs/new/page.tsx`
+- `src/components/ui/SecondaryPageHeader.tsx`
+- `src/components/ui/DieterIcons.tsx`
+- `src/components/ui/ThemeProvider.tsx`
+- `src/components/analytics/WorkoutHeatmap.tsx`
+- `.cursor/rules/block-log-deployment.mdc` (new)
+
+### Commits (7595a02..95538ec)
+- `23cd242` UI polish: brandmark logo, template management, and corner consistency
+- `e7e301c` Fix heatmap tiles: override global button border-radius with rounded-none
+- `44e7210` Fix header logo shifting: stabilize center layout and round SVG dimensions
+- `96c01e8` Force sharp corners on heatmap tiles with inline style override
+- `2443dd3` Update app icon to full brandmark: vertical bar + stacked squares
+- `b080f21` Fix edit modal: always center vertically instead of bottom-sheet on narrow viewports
+- `ae1bc21` Update layout.tsx
+- `b2ab3c0` Revert layout.tsx to next/script and remove accidental space-time project
+- `95538ec` Add deployment and PWA rules to prevent repeat infrastructure mistakes
+
+---
+
+## Kickoff Prompt (Next Session)
 
 ```text
-Resume Block Log from commit after hydration fix (see block-log/RESUME_HANDOFF_BLOCK_LOG.md, section 11).
+Resume Block Log from commit 95538ec (see block-log/RESUME_HANDOFF_BLOCK_LOG.md, section 12).
 
 Context:
-- Branch: main
-- Hydration mismatch is resolved. Build, QA matrix (19/19), and sweep all pass.
-- No uncommitted changes.
+- Branch: main, deployed to block-log.vercel.app
+- All UI polish from section 12 is live
+- User lost their program data (localStorage cleared on iOS). They need a data export/import feature.
 
-Focus: UI fixes. Run a visual sweep of all pages (dashboard, programs, programs/new, workout, timer, analytics, settings) in the browser at mobile viewport (390x844) and fix any visual/interaction issues found.
+Priority tasks:
+1. Add data export (JSON download) and import (file upload + restore) to the settings page.
+   This is the user's top priority to prevent future data loss.
+2. Resolve hydration mismatch conflict: layout.tsx currently uses <Script strategy="beforeInteractive">
+   which re-introduces the hydration warning fixed in section 11. The PWA nav issue that motivated
+   the revert was actually caused by a missing manifest.ts, not the script tag. Revert layout.tsx
+   back to <script dangerouslySetInnerHTML> if confirmed safe.
+3. Optional: audit remaining rounded corners across the app for consistency (user prefers sharp
+   corners on data display elements like heatmap tiles, consistent with brutalist design direction).
 
 Constraints:
-- Do not use destructive git cleanup.
-- Preserve existing workout/program data logic and regression guardrails.
+- Deploy via git push to main only. NEVER run vercel CLI from repo root.
+- Follow .cursor/rules/block-log-deployment.mdc (always applied).
 - Follow .cursor/rules/block-log-navigation.mdc and block-log-interactions.mdc.
-- Follow block-log/DESIGN_SYSTEM.md for geometry/spacing/color tokens.
+- Preserve existing workout/program data logic.
 
-Validation required before finishing:
+Validation:
 1) npm run build
 2) npm run qa:matrix
-3) Browser visual check of all pages at 390x844
+3) Verify export/import round-trips correctly
 
 Then update block-log/RESUME_HANDOFF_BLOCK_LOG.md with changes, results, and next resume point.
 ```
