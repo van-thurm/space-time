@@ -40,7 +40,7 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: "block log",
-  description: "12-week progressive overload training tracker",
+  description: "block log — training tracker",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
