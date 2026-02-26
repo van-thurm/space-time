@@ -71,6 +71,8 @@ interface AppState {
   logWorkout: (log: WorkoutLog) => void;
   updateWorkoutLog: (workoutId: string, updates: Partial<WorkoutLog>) => void;
   resetWorkoutLog: (workoutId: string) => void;
+  restartWorkoutProgress: (workoutId: string) => void;
+  clearWorkoutExercises: (workoutId: string, exerciseIds: string[]) => void;
   getWorkoutLog: (workoutId: string) => WorkoutLog | undefined;
   getLastWorkoutLog: (week: number, day: number) => WorkoutLog | undefined;
   
@@ -174,6 +176,20 @@ function normalizeTextEntry(value: string): string {
     .replace(/&/g, '+')
     .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+function hasTrainingActivity(log: WorkoutLog): boolean {
+  const hasCompletedSet = log.exercises.some((exerciseLog) =>
+    exerciseLog.sets.some((set) => set.reps > 0 || set.status === 'skipped')
+  );
+  const hasSkippedExercise = Boolean(log.skippedExercises && log.skippedExercises.length > 0);
+  return Boolean(log.completed || hasCompletedSet || hasSkippedExercise);
+}
+
+function getActivityTimestampCandidate(log: WorkoutLog): string | undefined {
+  if (log.completed) return log.completedAt || log.lastActivityAt || log.startedAt || log.date;
+  if (hasTrainingActivity(log)) return log.lastActivityAt || log.startedAt || log.date;
+  return undefined;
 }
 
 function removeExerciseReferencesFromLog(
@@ -692,12 +708,16 @@ export const useAppStore = create<AppState>()(
         // Only migrate if we have legacy data and no programs
         if (state.programs.length === 0 && (state.workoutLogs.length > 0 || state.currentWeek > 1)) {
           const id = generateId();
+          const earliestActivity = state.workoutLogs
+            .map(getActivityTimestampCandidate)
+            .filter((value): value is string => Boolean(value))
+            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
           const legacyProgram: UserProgram = {
             id,
             templateId: '4-day-upper-lower',
             name: 'My First Block',
             createdAt: new Date().toISOString(),
-            startedAt: state.workoutLogs[0]?.date,
+            startedAt: earliestActivity,
             currentWeek: state.currentWeek,
             workoutLogs: state.workoutLogs,
             exerciseSubstitutions: state.exerciseSubstitutions,
@@ -805,7 +825,9 @@ export const useAppStore = create<AppState>()(
         if (state.activeProgramId) {
           const nowTrainedProgramId = log.completed ? state.activeProgramId : state.lastTrainedProgramId;
           const earliestLoggedAt = newLogs
-            .map((entry) => new Date(entry.date).getTime())
+            .map((entry) => getActivityTimestampCandidate(entry))
+            .filter((value): value is string => Boolean(value))
+            .map((value) => new Date(value).getTime())
             .filter((value) => Number.isFinite(value))
             .sort((a, b) => a - b)[0];
           return {
@@ -852,6 +874,84 @@ export const useAppStore = create<AppState>()(
         return { workoutLogs: newLogs };
       }),
 
+      // Clear progress while preserving exercise structure (added/deleted/order/overrides)
+      restartWorkoutProgress: (workoutId) => set((state) => {
+        const logIndex = state.workoutLogs.findIndex((log) => log.workoutId === workoutId);
+        if (logIndex < 0) return state;
+
+        const newLogs = [...state.workoutLogs];
+        const currentLog = newLogs[logIndex];
+        const resetExercises = currentLog.exercises.map((exerciseLog) => ({
+          ...exerciseLog,
+          completed: false,
+          sets: exerciseLog.sets.map(() => ({
+            weight: 0,
+            reps: 0,
+            rpe: 0,
+          })),
+        }));
+
+        newLogs[logIndex] = {
+          ...currentLog,
+          completed: false,
+          completedAt: undefined,
+          startedAt: undefined,
+          lastActivityAt: undefined,
+          skippedExercises: [],
+          exercises: resetExercises,
+        };
+
+        if (state.activeProgramId) {
+          return {
+            workoutLogs: newLogs,
+            programs: state.programs.map((program) =>
+              program.id === state.activeProgramId ? { ...program, workoutLogs: newLogs } : program
+            ),
+          };
+        }
+
+        return { workoutLogs: newLogs };
+      }),
+
+      // Remove every exercise from the workout page so user can rebuild from scratch
+      clearWorkoutExercises: (workoutId, exerciseIds) => set((state) => {
+        const normalizedExerciseIds = Array.from(new Set(exerciseIds.filter(Boolean)));
+        const existingLog = state.workoutLogs.find((log) => log.workoutId === workoutId);
+        const clearedLog: WorkoutLog = {
+          workoutId,
+          date: existingLog?.date || new Date().toISOString(),
+          startedAt: undefined,
+          lastActivityAt: undefined,
+          completedAt: undefined,
+          exercises: [],
+          completed: false,
+          skippedExercises: [],
+          deletedExercises: normalizedExerciseIds,
+          addedExercises: [],
+          exerciseOrder: [],
+          exerciseOverrides: {},
+        };
+
+        const existingIndex = state.workoutLogs.findIndex((log) => log.workoutId === workoutId);
+        const newLogs = [...state.workoutLogs];
+        if (existingIndex >= 0) {
+          newLogs[existingIndex] = clearedLog;
+        } else {
+          newLogs.push(clearedLog);
+        }
+
+        if (state.activeProgramId) {
+          return {
+            workoutLogs: newLogs,
+            programs: state.programs.map((program) =>
+              program.id === state.activeProgramId ? { ...program, workoutLogs: newLogs } : program
+            ),
+          };
+        }
+
+        return { workoutLogs: newLogs };
+      }),
+
       // Get a specific workout log
       getWorkoutLog: (workoutId) => {
         return get().workoutLogs.find((log) => log.workoutId === workoutId);
@@ -871,6 +971,7 @@ export const useAppStore = create<AppState>()(
 
       // Log a single set within a workout (syncs with active program)
       logExerciseSet: (workoutId, exerciseId, setIndex, setData) => set((state) => {
+        const nowIso = new Date().toISOString();
         const logIndex = state.workoutLogs.findIndex(
           (l) => l.workoutId === workoutId
         );
@@ -881,7 +982,9 @@ export const useAppStore = create<AppState>()(
         if (logIndex < 0) {
           const newLog: WorkoutLog = {
             workoutId,
-            date: new Date().toISOString(),
+            date: nowIso,
+            startedAt: nowIso,
+            lastActivityAt: nowIso,
             exercises: [{
               exerciseId,
               sets: [],
@@ -900,6 +1003,9 @@ export const useAppStore = create<AppState>()(
           // Update existing log
           newLogs = [...state.workoutLogs];
           const log = { ...newLogs[logIndex] };
+          log.startedAt = log.startedAt || nowIso;
+          log.lastActivityAt = nowIso;
+          log.completedAt = log.completed ? (log.completedAt || nowIso) : undefined;
           log.exercises = [...log.exercises];
 
           const exerciseIndex = log.exercises.findIndex(
@@ -1003,6 +1109,7 @@ export const useAppStore = create<AppState>()(
 
       // Skip an exercise (remove from workout) - syncs with active program
       skipExercise: (workoutId, exerciseId) => set((state) => {
+        const nowIso = new Date().toISOString();
         const logIndex = state.workoutLogs.findIndex(l => l.workoutId === workoutId);
         
         let newLogs: WorkoutLog[];
@@ -1010,7 +1117,9 @@ export const useAppStore = create<AppState>()(
           // Create new log with skipped exercise
           const newLog: WorkoutLog = {
             workoutId,
-            date: new Date().toISOString(),
+            date: nowIso,
+            startedAt: nowIso,
+            lastActivityAt: nowIso,
             exercises: [],
             completed: false,
             skippedExercises: [exerciseId],
@@ -1020,6 +1129,9 @@ export const useAppStore = create<AppState>()(
           // Update existing log
           newLogs = [...state.workoutLogs];
           const log = { ...newLogs[logIndex] };
+          log.startedAt = log.startedAt || nowIso;
+          log.lastActivityAt = nowIso;
+          log.completedAt = undefined;
           const skipped = log.skippedExercises || [];
           if (!skipped.includes(exerciseId)) {
             log.skippedExercises = [...skipped, exerciseId];
@@ -1041,11 +1153,15 @@ export const useAppStore = create<AppState>()(
 
       // Unskip an exercise (restore to workout) - syncs with active program
       unskipExercise: (workoutId, exerciseId) => set((state) => {
+        const nowIso = new Date().toISOString();
         const logIndex = state.workoutLogs.findIndex(l => l.workoutId === workoutId);
         if (logIndex < 0) return state;
         
         const newLogs = [...state.workoutLogs];
         const log = { ...newLogs[logIndex] };
+        log.startedAt = log.startedAt || nowIso;
+        log.lastActivityAt = nowIso;
+        log.completedAt = undefined;
         log.skippedExercises = (log.skippedExercises || []).filter(id => id !== exerciseId);
         newLogs[logIndex] = log;
         

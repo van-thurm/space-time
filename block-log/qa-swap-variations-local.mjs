@@ -96,7 +96,9 @@ async function run() {
     // 2) Edited + unsaved
     await safeClick(edit);
     await page.waitForTimeout(180);
-    await page.locator('input[aria-label="Edit sets"]').first().fill('5');
+    const incSets = page.locator('button[aria-label="Increase sets"]').first();
+    await incSets.click();
+    await incSets.click();
     await openSwapAndCheckApi(page, results, 'standard edited unsaved');
     await safeClick(page.locator('button:has-text("cancel")').first());
     await page.waitForTimeout(180);
@@ -104,7 +106,8 @@ async function run() {
     // 3) Edited + saved
     await safeClick(edit);
     await page.waitForTimeout(180);
-    await page.locator('input[aria-label="Edit sets"]').first().fill('4');
+    const decSets = page.locator('button[aria-label="Decrease sets"]').first();
+    await decSets.click();
     await openSwapAndCheckApi(page, results, 'standard edited before save');
     await safeClick(page.locator('button:has-text("save")').first());
     await page.waitForTimeout(250);

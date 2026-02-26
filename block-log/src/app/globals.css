@@ -60,12 +60,28 @@ body {
   letter-spacing: -0.01em;
 }
 
+.form-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
 * {
   border-radius: 0;
 }
 
 button, input, select, textarea {
-  border-radius: var(--radius-ui);
+  border-radius: 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .tabular-nums {

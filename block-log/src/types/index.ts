@@ -100,6 +100,9 @@ export interface ExerciseLog {
 export interface WorkoutLog {
   workoutId: string;             // "week1-day1"
   date: string;                  // ISO date string
+  startedAt?: string;            // When first training activity occurred
+  lastActivityAt?: string;       // Latest training activity timestamp
+  completedAt?: string;          // Completion timestamp when completed=true
   exercises: ExerciseLog[];
   completed: boolean;
   skippedExercises?: string[];   // Exercise IDs that were skipped (visible, greyed out, restorable)

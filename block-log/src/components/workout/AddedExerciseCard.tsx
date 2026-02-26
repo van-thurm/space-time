@@ -44,7 +44,7 @@ export function AddedExerciseCard({
   const [activeSetIndex, setActiveSetIndex] = useState(0);
   const [cascadeWeight, setCascadeWeight] = useState<number | undefined>(undefined);
   const [editedSets, setEditedSets] = useState(exercise.sets);
-  const [editedReps, setEditedReps] = useState(exercise.reps);
+  const [editedReps, setEditedReps] = useState(parseInt(exercise.reps, 10) || 10);
   const [editedRPE, setEditedRPE] = useState(exercise.targetRPE);
   const [editedRestSeconds, setEditedRestSeconds] = useState(exercise.restSeconds);
   const notesFieldId = `${workoutId}-${exercise.id}-notes`;
@@ -60,7 +60,7 @@ export function AddedExerciseCard({
   const handleSaveEdit = () => {
     updateAddedExercise(workoutId, exercise.id, {
       sets: editedSets,
-      reps: editedReps,
+      reps: String(editedReps),
       targetRPE: editedRPE,
       restSeconds: Math.max(5, Math.min(600, editedRestSeconds)),
     });
@@ -69,7 +69,7 @@ export function AddedExerciseCard({
 
   const handleCancelEdit = () => {
     setEditedSets(exercise.sets);
-    setEditedReps(exercise.reps);
+    setEditedReps(parseInt(exercise.reps, 10) || 10);
     setEditedRPE(exercise.targetRPE);
     setEditedRestSeconds(exercise.restSeconds);
     setIsEditing(false);
@@ -219,7 +219,7 @@ export function AddedExerciseCard({
                 e.stopPropagation();
                 if (!isEditing) {
                   setEditedSets(exercise.sets);
-                  setEditedReps(exercise.reps);
+                  setEditedReps(parseInt(exercise.reps, 10) || 10);
                   setEditedRPE(exercise.targetRPE);
                   setEditedRestSeconds(exercise.restSeconds);
                 }
@@ -243,30 +243,51 @@ export function AddedExerciseCard({
           <div className="mt-3 space-y-3" onClick={(e) => e.stopPropagation()}>
             <div className="grid grid-cols-4 gap-2">
               <div>
-                <label className="font-sans text-xs text-muted">sets</label>
-                <input
-                  type="number"
-                  value={editedSets}
-                  onChange={(e) => setEditedSets(parseInt(e.target.value) || 1)}
-                  min={1}
-                  max={10}
-                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
-                    focus:border-accent focus:outline-none"
-                />
+                <label className="form-label">sets</label>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEditedSets((s) => Math.max(1, s - 1))}
+                    className="w-8 h-10 border border-border font-sans text-sm
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Decrease sets"
+                  >−</button>
+                  <div className="flex-1 h-10 border-t border-b border-border flex items-center justify-center font-sans text-sm font-semibold">
+                    {editedSets}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditedSets((s) => Math.min(10, s + 1))}
+                    className="w-8 h-10 border border-border font-sans text-sm
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Increase sets"
+                  >+</button>
+                </div>
               </div>
               <div>
-                <label className="font-sans text-xs text-muted">reps</label>
-                <input
-                  type="text"
-                  value={editedReps}
-                  onChange={(e) => setEditedReps(e.target.value)}
-                  placeholder="8-10"
-                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
-                    focus:border-accent focus:outline-none"
-                />
+                <label className="form-label">reps</label>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEditedReps((r) => Math.max(1, r - 1))}
+                    className="w-8 h-10 border border-border font-sans text-sm
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Decrease reps"
+                  >−</button>
+                  <div className="flex-1 h-10 border-t border-b border-border flex items-center justify-center font-sans text-sm font-semibold">
+                    {editedReps}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditedReps((r) => Math.min(30, r + 1))}
+                    className="w-8 h-10 border border-border font-sans text-sm
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Increase reps"
+                  >+</button>
+                </div>
               </div>
               <div>
-                <label className="font-sans text-xs text-muted">rpe</label>
+                <label className="form-label">rpe</label>
                 <input
                   type="text"
                   value={editedRPE}
@@ -277,16 +298,26 @@ export function AddedExerciseCard({
                 />
               </div>
               <div>
-                <label className="font-sans text-xs text-muted">rest</label>
-                <input
-                  type="number"
-                  value={editedRestSeconds}
-                  onChange={(e) => setEditedRestSeconds(parseInt(e.target.value, 10) || 0)}
-                  min={5}
-                  max={600}
-                  className="w-full h-10 px-2 border border-border bg-background font-sans text-sm
-                    focus:border-accent focus:outline-none"
-                />
+                <label className="form-label">rest</label>
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEditedRestSeconds((r) => Math.max(5, r - 15))}
+                    className="w-8 h-10 border border-border font-sans text-sm
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Decrease rest"
+                  >−</button>
+                  <div className="flex-1 h-10 border-t border-b border-border flex items-center justify-center font-sans text-sm font-semibold">
+                    {editedRestSeconds}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditedRestSeconds((r) => Math.min(600, r + 15))}
+                    className="w-8 h-10 border border-border font-sans text-sm
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Increase rest"
+                  >+</button>
+                </div>
               </div>
             </div>
             <div className="flex gap-2">
@@ -351,7 +382,7 @@ export function AddedExerciseCard({
           <SetInput
             key={i}
             setIndex={i}
-            targetReps={isEditing ? editedReps : exercise.reps}
+            targetReps={isEditing ? String(editedReps) : exercise.reps}
             targetRPE={isEditing ? editedRPE : exercise.targetRPE}
             previousSetInExercise={i > 0 ? exerciseLog?.sets[i - 1] : undefined}
             value={exerciseLog?.sets[i]}

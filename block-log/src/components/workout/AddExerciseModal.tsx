@@ -17,7 +17,7 @@ function generateAddedExerciseId(prefix: 'api' | 'custom', base?: string): strin
 export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
   const [name, setName] = useState('');
   const [sets, setSets] = useState(3);
-  const [reps, setReps] = useState('10');
+  const [reps, setReps] = useState(10);
   const [targetRPE, setTargetRPE] = useState('7-8');
   
   // API search state
@@ -37,12 +37,12 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
       setSearching(true);
       const response = await fetch(`/api/exercises/search?q=${encodeURIComponent(query)}`);
       if (!response.ok) {
-        throw new Error('Search failed');
+        setSearchResults([]);
+        return;
       }
       const results = await response.json();
       setSearchResults(Array.isArray(results) ? results.slice(0, 8) : []);
-    } catch (err) {
-      console.error('Search failed:', err);
+    } catch {
       setSearchResults([]);
     } finally {
       setSearching(false);
@@ -86,7 +86,7 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
         : generateAddedExerciseId('custom'),
       name: name.trim(),
       sets,
-      reps,
+      reps: String(reps),
       targetRPE,
       restSeconds: 60,
       category: 'accessory',
@@ -127,9 +127,9 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
         <div className="p-4 space-y-4 overflow-y-auto flex-1">
           {/* Exercise name with API search */}
           <div className="relative">
-            <label className="block font-sans text-sm text-muted mb-1">
-              exercise name
-              <span className="ml-2 text-accent text-xs">· search 1000+ exercises</span>
+            <label className="block form-label mb-2">
+              exercise search
+              <span className="normal-case tracking-normal"> (1000+ exercises or type your own)</span>
             </label>
             
             {selectedExercise ? (
@@ -190,33 +190,54 @@ export function AddExerciseModal({ onAdd, onClose }: AddExerciseModalProps) {
           {/* Sets and Reps */}
           <div className="flex gap-4">
             <div className="flex-1">
-              <label className="block font-sans text-sm text-muted mb-1">sets</label>
-              <input
-                type="number"
-                value={sets}
-                onChange={(e) => setSets(parseInt(e.target.value) || 3)}
-                min={1}
-                max={10}
-                className="w-full p-3 border border-border bg-background font-sans text-sm
-                  focus:border-foreground focus:outline-none touch-manipulation"
-              />
+              <label className="block form-label mb-2">sets</label>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setSets((s) => Math.max(1, s - 1))}
+                  className="w-12 h-12 border border-border font-sans text-xl
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Decrease sets"
+                >−</button>
+                <div className="flex-1 h-12 border-t border-b border-border flex items-center justify-center font-sans text-xl font-semibold">
+                  {sets}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSets((s) => Math.min(10, s + 1))}
+                  className="w-12 h-12 border border-border font-sans text-xl
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Increase sets"
+                >+</button>
+              </div>
             </div>
             <div className="flex-1">
-              <label className="block font-sans text-sm text-muted mb-1">reps</label>
-              <input
-                type="text"
-                value={reps}
-                onChange={(e) => setReps(e.target.value)}
-                placeholder="10 or 8-10"
-                className="w-full p-3 border border-border bg-background font-sans text-sm
-                  focus:border-foreground focus:outline-none touch-manipulation"
-              />
+              <label className="block form-label mb-2">reps</label>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setReps((r) => Math.max(1, r - 1))}
+                  className="w-12 h-12 border border-border font-sans text-xl
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Decrease reps"
+                >−</button>
+                <div className="flex-1 h-12 border-t border-b border-border flex items-center justify-center font-sans text-xl font-semibold">
+                  {reps}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setReps((r) => Math.min(30, r + 1))}
+                  className="w-12 h-12 border border-border font-sans text-xl
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Increase reps"
+                >+</button>
+              </div>
             </div>
           </div>
 
           {/* Target RPE */}
           <div>
-            <label className="block font-sans text-sm text-muted mb-1">target rpe</label>
+            <label className="block form-label mb-2">target rpe</label>
             <input
               type="text"
               value={targetRPE}

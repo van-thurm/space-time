@@ -19,7 +19,7 @@ interface SecondaryPageHeaderProps {
 }
 
 const ICON_BUTTON_CLASS =
-  'w-[42px] h-[42px] shrink-0 inline-flex items-center justify-center border border-border rounded-md text-foreground hover:border-foreground hover:text-foreground transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background';
+  'w-[42px] h-[42px] shrink-0 inline-flex items-center justify-center border-b-[2.5px] border-foreground text-foreground hover:text-accent hover:border-accent transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 focus-visible:ring-offset-background';
 const MENU_ITEM_BASE_CLASS =
   "relative h-10 px-3 font-sans text-sm transition-colors flex items-center before:content-[''] before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-0.5 before:bg-transparent";
 
@@ -77,6 +77,7 @@ export function SecondaryPageHeader({
     { href: '/timer', label: 'timer' },
     { href: '/analytics', label: 'analytics' },
     { href: '/settings', label: 'settings' },
+    { href: '/about', label: 'about' },
   ];
 
   const toggleTheme = () => {
@@ -117,7 +118,7 @@ export function SecondaryPageHeader({
           </button>
 
           {menuOpen && (
-            <div className="absolute top-[calc(100%+8px)] right-0 w-44 border border-border rounded-md overflow-hidden bg-background z-50">
+            <div className="absolute top-[calc(100%+8px)] right-0 w-44 border border-border overflow-hidden bg-background z-50">
               <nav className="py-1">
                 <button
                   type="button"

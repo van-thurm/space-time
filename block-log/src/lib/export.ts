@@ -8,6 +8,11 @@ interface ExportData {
   totalPlannedWorkouts?: number;
 }
 
+function getLogTimestamp(log: WorkoutLog): string {
+  if (log.completed) return log.completedAt || log.lastActivityAt || log.startedAt || log.date;
+  return log.lastActivityAt || log.startedAt || log.date;
+}
+
 // Convert workout logs to CSV format
 export function exportToCSV(data: ExportData): string {
   const { workoutLogs, exerciseSubstitutions, programName } = data;
@@ -30,7 +35,7 @@ export function exportToCSV(data: ExportData): string {
 
   // Sort logs by date
   const sortedLogs = [...workoutLogs].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => new Date(getLogTimestamp(a)).getTime() - new Date(getLogTimestamp(b)).getTime()
   );
 
   for (const log of sortedLogs) {
@@ -41,7 +46,7 @@ export function exportToCSV(data: ExportData): string {
     const week = parseInt(match[1]);
     const day = parseInt(match[2]);
     
-    const formattedDate = new Date(log.date).toLocaleDateString('en-US');
+    const formattedDate = new Date(getLogTimestamp(log)).toLocaleDateString('en-US');
 
     for (const exerciseLog of log.exercises) {
       // Check for substitution name
@@ -115,7 +120,7 @@ export function getExportSummary(data: ExportData): {
   const dedupedByWorkoutId = Array.from(
     new Map(
       [...workoutLogs]
-        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+        .sort((a, b) => new Date(getLogTimestamp(a)).getTime() - new Date(getLogTimestamp(b)).getTime())
         .map((log) => [log.workoutId, log])
     ).values()
   );
@@ -147,7 +152,7 @@ export function getExportSummary(data: ExportData): {
     }
   }
 
-  const dates = completedLogs.map((l) => new Date(l.date).getTime());
+  const dates = completedLogs.map((l) => new Date(getLogTimestamp(l)).getTime());
   const minDate = new Date(Math.min(...dates));
   const maxDate = new Date(Math.max(...dates));
 

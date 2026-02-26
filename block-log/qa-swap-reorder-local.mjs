@@ -137,7 +137,9 @@ async function run() {
       results,
       'standard edited unsaved',
       async () => {
-        await page.locator('input[aria-label="Edit sets"]').first().fill('5');
+        const incSets = page.locator('button[aria-label="Increase sets"]').first();
+        await incSets.click();
+        await incSets.click();
       },
       async () => {
         await safeClick(page.locator('button:has-text("cancel")').first());
@@ -149,7 +151,8 @@ async function run() {
       results,
       'standard edited saved',
       async () => {
-        await page.locator('input[aria-label="Edit sets"]').first().fill('4');
+        const decSets = page.locator('button[aria-label="Decrease sets"]').first();
+        await decSets.click();
       },
       async () => {
         await safeClick(page.locator('button:has-text("save")').first());

@@ -53,7 +53,7 @@ export default function AnalyticsPage() {
         {/* Summary stats */}
         <section className="border border-border p-4">
           <div className="flex items-center justify-between mb-4 gap-2">
-            <h2 className="font-display font-bold text-balance">summary</h2>
+            <h2 className="font-display text-lg text-balance">summary</h2>
             <button
               onClick={() => setShowDataScopeInfo((value) => !value)}
               className="w-11 h-11 border border-border text-muted hover:text-foreground hover:border-foreground transition-colors font-sans text-base font-medium leading-none touch-manipulation"
@@ -65,26 +65,26 @@ export default function AnalyticsPage() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <div className="font-sans text-sm text-muted">workouts completed</div>
-              <div className="font-sans font-bold text-2xl">
+              <div className="font-sans text-xs uppercase tracking-wide text-muted">workouts completed</div>
+              <div className="font-sans font-semibold text-3xl leading-tight mt-1">
                 {summary.completedWorkouts}
-                <span className="text-muted text-sm font-normal">/{summary.totalWorkouts}</span>
+                <span className="text-muted text-base font-normal">/{summary.totalWorkouts}</span>
               </div>
             </div>
             <div>
-              <div className="font-sans text-sm text-muted">total sets</div>
-              <div className="font-sans font-bold text-2xl">{summary.totalSets}</div>
+              <div className="font-sans text-xs uppercase tracking-wide text-muted">total sets</div>
+              <div className="font-sans font-semibold text-3xl leading-tight mt-1">{summary.totalSets}</div>
             </div>
             <div>
-              <div className="font-sans text-sm text-muted">total volume</div>
-              <div className="font-sans font-bold text-2xl">
+              <div className="font-sans text-xs uppercase tracking-wide text-muted">total volume</div>
+              <div className="font-sans font-semibold text-3xl leading-tight mt-1">
                 {summary.totalVolume.toLocaleString()}
-                <span className="text-sm font-normal"> {userSettings.units}</span>
+                <span className="text-base font-normal"> {userSettings.units}</span>
               </div>
             </div>
             <div>
-              <div className="font-sans text-sm text-muted">date range</div>
-              <div className="font-sans text-sm">
+              <div className="font-sans text-xs uppercase tracking-wide text-muted">date range</div>
+              <div className="font-sans text-base mt-1">
                 {summary.dateRange 
                   ? `${summary.dateRange.start} - ${summary.dateRange.end}`
                   : '—'
@@ -95,7 +95,7 @@ export default function AnalyticsPage() {
           {showDataScopeInfo && (
             <div className="mt-4 border border-border p-4 space-y-3">
               <div className="flex items-center justify-between">
-                <h2 className="font-display font-bold text-base">analytics scope</h2>
+                <h2 className="font-display text-lg">analytics scope</h2>
                 <button
                   onClick={() => setShowDataScopeInfo(false)}
                   className="w-11 h-11 border border-border font-sans text-base font-medium leading-none hover:border-foreground transition-colors touch-manipulation inline-flex items-center justify-center"
@@ -104,14 +104,9 @@ export default function AnalyticsPage() {
                   ×
                 </button>
               </div>
-              <p className="min-h-11 px-3 inline-flex items-center border border-border bg-surface/70 font-sans text-xs uppercase tracking-wide text-muted">
-                data source: {activeProgram ? 'active block only' : 'no active block selected'}
-              </p>
-              <p className="min-h-11 px-3 inline-flex items-center border border-border bg-surface/70 font-sans text-xs uppercase tracking-wide text-muted">
-                current block: {activeProgram ? activeProgram.name : 'none selected'}
-              </p>
-              <p className="font-sans text-sm text-muted text-pretty">
-                switch active block on the programs page to inspect another block&apos;s history.
+              <p className="font-sans text-sm leading-relaxed text-muted text-pretty">
+                this page shows information for completed workouts in your currently active block only. if you want
+                to view analytics for a different block, activate it on the programs page, and then return here.
               </p>
             </div>
           )}
@@ -129,7 +124,7 @@ export default function AnalyticsPage() {
 
         {/* Settings + Export */}
         <section className="border border-border p-4 space-y-4">
-          <h2 className="font-display font-bold text-balance">settings + export</h2>
+          <h2 className="font-display text-lg text-balance">settings + export</h2>
           
           <div className="flex flex-wrap items-center gap-3">
             {/* Units toggle */}

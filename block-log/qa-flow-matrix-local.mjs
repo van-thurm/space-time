@@ -102,8 +102,12 @@ async function createCustomProgram(page, name) {
   await page.waitForTimeout(400);
   await page.locator('input[type="text"]').first().fill(name);
 
-  // weeks = 4
-  await page.locator('label:has-text("weeks")').locator('xpath=following-sibling::input').first().fill('4');
+  // weeks = 4 (default is 12, click decrease 8 times)
+  const decWeeks = page.locator('button[aria-label="Decrease weeks"]').first();
+  for (let i = 0; i < 8; i++) {
+    await decWeeks.click();
+    await page.waitForTimeout(50);
+  }
   await page.waitForTimeout(150);
 
   // remove one day (4 -> 3)

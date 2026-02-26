@@ -33,7 +33,7 @@ export default function SettingsPage() {
         
         {/* Appearance Section */}
         <section className="border border-border p-4 space-y-4">
-          <h2 className="font-sans font-bold text-base">appearance</h2>
+          <h2 className="font-display text-lg">appearance</h2>
           
           <div className="flex justify-between items-start sm:items-center gap-3 py-2">
             <div>
@@ -55,7 +55,7 @@ export default function SettingsPage() {
 
         {/* Workout Settings */}
         <section className="border border-border p-4 space-y-4">
-          <h2 className="font-sans font-bold text-base">workout</h2>
+          <h2 className="font-display text-lg">workout</h2>
           
           <div className="flex justify-between items-start sm:items-center gap-3 py-2">
             <div>
@@ -143,7 +143,7 @@ export default function SettingsPage() {
 
         {/* Archived Programs */}
         <section className="border border-border p-4 space-y-4">
-          <h2 className="font-sans font-bold text-base">archived programs</h2>
+          <h2 className="font-display text-lg">archived programs</h2>
           {archivedPrograms.length === 0 ? (
             <p className="font-sans text-xs text-muted">no archived programs yet</p>
           ) : (
@@ -244,7 +244,7 @@ export default function SettingsPage() {
 
         {/* Danger Zone */}
         <section className="border border-danger/30 p-4 space-y-4">
-          <h2 className="font-sans font-bold text-base text-danger inline-flex items-center gap-2">
+          <h2 className="font-display text-lg text-danger inline-flex items-center gap-2">
             <AlertMarkIcon size={16} />
             danger zone
           </h2>
@@ -260,12 +260,6 @@ export default function SettingsPage() {
               <div className="flex flex-col items-end gap-2">
                 <div className="flex gap-2">
                   <button
-                    onClick={() => setConfirmClearData(false)}
-                    className="min-h-11 px-3 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
-                  >
-                    cancel
-                  </button>
-                  <button
                     onClick={() => {
                       clearAllData();
                       setConfirmClearData(false);
@@ -273,6 +267,12 @@ export default function SettingsPage() {
                     className="min-h-11 px-3 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
                   >
                     yes, clear
+                  </button>
+                  <button
+                    onClick={() => setConfirmClearData(false)}
+                    className="min-h-11 px-3 border border-border font-sans text-sm text-muted hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                  >
+                    cancel
                   </button>
                 </div>
                 <p className="font-sans text-xs text-muted text-right">

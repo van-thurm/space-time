@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weeks Input Exploration</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #121110;
+    color: #F5F0E8;
+    padding: 32px 20px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #9C9488; margin-bottom: 28px; }
+  .option { margin-bottom: 48px; }
+  .option-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #9C9488;
+    margin-bottom: 6px;
+  }
+  .option-desc {
+    font-size: 13px;
+    color: #6B6259;
+    margin-bottom: 14px;
+    line-height: 1.5;
+  }
+  .field-label {
+    font-size: 14px;
+    color: #9C9488;
+    margin-bottom: 8px;
+  }
+  .demo-box {
+    padding: 20px;
+    border: 1px solid #2A2724;
+    background: #1C1A17;
+  }
+
+  /* ── A: Stepper (- / value / +) ── */
+  .stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .stepper-btn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #2A2724;
+    background: transparent;
+    color: #F5F0E8;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+  .stepper-btn:hover { border-color: #F5F0E8; }
+  .stepper-btn:active { background: #F5F0E8; color: #121110; }
+  .stepper-value {
+    width: 64px;
+    height: 48px;
+    border-top: 1px solid #2A2724;
+    border-bottom: 1px solid #2A2724;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  /* ── B: Tile picker ── */
+  .tile-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tile {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #2A2724;
+    background: transparent;
+    color: #9C9488;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+  .tile:hover { border-color: #F5F0E8; color: #F5F0E8; }
+  .tile.selected {
+    background: #F5F0E8;
+    color: #121110;
+    border-color: #F5F0E8;
+    font-weight: 700;
+  }
+
+  /* ── C: Slider + readout ── */
+  .slider-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .slider-track {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 3px;
+    background: #2A2724;
+    outline: none;
+    cursor: pointer;
+  }
+  .slider-track::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 28px;
+    height: 28px;
+    background: #F5F0E8;
+    border: none;
+    cursor: pointer;
+  }
+  .slider-track::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    background: #F5F0E8;
+    border: none;
+    cursor: pointer;
+  }
+  .slider-readout {
+    font-size: 20px;
+    font-weight: 600;
+    min-width: 48px;
+    text-align: center;
+  }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 6px;
+    font-size: 11px;
+    color: #6B6259;
+  }
+
+  /* ── D: Stepper + tile hybrid ── */
+  .hybrid {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hybrid-btn {
+    width: 48px;
+    height: 48px;
+    border: 1px solid #2A2724;
+    background: transparent;
+    color: #F5F0E8;
+    font-size: 22px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+  .hybrid-btn:hover { border-color: #F5F0E8; }
+  .hybrid-btn:active { background: #F5F0E8; color: #121110; }
+  .hybrid-display {
+    font-size: 28px;
+    font-weight: 700;
+    min-width: 40px;
+    text-align: center;
+  }
+  .hybrid-unit {
+    font-size: 14px;
+    color: #9C9488;
+    margin-left: 2px;
+  }
+
+  .presets {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .preset {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #2A2724;
+    background: transparent;
+    color: #6B6259;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    touch-action: manipulation;
+  }
+  .preset:hover { border-color: #9C9488; color: #9C9488; }
+  .preset.active { border-color: #E06B3A; color: #E06B3A; }
+
+  .verdict {
+    margin-top: 48px;
+    padding: 16px;
+    border: 1px solid #2A2724;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #9C9488;
+  }
+  .verdict strong { color: #F5F0E8; }
+  .divider { border: none; border-top: 1px dashed #2A2724; margin: 8px 0; }
+</style>
+</head>
+<body>
+
+<h1>weeks input — interaction patterns</h1>
+
+<!-- A: Stepper -->
+<div class="option">
+  <div class="option-label">A — stepper</div>
+  <div class="option-desc">Big tap targets for +/−. No typing, no ambiguity. One tap = one week. Fast on mobile.</div>
+  <div class="demo-box">
+    <div class="field-label">weeks</div>
+    <div class="stepper" id="stepperA">
+      <button class="stepper-btn" onclick="stepA(-1)">−</button>
+      <div class="stepper-value" id="stepperAVal">6</div>
+      <button class="stepper-btn" onclick="stepA(1)">+</button>
+    </div>
+  </div>
+</div>
+
+<!-- B: Tile picker -->
+<div class="option">
+  <div class="option-label">B — tile picker</div>
+  <div class="option-desc">All options visible at once. One tap to select. Clear what's chosen. Good when the range is small (2–12).</div>
+  <div class="demo-box">
+    <div class="field-label">weeks</div>
+    <div class="tile-grid" id="tileGrid">
+    </div>
+  </div>
+</div>
+
+<!-- C: Slider -->
+<div class="option">
+  <div class="option-label">C — slider + readout</div>
+  <div class="option-desc">Continuous feel, shows the full range at a glance. Less precise but fast for "roughly 8 weeks."</div>
+  <div class="demo-box">
+    <div class="field-label">weeks</div>
+    <div class="slider-row">
+      <input type="range" min="2" max="16" value="6" class="slider-track" id="sliderC" oninput="updateSlider()">
+      <div class="slider-readout" id="sliderCVal">6</div>
+    </div>
+    <div class="slider-labels"><span>2</span><span>16</span></div>
+  </div>
+</div>
+
+<!-- D: Stepper + presets -->
+<div class="option">
+  <div class="option-label">D — stepper + quick presets</div>
+  <div class="option-desc">Stepper for precision, preset chips for common block lengths. Best of both — tap a preset to jump, fine-tune with +/−.</div>
+  <div class="demo-box">
+    <div class="field-label">weeks</div>
+    <div class="hybrid" id="stepperD">
+      <button class="hybrid-btn" onclick="stepD(-1)">−</button>
+      <div><span class="hybrid-display" id="stepperDVal">6</span><span class="hybrid-unit">wk</span></div>
+      <button class="hybrid-btn" onclick="stepD(1)">+</button>
+    </div>
+    <div class="presets" id="presetRow">
+      <button class="preset" onclick="presetD(4)">4 wk</button>
+      <button class="preset active" onclick="presetD(6)">6 wk</button>
+      <button class="preset" onclick="presetD(8)">8 wk</button>
+      <button class="preset" onclick="presetD(12)">12 wk</button>
+      <button class="preset" onclick="presetD(16)">16 wk</button>
+    </div>
+  </div>
+</div>
+
+<div class="verdict">
+  <strong>Recommendations:</strong><br>
+  <strong>A</strong> (stepper) is the safest upgrade — dead simple, big tap targets, no keyboard issues.<br>
+  <strong>D</strong> (stepper + presets) adds quick jumps for common block lengths without adding complexity.<br>
+  <hr class="divider">
+  <strong>B</strong> (tiles) works well for 2–12 but gets crowded if you ever allow longer blocks.<br>
+  <strong>C</strong> (slider) feels nice but imprecise — fine for "vibes," less great when you care about exact weeks.
+</div>
+
+<script>
+  let valA = 6;
+  function stepA(d) {
+    valA = Math.max(2, Math.min(16, valA + d));
+    document.getElementById('stepperAVal').textContent = valA;
+  }
+
+  // Tile picker
+  const grid = document.getElementById('tileGrid');
+  let selectedTile = 6;
+  for (let i = 2; i <= 16; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'tile' + (i === selectedTile ? ' selected' : '');
+    btn.textContent = i;
+    btn.onclick = () => {
+      selectedTile = i;
+      grid.querySelectorAll('.tile').forEach((t, idx) => {
+        t.classList.toggle('selected', idx === i - 2);
+      });
+    };
+    grid.appendChild(btn);
+  }
+
+  function updateSlider() {
+    document.getElementById('sliderCVal').textContent = document.getElementById('sliderC').value;
+  }
+
+  let valD = 6;
+  function stepD(d) {
+    valD = Math.max(2, Math.min(16, valD + d));
+    document.getElementById('stepperDVal').textContent = valD;
+    updatePresets();
+  }
+  function presetD(v) {
+    valD = v;
+    document.getElementById('stepperDVal').textContent = valD;
+    updatePresets();
+  }
+  function updatePresets() {
+    document.querySelectorAll('#presetRow .preset').forEach(btn => {
+      const v = parseInt(btn.textContent);
+      btn.classList.toggle('active', v === valD);
+    });
+  }
+</script>
+
+</body>
+</html>

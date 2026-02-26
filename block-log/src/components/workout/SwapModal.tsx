@@ -151,7 +151,7 @@ export function SwapModal({ exercise, onClose }: SwapModalProps) {
         <div className="p-4 border-b border-border">
           <div className="flex justify-between items-start">
             <div>
-              <h2 className="font-sans font-bold text-lg">swap exercise</h2>
+              <h2 className="font-display text-lg">swap exercise</h2>
               <p className="font-sans text-sm text-muted mt-1">
                 {exercise.name}
               </p>

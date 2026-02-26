@@ -362,7 +362,7 @@ export default function NewProgramPage() {
           <div className="border border-accent bg-accent/5 p-4">
             <div className="flex justify-between items-start">
               <div>
-                <p className="font-sans text-xs text-accent uppercase">selected</p>
+                <p className="font-sans text-xs text-accent uppercase">template</p>
                 <h3 className="font-sans font-bold text-lg mt-1">
                   {selectedCustomTemplate ? `${selectedCustomTemplate.name} template` : selectedTemplate?.name}
                 </h3>
@@ -388,26 +388,69 @@ export default function NewProgramPage() {
             )}
           </div>
 
+          {selectedTemplate?.id !== 'custom' && (
+            <div className="space-y-2">
+              <label className="form-label">program name</label>
+              <input
+                type="text"
+                value={programName}
+                onChange={(e) => setProgramName(e.target.value)}
+                maxLength={PROGRAM_NAME_MAX}
+                placeholder="e.g., spring strength block"
+                className="w-full h-12 px-4 border border-border bg-background font-sans
+                  focus:border-foreground focus:outline-none"
+              />
+            </div>
+          )}
+
           {selectedTemplate?.id === 'custom' && (
-            <section className="border border-border p-4 space-y-4">
-              <h3 className="font-sans font-bold text-sm">custom structure</h3>
+            <section className="border border-border p-4 space-y-6">
+              <div>
+                <h3 className="font-display text-xl">build your training block</h3>
+                <p className="font-sans text-sm text-muted mt-2">on the next page, open each day to build your workouts.</p>
+              </div>
 
               <div className="space-y-2">
-                <label className="font-sans text-sm text-muted">weeks</label>
+                <label className="form-label">program name</label>
                 <input
-                  type="number"
-                  min={1}
-                  max={52}
-                  value={customWeeks}
-                  onChange={(e) => setCustomWeeks(Math.max(1, Math.min(52, parseInt(e.target.value) || 1)))}
-                  className="w-full h-11 px-3 border border-border bg-background font-sans
+                  type="text"
+                  value={programName}
+                  onChange={(e) => setProgramName(e.target.value)}
+                  maxLength={PROGRAM_NAME_MAX}
+                  placeholder="e.g., spring strength block"
+                  className="w-full h-12 px-4 border border-border bg-background font-sans
                     focus:border-foreground focus:outline-none"
                 />
               </div>
 
+              <div className="flex items-center gap-4">
+                <div className="flex items-center">
+                  <button
+                    onClick={() => setCustomWeeks((w) => Math.max(1, w - 1))}
+                    className="w-12 h-12 border border-border font-sans text-xl
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Decrease weeks"
+                  >
+                    −
+                  </button>
+                  <div className="w-16 h-12 border-t border-b border-border flex items-center justify-center font-sans text-xl font-semibold">
+                    {customWeeks}
+                  </div>
+                  <button
+                    onClick={() => setCustomWeeks((w) => Math.min(52, w + 1))}
+                    className="w-12 h-12 border border-border font-sans text-xl
+                      hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                    aria-label="Increase weeks"
+                  >
+                    +
+                  </button>
+                </div>
+                <span className="font-sans text-sm text-muted">weeks</span>
+              </div>
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className="font-sans text-sm text-muted">days</label>
+                  <label className="form-label">days</label>
                   <button
                     onClick={addCustomDay}
                     disabled={customDayNames.length >= 7}
@@ -467,26 +510,6 @@ export default function NewProgramPage() {
               </div>
             </section>
           )}
-
-          {/* Name input */}
-          <div className="space-y-2">
-            <label className="font-sans text-sm text-muted">program name</label>
-            <input
-              type="text"
-              value={programName}
-              onChange={(e) => setProgramName(e.target.value)}
-              maxLength={PROGRAM_NAME_MAX}
-              placeholder="e.g., spring strength block"
-              className="w-full h-12 px-4 border border-border bg-background font-sans
-                focus:border-foreground focus:outline-none"
-            />
-            <p className="font-sans text-xs text-muted">
-              give it a name you&apos;ll recognize
-            </p>
-            <p className="font-sans text-xs text-muted border border-border/60 bg-surface/30 px-2 py-1.5">
-              on the next page, open each day to build your workout.
-            </p>
-          </div>
 
           {selectedCustomTemplate && (
             <div className="border-t border-border pt-3">

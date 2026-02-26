@@ -57,7 +57,7 @@ function SortableItem({ id, children, editMode }: SortableItemProps) {
           {...listeners}
           className="absolute -left-2 top-4 w-8 h-8 flex items-center justify-center
             text-accent hover:text-foreground cursor-grab active:cursor-grabbing
-            touch-manipulation z-10 bg-background border border-accent rounded-md"
+            touch-manipulation z-10 bg-background border border-accent"
           aria-label="Drag to reorder"
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">

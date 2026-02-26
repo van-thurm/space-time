@@ -71,16 +71,30 @@ function SortableProgramCard({
   const progressPercent = totalWorkouts > 0 
     ? Math.round((completedWorkouts / totalWorkouts) * 100) 
     : 0;
+  const hasTrainingActivity = (log: (typeof program.workoutLogs)[number]) => {
+    const hasCompletedSet = log.exercises.some((exerciseLog) =>
+      exerciseLog.sets.some((set) => set.reps > 0 || set.status === 'skipped')
+    );
+    const hasSkippedExercise = Boolean(log.skippedExercises && log.skippedExercises.length > 0);
+    return Boolean(log.completed || hasCompletedSet || hasSkippedExercise);
+  };
   const completionDate =
     completedWorkouts >= totalWorkouts
       ? [...program.workoutLogs]
           .filter((log) => log.completed)
-          .sort((a, b) => b.date.localeCompare(a.date))[0]?.date
+          .sort(
+            (a, b) =>
+              new Date(b.completedAt || b.lastActivityAt || b.startedAt || b.date).getTime() -
+              new Date(a.completedAt || a.lastActivityAt || a.startedAt || a.date).getTime()
+          )
+          .map((log) => log.completedAt || log.lastActivityAt || log.startedAt || log.date)[0]
       : undefined;
   const earliestLoggedDate =
     program.workoutLogs.length > 0
       ? [...program.workoutLogs]
-          .sort((a, b) => a.date.localeCompare(b.date))[0]?.date
+          .filter((log) => hasTrainingActivity(log))
+          .map((log) => log.startedAt || log.lastActivityAt || log.date)
+          .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0]
       : undefined;
   const startedDate = earliestLoggedDate || program.startedAt || program.createdAt;
   const safeCompletionDate =
@@ -476,7 +490,7 @@ export default function ProgramsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-display font-bold text-base">edit program</h2>
+              <h2 className="font-display text-lg">edit program</h2>
               <button
                 onClick={closeEditModal}
                 className="w-11 h-11 border border-border font-sans text-base font-medium leading-none hover:border-foreground transition-colors touch-manipulation"
@@ -487,7 +501,7 @@ export default function ProgramsPage() {
             </div>
 
             <div className="space-y-2">
-              <label className="font-sans text-xs text-muted uppercase tracking-wide">name</label>
+              <label className="form-label">name</label>
               <input
                 type="text"
                 value={draftName}
@@ -512,7 +526,7 @@ export default function ProgramsPage() {
             })()}
 
             <div className="space-y-2 border-t border-border pt-3">
-              <label className="font-sans text-xs text-muted uppercase tracking-wide">block length</label>
+              <label className="form-label">block length</label>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {
@@ -619,7 +633,7 @@ export default function ProgramsPage() {
             </div>
 
             <div className="space-y-2 border-t border-border pt-3">
-              <label className="font-sans text-xs text-muted uppercase tracking-wide">workout day names</label>
+              <label className="form-label">workout day names</label>
               <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
                 {Array.from({ length: draftDays }, (_, index) => (
                   <div key={index} className="flex items-center gap-2">

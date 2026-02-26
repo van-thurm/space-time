@@ -168,6 +168,51 @@ Then continue from **Section 5: What To Do Next**.
 
 ---
 
+## Session Update (2026-02-26)
+
+### What changed
+- Added explicit workout actions to reduce accidental destructive behavior:
+  - `clear workout`: now clears all exercises on the page (base + added) so the workout can be rebuilt from scratch.
+  - `restart workout`: now clears progress only (weights/reps/rpe/skips/completion) while preserving exercise structure edits.
+- Clarified destructive confirmations with explicit copy.
+- Hid in-page `clear workout` / `restart workout` controls when workout is completed.
+- Updated completed-state footer reset flow to use the same restart semantics (reset to not started without surprising structure loss).
+
+Files edited in this pass:
+- `src/app/workout/[weekDay]/page.tsx`
+- `src/lib/store.ts`
+- `.cursor/plans/regression-point-clear-restart.patch` (rollback snapshot)
+
+### Validation run results
+- Build: passing (`npx next build`)
+- Lints (edited files): no errors
+- Smoke: passing (`node qa-smoke.mjs`, 7/7)
+- Targeted transition check (Playwright one-off):
+  - in-progress: `clear workout` and `restart workout` visible
+  - completed: both hidden, `clear + reset to ready` visible
+  - unfinish from completed: `clear workout` and `restart workout` visible again
+
+### Follow-up update (timestamp semantics fix)
+- Implemented Option 3 timestamp model for workout history display:
+  - `WorkoutLog` now supports `startedAt`, `lastActivityAt`, `completedAt`.
+  - Dashboard card date display now uses:
+    - completed -> `completedAt` fallback chain
+    - in-progress -> `lastActivityAt` fallback chain
+    - not started -> no date shown
+- Applied lazy migration behavior in code (no destructive storage rewrite):
+  - Seeded hydration dates are ignored for display when no real training activity exists.
+- Synced timestamp handling in:
+  - `src/lib/store.ts` (set/skip/unskip/complete/unfinish/restart/clear flows)
+  - `src/components/dashboard/WorkoutCard.tsx`
+  - `src/app/programs/page.tsx`
+  - `src/lib/export.ts`
+  - `src/app/workout/[weekDay]/complete/page.tsx`
+- Validation:
+  - Build passing (`npx next build`)
+  - Smoke passing (`node qa-smoke.mjs`, 7/7)
+
+---
+
 ## 8) Session Update (2026-02-13)
 
 ### What changed in this pass

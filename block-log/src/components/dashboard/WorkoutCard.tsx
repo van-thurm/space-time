@@ -27,6 +27,26 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
     });
   };
 
+  const hasTrainingActivity = (entry: typeof log): boolean => {
+    if (!entry) return false;
+    const hasCompletedSet = entry.exercises.some((exerciseLog) =>
+      exerciseLog.sets.some((set) => set.reps > 0 || set.status === 'skipped')
+    );
+    const hasSkippedExercise = Boolean(entry.skippedExercises && entry.skippedExercises.length > 0);
+    return Boolean(entry.completed || hasCompletedSet || hasSkippedExercise);
+  };
+
+  const dateLabel = (() => {
+    if (!log) return null;
+    if (status === 'completed') {
+      return log.completedAt || log.lastActivityAt || log.startedAt || log.date;
+    }
+    if (status === 'in_progress') {
+      return log.lastActivityAt || log.startedAt || (hasTrainingActivity(log) ? log.date : undefined);
+    }
+    return null;
+  })();
+
   const cardToneClass =
     status === 'completed'
       ? 'border-success/40 border-l-success bg-success/5'
@@ -66,7 +86,7 @@ export function WorkoutCard({ workout }: WorkoutCardProps) {
         <div className="flex items-center justify-between pt-2 border-t border-border min-h-8">
           <span className="text-sm font-sans text-muted inline-flex items-center gap-2">
             <span>
-              {log ? `${log.completed ? 'completed' : 'last'}: ${formatDate(log.date).toLowerCase()}` : '\u00A0'}
+              {dateLabel ? `${status === 'completed' ? 'completed' : 'last'}: ${formatDate(dateLabel).toLowerCase()}` : '\u00A0'}
             </span>
             {status === 'completed' && (
               <button

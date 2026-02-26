@@ -47,7 +47,7 @@ export function WeekSelector() {
               key={week}
               onClick={() => setCurrentWeek(week)}
               className={`
-                w-11 h-11 font-sans text-sm font-medium transition-all border rounded-md touch-manipulation
+                w-11 h-11 font-sans text-sm font-medium transition-all border touch-manipulation
                 ${isActive 
                   ? 'bg-foreground text-background border-foreground' 
                   : 'bg-background text-foreground border-border hover:border-foreground active:bg-foreground/10'
@@ -62,7 +62,7 @@ export function WeekSelector() {
         {/* Add week button */}
         <button
           onClick={handleAddWeek}
-          className="w-11 h-11 font-sans text-lg font-medium border rounded-md border-dashed border-border 
+          className="w-11 h-11 font-sans text-lg font-medium border border-dashed border-border 
             text-muted hover:border-accent hover:text-accent
             transition-all touch-manipulation"
           aria-label="Add another week"

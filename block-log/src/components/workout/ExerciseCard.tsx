@@ -61,7 +61,7 @@ export function ExerciseCard({
   const [cascadeWeight, setCascadeWeight] = useState<number | undefined>(undefined);
   const [activeSetIndex, setActiveSetIndex] = useState(0);
   const [editedSets, setEditedSets] = useState(exercise.sets);
-  const [editedReps, setEditedReps] = useState(exercise.reps);
+  const [editedReps, setEditedReps] = useState(parseInt(exercise.reps, 10) || 10);
   const [editedRpe, setEditedRpe] = useState(exercise.targetRPE);
   const [editedRestSeconds, setEditedRestSeconds] = useState(exercise.restSeconds);
   
@@ -91,7 +91,7 @@ export function ExerciseCard({
   const handleSaveEdit = () => {
     onUpdateExercise?.({
       sets: Math.max(1, Math.min(10, editedSets)),
-      reps: editedReps,
+      reps: String(editedReps),
       targetRPE: editedRpe,
       restSeconds: Math.max(5, Math.min(600, editedRestSeconds)),
     });
@@ -234,7 +234,7 @@ export function ExerciseCard({
                   e.stopPropagation();
                   if (!isEditing) {
                     setEditedSets(exercise.sets);
-                    setEditedReps(exercise.reps);
+                    setEditedReps(parseInt(exercise.reps, 10) || 10);
                     setEditedRpe(exercise.targetRPE);
                     setEditedRestSeconds(exercise.restSeconds);
                   }
@@ -261,22 +261,48 @@ export function ExerciseCard({
       {isEditing && (
         <div className="p-3 space-y-2 bg-surface/30" onClick={(e) => e.stopPropagation()}>
           <div className="grid grid-cols-4 gap-2">
-            <input
-              type="number"
-              min={1}
-              max={10}
-              value={editedSets}
-              onChange={(e) => setEditedSets(parseInt(e.target.value, 10) || 1)}
-              className="h-10 px-2 border border-border bg-background font-sans text-sm focus:border-foreground focus:outline-none"
-              aria-label="Edit sets"
-            />
-            <input
-              type="text"
-              value={editedReps}
-              onChange={(e) => setEditedReps(e.target.value)}
-              className="h-10 px-2 border border-border bg-background font-sans text-sm focus:border-foreground focus:outline-none"
-              aria-label="Edit reps"
-            />
+            <div>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setEditedSets((s) => Math.max(1, s - 1))}
+                  className="w-8 h-10 border border-border font-sans text-sm
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Decrease sets"
+                >−</button>
+                <div className="flex-1 h-10 border-t border-b border-border flex items-center justify-center font-sans text-sm font-semibold">
+                  {editedSets}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditedSets((s) => Math.min(10, s + 1))}
+                  className="w-8 h-10 border border-border font-sans text-sm
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Increase sets"
+                >+</button>
+              </div>
+            </div>
+            <div>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setEditedReps((r) => Math.max(1, r - 1))}
+                  className="w-8 h-10 border border-border font-sans text-sm
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Decrease reps"
+                >−</button>
+                <div className="flex-1 h-10 border-t border-b border-border flex items-center justify-center font-sans text-sm font-semibold">
+                  {editedReps}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditedReps((r) => Math.min(30, r + 1))}
+                  className="w-8 h-10 border border-border font-sans text-sm
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Increase reps"
+                >+</button>
+              </div>
+            </div>
             <input
               type="text"
               value={editedRpe}
@@ -284,15 +310,27 @@ export function ExerciseCard({
               className="h-10 px-2 border border-border bg-background font-sans text-sm focus:border-foreground focus:outline-none"
               aria-label="Edit target RPE"
             />
-            <input
-              type="number"
-              min={5}
-              max={600}
-              value={editedRestSeconds}
-              onChange={(e) => setEditedRestSeconds(parseInt(e.target.value, 10) || 0)}
-              className="h-10 px-2 border border-border bg-background font-sans text-sm focus:border-foreground focus:outline-none"
-              aria-label="Edit rest seconds"
-            />
+            <div>
+              <div className="flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setEditedRestSeconds((r) => Math.max(5, r - 15))}
+                  className="w-8 h-10 border border-border font-sans text-sm
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Decrease rest"
+                >−</button>
+                <div className="flex-1 h-10 border-t border-b border-border flex items-center justify-center font-sans text-sm font-semibold">
+                  {editedRestSeconds}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditedRestSeconds((r) => Math.min(600, r + 15))}
+                  className="w-8 h-10 border border-border font-sans text-sm
+                    hover:border-foreground active:bg-foreground active:text-background transition-colors touch-manipulation"
+                  aria-label="Increase rest"
+                >+</button>
+              </div>
+            </div>
           </div>
           <div className="flex gap-2">
             <button

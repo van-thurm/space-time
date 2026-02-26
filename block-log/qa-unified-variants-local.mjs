@@ -71,7 +71,8 @@ async function createCustomProgram(page, name) {
   await safeClick(page.locator('button:has-text("Custom")').first());
   await page.waitForTimeout(300);
   await page.locator('input[type="text"]').first().fill(name);
-  await page.locator('label:has-text("weeks")').locator('xpath=following-sibling::input').first().fill('4');
+  const decWeeks = page.locator('button[aria-label="Decrease weeks"]').first();
+  for (let i = 0; i < 8; i++) { await decWeeks.click(); await page.waitForTimeout(50); }
   const dayInputs = page.locator('section input[type="text"]');
   const names = ['alpha day', 'beta day', 'gamma day', 'delta day'];
   for (let i = 0; i < Math.min(await dayInputs.count(), names.length); i++) {

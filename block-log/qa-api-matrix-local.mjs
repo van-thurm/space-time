@@ -25,7 +25,8 @@ async function createCustomProgram(page, name) {
   await page.locator('button:has-text("Custom")').first().click();
   await page.waitForTimeout(300);
   await page.locator('input[type="text"]').first().fill(name);
-  await page.locator('label:has-text("weeks")').locator('xpath=following-sibling::input').first().fill('3');
+  const decWeeks = page.locator('button[aria-label="Decrease weeks"]').first();
+  for (let i = 0; i < 9; i++) { await decWeeks.click(); await page.waitForTimeout(50); }
   const removeButtons = page.locator('button[aria-label="Remove day"]');
   if ((await removeButtons.count()) > 0) {
     await removeButtons.last().click();

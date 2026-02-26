@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Button Style Exploration</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #f5f2ed;
+    color: #1a1a1a;
+    padding: 32px 20px;
+    max-width: 520px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #888; margin-bottom: 28px; }
+  .option { margin-bottom: 40px; }
+  .option-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #666;
+    margin-bottom: 6px;
+  }
+  .option-desc {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 14px;
+    line-height: 1.4;
+  }
+  .demo-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 14px;
+    border: 1px solid #d6d1c8;
+    background: #f5f2ed;
+  }
+  .demo-row .label { font-size: 13px; font-weight: 600; flex: 1; text-align: center; }
+  .demo-row .sub { font-size: 11px; color: #888; text-align: center; flex: 1; }
+  .spacer { flex: 1; }
+
+  /* shared icon stand-in */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px;
+    font-size: 18px; line-height: 1;
+    cursor: pointer; border: none; background: none;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+  .btn svg { width: 18px; height: 18px; }
+
+  /* A: current — rounded outline */
+  .btn-a {
+    border: 1.5px solid #d6d1c8;
+    border-radius: 10px;
+    background: transparent;
+  }
+
+  /* B: filled solid */
+  .btn-b {
+    background: #1a1a1a;
+    color: #f5f2ed;
+    border-radius: 0;
+  }
+  .btn-b svg { stroke: #f5f2ed; }
+
+  /* C: pill / capsule */
+  .btn-c {
+    border: 1.5px solid #1a1a1a;
+    border-radius: 999px;
+    background: transparent;
+  }
+
+  /* D: ghost — no border, tinted bg */
+  .btn-d {
+    background: rgba(0,0,0,0.06);
+    border-radius: 0;
+  }
+
+  /* E: underline / text-weight — thicker bottom border */
+  .btn-e {
+    border-bottom: 2.5px solid #1a1a1a;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  /* F: inset / recessed */
+  .btn-f {
+    background: #ece8e0;
+    box-shadow: inset 1px 1px 3px rgba(0,0,0,0.12), inset -1px -1px 2px rgba(255,255,255,0.5);
+    border-radius: 0;
+  }
+
+  /* G: outline with heavier weight */
+  .btn-g {
+    border: 2.5px solid #1a1a1a;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  /* H: circle */
+  .btn-h {
+    border: 1.5px solid #d6d1c8;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .divider { border: none; border-top: 1px dashed #d6d1c8; margin: 8px 0 0 0; }
+
+  .verdict {
+    margin-top: 48px;
+    padding: 16px;
+    border: 1px solid #d6d1c8;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #666;
+  }
+  .verdict strong { color: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<h1>button style exploration</h1>
+
+<!-- Current -->
+<div class="option">
+  <div class="option-label">A — current (rounded outline)</div>
+  <div class="option-desc">What's live now. Same border as cards but rounded — creates the tension you're noticing.</div>
+  <div class="demo-row">
+    <button class="btn btn-a">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-a">+</button>
+  </div>
+</div>
+
+<!-- B: Filled -->
+<div class="option">
+  <div class="option-label">B — filled solid</div>
+  <div class="option-desc">Dark fill, sharp corners. Maximum contrast with empty card frames. Reads as clearly pressable.</div>
+  <div class="demo-row">
+    <button class="btn btn-b">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-b">+</button>
+  </div>
+</div>
+
+<!-- C: Pill -->
+<div class="option">
+  <div class="option-label">C — pill / capsule</div>
+  <div class="option-desc">Fully rounded — extreme shape contrast with square frames. Common in iOS/modern patterns.</div>
+  <div class="demo-row">
+    <button class="btn btn-c">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-c">+</button>
+  </div>
+</div>
+
+<!-- D: Ghost -->
+<div class="option">
+  <div class="option-label">D — ghost / tinted slab</div>
+  <div class="option-desc">No border at all. Subtle darker fill. Recedes visually — buttons feel embedded, not framed.</div>
+  <div class="demo-row">
+    <button class="btn btn-d">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-d">+</button>
+  </div>
+</div>
+
+<!-- E: Underline -->
+<div class="option">
+  <div class="option-label">E — underline / ledge</div>
+  <div class="option-desc">Heavy bottom border only. Architectural feel — the button sits on a visual shelf. Brutalist-friendly.</div>
+  <div class="demo-row">
+    <button class="btn btn-e">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-e">+</button>
+  </div>
+</div>
+
+<!-- F: Inset -->
+<div class="option">
+  <div class="option-label">F — inset / recessed</div>
+  <div class="option-desc">Pressed-in look via inner shadow. Like a physical key. Cards are flat, buttons are sunk — tactile distinction.</div>
+  <div class="demo-row">
+    <button class="btn btn-f">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-f">+</button>
+  </div>
+</div>
+
+<!-- G: Heavy outline -->
+<div class="option">
+  <div class="option-label">G — heavy outline</div>
+  <div class="option-desc">Same sharp corners as cards but thicker/darker border. Weight alone signals interactivity.</div>
+  <div class="demo-row">
+    <button class="btn btn-g">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-g">+</button>
+  </div>
+</div>
+
+<!-- H: Circle -->
+<div class="option">
+  <div class="option-label">H — circle</div>
+  <div class="option-desc">Perfect circle with light border. Clean geometric contrast against rectilinear cards.</div>
+  <div class="demo-row">
+    <button class="btn btn-h">←</button>
+    <div class="spacer"></div>
+    <div>
+      <div class="label">block log</div>
+      <div class="sub">analytics</div>
+    </div>
+    <div class="spacer"></div>
+    <button class="btn btn-h">+</button>
+  </div>
+</div>
+
+<div class="verdict">
+  <strong>Quick takes:</strong><br>
+  <strong>B</strong> (filled) and <strong>G</strong> (heavy outline) stay closest to the brutalist/sharp direction while solving the ambiguity.<br>
+  <strong>D</strong> (ghost) is the quietest — good if you want buttons to recede.<br>
+  <strong>E</strong> (underline) has a nice architectural quality that could pair well with the card grid.<br>
+  <strong>C</strong> (pill) and <strong>H</strong> (circle) lean more iOS/friendly — might clash with the overall tone.
+</div>
+
+</body>
+</html>

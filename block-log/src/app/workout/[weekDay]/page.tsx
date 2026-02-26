@@ -29,6 +29,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   const [swapModalExerciseId, setSwapModalExerciseId] = useState<string | null>(null);
   const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
   const [confirmClearWorkout, setConfirmClearWorkout] = useState(false);
+  const [confirmRestartWorkout, setConfirmRestartWorkout] = useState(false);
   const [confirmResetReady, setConfirmResetReady] = useState(false);
   const [copyDayStatus, setCopyDayStatus] = useState<'idle' | 'done' | 'needs_setup'>('idle');
   const [startTime] = useState(() => new Date());
@@ -40,7 +41,8 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   
   const logWorkout = useAppStore((state) => state.logWorkout);
   const getWorkoutLog = useAppStore((state) => state.getWorkoutLog);
-  const resetWorkoutLog = useAppStore((state) => state.resetWorkoutLog);
+  const clearWorkoutExercises = useAppStore((state) => state.clearWorkoutExercises);
+  const restartWorkoutProgress = useAppStore((state) => state.restartWorkoutProgress);
   const getLastWorkoutLog = useAppStore((state) => state.getLastWorkoutLog);
   const setCurrentWeek = useAppStore((state) => state.setCurrentWeek);
   const skipExercise = useAppStore((state) => state.skipExercise);
@@ -204,9 +206,13 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   const handleComplete = () => {
     // Read fresh log at click time to avoid stale data
     const freshLog = getWorkoutLog(workout.id);
+    const nowIso = new Date().toISOString();
     const updatedLog = {
       workoutId: workout.id,
-      date: startTime.toISOString(),
+      date: freshLog?.date || nowIso,
+      startedAt: freshLog?.startedAt || freshLog?.lastActivityAt || nowIso,
+      lastActivityAt: freshLog?.lastActivityAt || nowIso,
+      completedAt: nowIso,
       exercises: freshLog?.exercises || [],
       completed: true,
       skippedExercises: freshLog?.skippedExercises,
@@ -246,29 +252,47 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
   const handleUnfinishWorkout = () => {
     const freshLog = getWorkoutLog(workout.id);
     if (!freshLog) return;
-    logWorkout({ ...freshLog, completed: false });
+    logWorkout({ ...freshLog, completed: false, completedAt: undefined });
   };
 
   const handleClearWorkoutProgress = () => {
+    setConfirmRestartWorkout(false);
     setConfirmResetReady(false);
     setConfirmClearWorkout(true);
   };
 
   const handleConfirmClearWorkout = () => {
-    // True reset to ready state: remove the workout log entirely.
-    resetWorkoutLog(workout.id);
+    const allExerciseIds = [
+      ...workout.exercises.map((exercise) => exercise.id),
+      ...addedExercises.map((exercise) => exercise.id),
+    ];
+    clearWorkoutExercises(workout.id, allExerciseIds);
+    setConfirmClearWorkout(false);
+  };
+
+  const handleRestartWorkout = () => {
+    setConfirmClearWorkout(false);
+    setConfirmResetReady(false);
+    setConfirmRestartWorkout(true);
+  };
+
+  const handleConfirmRestartWorkout = () => {
+    restartWorkoutProgress(workout.id);
+    setConfirmRestartWorkout(false);
     setConfirmClearWorkout(false);
   };
 
   const handleResetToReady = () => {
     setConfirmClearWorkout(false);
+    setConfirmRestartWorkout(false);
     setConfirmResetReady(true);
   };
 
   const handleConfirmResetToReady = () => {
-    resetWorkoutLog(workout.id);
+    restartWorkoutProgress(workout.id);
     setConfirmResetReady(false);
     setConfirmClearWorkout(false);
+    setConfirmRestartWorkout(false);
   };
 
   const handleCopyDayAcrossBlock = () => {
@@ -371,32 +395,68 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           <span>add exercise</span>
         </button>
 
-        {currentLog && (
+        {currentLog && !isWorkoutCompleted && (
           <div className="pt-1">
-            {!confirmClearWorkout ? (
-              <button
-                onClick={handleClearWorkoutProgress}
-                className="w-full py-2.5 px-4 border border-danger/70 text-muted font-sans text-xs uppercase tracking-wide
-                  hover:border-danger hover:text-danger transition-colors touch-manipulation"
-              >
-                clear workout
-              </button>
-            ) : (
-              <div className="flex gap-2">
+            {!confirmClearWorkout && !confirmRestartWorkout ? (
+              <div className="grid grid-cols-2 gap-2">
                 <button
-                  onClick={() => setConfirmClearWorkout(false)}
-                  className="flex-1 py-2.5 px-3 border border-border font-sans text-xs text-muted
+                  onClick={handleClearWorkoutProgress}
+                  className="min-h-11 py-2.5 px-4 border border-danger/70 text-muted font-sans text-xs uppercase tracking-wide
+                    hover:border-danger hover:text-danger transition-colors touch-manipulation"
+                >
+                  clear all exercises
+                </button>
+                <button
+                  onClick={handleRestartWorkout}
+                  className="min-h-11 py-2.5 px-4 border border-border text-muted font-sans text-xs uppercase tracking-wide
                     hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
                 >
-                  cancel clear
+                  clear all values
                 </button>
-                <button
-                  onClick={handleConfirmClearWorkout}
-                  className="flex-1 py-2.5 px-3 border border-danger bg-danger text-background font-sans text-xs
-                    hover:bg-danger/90 transition-colors touch-manipulation"
-                >
-                  yes, clear
-                </button>
+              </div>
+            ) : confirmClearWorkout ? (
+              <div className="space-y-3 border border-border/70 bg-surface/40 p-3">
+                <p className="font-sans text-sm leading-relaxed text-foreground">
+                  this removes every exercise on this page so you can rebuild this workout from scratch. are you sure?
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmClearWorkout(false)}
+                    className="flex-1 min-h-12 py-3 px-3 border border-border font-sans text-sm text-foreground
+                      hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                  >
+                    cancel
+                  </button>
+                  <button
+                    onClick={handleConfirmClearWorkout}
+                    className="flex-1 min-h-12 py-3 px-3 border border-danger bg-danger text-background font-sans text-sm font-medium
+                      hover:bg-danger/90 transition-colors touch-manipulation"
+                  >
+                    yes, clear exercises
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-3 border border-border/70 bg-surface/40 p-3">
+                <p className="font-sans text-sm leading-relaxed text-foreground">
+                  this erases current progress and resets this workout to not started. exercise structure stays the same. are you sure?
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleConfirmRestartWorkout}
+                    className="flex-1 min-h-12 py-3 px-3 border border-foreground bg-foreground text-background font-sans text-sm font-medium
+                      hover:bg-foreground/90 transition-colors touch-manipulation"
+                  >
+                    yes, clear values
+                  </button>
+                  <button
+                    onClick={() => setConfirmRestartWorkout(false)}
+                    className="flex-1 min-h-12 py-3 px-3 border border-border font-sans text-sm text-foreground
+                      hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+                  >
+                    cancel
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -433,7 +493,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
                   className="flex-1 py-3 px-4 border border-background/30 text-background font-sans font-medium 
                     hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
                 >
-                  mark as unfinished
+                  mark unfinished
                 </button>
                 {!confirmResetReady ? (
                   <button
@@ -441,24 +501,29 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
                     className="flex-1 py-3 px-4 border border-background/30 text-background font-sans font-medium 
                       hover:bg-background/10 active:bg-background/20 transition-colors touch-manipulation"
                   >
-                    clear + reset to ready
+                    clear + mark unfinished
                   </button>
                 ) : (
-                  <div className="flex-1 flex gap-2">
-                    <button
-                      onClick={() => setConfirmResetReady(false)}
-                      className="flex-1 py-3 px-2 border border-background/30 text-background font-sans text-xs
-                        hover:bg-background/10 transition-colors touch-manipulation"
-                    >
-                      cancel
-                    </button>
-                    <button
-                      onClick={handleConfirmResetToReady}
-                      className="flex-1 py-3 px-2 border border-background bg-background text-foreground font-sans text-xs
-                        hover:bg-background/90 transition-colors touch-manipulation"
-                    >
-                      confirm
-                    </button>
+                  <div className="flex-1 space-y-3 border border-background/30 bg-background/10 p-3">
+                    <p className="font-sans text-sm leading-relaxed text-background">
+                      this erases current progress and resets this workout to not started. are you sure?
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setConfirmResetReady(false)}
+                        className="flex-1 min-h-12 py-3 px-2 border border-background/30 text-background font-sans text-sm
+                          hover:bg-background/10 transition-colors touch-manipulation"
+                      >
+                        cancel
+                      </button>
+                      <button
+                        onClick={handleConfirmResetToReady}
+                        className="flex-1 min-h-12 py-3 px-2 border border-background bg-background text-foreground font-sans text-sm font-medium
+                          hover:bg-background/90 transition-colors touch-manipulation"
+                      >
+                        yes, reset
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

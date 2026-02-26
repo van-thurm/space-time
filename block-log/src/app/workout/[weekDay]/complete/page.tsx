@@ -2,7 +2,6 @@
 
 import { use, useMemo } from 'react';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { SecondaryPageHeader } from '@/components/ui/SecondaryPageHeader';
 import { AppFooter } from '@/components/ui/AppFooter';
@@ -32,7 +31,6 @@ function preventQuoteOrphan(text: string): string {
 
 export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps) {
   const resolvedParams = use(params);
-  const searchParams = useSearchParams();
   const userUnits = useAppStore((state) => state.userSettings.units);
   const getWorkoutLog = useAppStore((state) => state.getWorkoutLog);
   const activeProgram = useAppStore((state) =>
@@ -44,8 +42,6 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
   const day = Number(dayStr);
   const workoutId = `week${week}-day${day}`;
   const log = getWorkoutLog(workoutId);
-
-  const completedAt = Number(searchParams.get('completedAt'));
 
   const stats = useMemo(() => {
     if (!log) {
@@ -100,13 +96,9 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
     };
   }, [log]);
 
-  const logCompletedAt = log?.date ? Date.parse(log.date) : Number.NaN;
-  const quoteSeed = Number.isFinite(completedAt)
-    ? completedAt
-    : Number.isFinite(logCompletedAt)
-      ? logCompletedAt
-      : stableQuoteSeed(`${workoutId}-${activeProgram?.id || 'block-log'}`);
-  const quote = SUPPORT_QUOTES[Math.abs(quoteSeed % SUPPORT_QUOTES.length)];
+  const datePart = log?.completedAt || log?.lastActivityAt || log?.date || '';
+  const quoteSeed = stableQuoteSeed(`${workoutId}-${activeProgram?.id || 'block-log'}-${datePart}`);
+  const quote = SUPPORT_QUOTES[quoteSeed % SUPPORT_QUOTES.length];
   const quoteNoOrphan = preventQuoteOrphan(quote);
   const blockName = activeProgram?.name || 'block';
 
