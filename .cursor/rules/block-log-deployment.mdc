@@ -1,0 +1,30 @@
+---
+description: Block Log deployment and PWA infrastructure rules.
+globs:
+  - block-log/**
+alwaysApply: true
+---
+
+# Block Log Deployment & PWA Contract
+
+## Vercel Deployment
+
+1. **Never deploy from the repo root.** The Vercel project `block-log` is configured with root directory `block-log/`. Deploying from the repo root creates a duplicate project on a different domain, which causes confusion and appears to lose user data (different localStorage origin).
+2. **Deploy via git push only.** The `block-log` Vercel project auto-deploys from `main` on GitHub. Do not run `vercel --prod` manually — push to `main` and let the GitHub integration handle it.
+3. **If `vercel` CLI must be used**, always run from `block-log/` subdirectory, never from the repo root.
+4. **One Vercel project only.** The dashboard should show exactly one project: `block-log` at `block-log.vercel.app`. If a second project appears, it was created by accident — delete it immediately.
+
+## PWA / iOS Home Screen
+
+5. **A web app manifest must exist** at `block-log/src/app/manifest.ts` with `scope: "/"` and `start_url: "/"`. Without this, iOS Safari ejects to the browser when navigating between routes (e.g., `/programs` → `/timer`).
+6. **Do not remove or rename the manifest file.** If the manifest is missing, iOS PWA in-app navigation breaks silently — the app appears to work but opens Safari for some routes.
+7. After any manifest change, users must **delete and re-add the home screen shortcut** for iOS to pick up the new scope.
+
+## Layout / Head
+
+8. **Use `next/script` with `strategy="beforeInteractive"` for the theme script** in `layout.tsx`. Do not replace with `dangerouslySetInnerHTML` — it can interfere with Next.js client-side navigation hydration.
+9. **`appleWebApp` metadata must stay in `layout.tsx`** (`capable: true`, `statusBarStyle: "default"`). Removing it breaks iOS home screen app behavior.
+
+## Data Safety
+
+10. All user data (programs, workout logs, templates) lives in **localStorage** scoped to the deployment domain. Deploying to a different domain makes data appear lost. It is not deleted — it is on the original domain.
