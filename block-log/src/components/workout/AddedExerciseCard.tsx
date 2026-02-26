@@ -326,20 +326,10 @@ export function AddedExerciseCard({
                   e.stopPropagation();
                   handleSaveEdit();
                 }}
-                className="flex-1 py-2 bg-accent text-background font-sans text-sm
-                  hover:bg-accent/90 transition-colors touch-manipulation"
+                className="flex-[2] py-2 border border-subtle bg-subtle text-background font-sans text-sm
+                  hover:bg-subtle/90 transition-colors touch-manipulation"
               >
                 save
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCancelEdit();
-                }}
-                className="py-2 px-4 border border-border font-sans text-sm
-                  hover:border-foreground transition-colors touch-manipulation"
-              >
-                cancel
               </button>
             {onSwap && (
               <button
@@ -347,12 +337,22 @@ export function AddedExerciseCard({
                   e.stopPropagation();
                   onSwap();
                 }}
-                className="py-2 px-4 border border-border font-sans text-sm
+                className="flex-1 py-2 border border-muted bg-border text-foreground font-sans text-sm
                   hover:border-foreground transition-colors touch-manipulation"
               >
                 swap
               </button>
             )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCancelEdit();
+                }}
+                className="flex-1 py-2 border border-muted bg-border text-foreground font-sans text-sm
+                  hover:border-foreground transition-colors touch-manipulation"
+              >
+                cancel
+              </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();

@@ -352,6 +352,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
           getRecommendedWeight={getRecommendedWeight}
           isExerciseSkipped={isExerciseSkipped}
           onSwapClick={(id) => setSwapModalExerciseId(id)}
+          onSwapAddedClick={(id) => setSwapModalExerciseId(id)}
           onSkipClick={(id) => skipExercise(workout.id, id)}
           onRestoreClick={(id) => unskipExercise(workout.id, id)}
           onSkipAddedClick={(id) => skipExercise(workout.id, id)}

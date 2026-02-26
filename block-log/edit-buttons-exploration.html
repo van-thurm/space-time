@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Buttons — Save Color + Sizing + Swap</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Sora', system-ui, sans-serif;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  /* Dark theme (default to match screenshot) */
+  body {
+    background: #121110;
+    color: #F5F0E8;
+    --bg: #121110;
+    --fg: #F5F0E8;
+    --muted: #9C9488;
+    --border: #2A2724;
+    --accent: #E06B3A;
+    --surface: #1C1A17;
+    --danger: #E05A50;
+    --subtle: #6B6259;
+  }
+
+  .section-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    height: 40px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button:hover { opacity: 0.85; }
+
+  /* --- Save color variants --- */
+  .save-accent {
+    background: var(--accent);
+    color: var(--bg);
+    border: 1px solid var(--accent);
+  }
+  .save-foreground {
+    background: var(--fg);
+    color: var(--bg);
+    border: 1px solid var(--fg);
+  }
+  .save-neutral-border {
+    background: transparent;
+    color: var(--fg);
+    border: 2px solid var(--fg);
+  }
+  .save-subtle {
+    background: var(--subtle);
+    color: var(--bg);
+    border: 1px solid var(--subtle);
+  }
+  .save-surface {
+    background: var(--border);
+    color: var(--fg);
+    border: 1px solid var(--muted);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--fg);
+    border: 1px solid var(--border);
+    padding: 0 16px;
+  }
+
+  .btn-trash {
+    width: 40px;
+    min-width: 40px;
+    background: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ CURRENT STATE ============ -->
+<div>
+  <div class="section-label">Current — accent save, no swap, uneven sizing</div>
+  <div class="card">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-accent" style="flex: 1;">save</button>
+      <button class="btn-secondary">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note">save is flex-1 (greedy). swap missing. orange save clashes with card accent tones.</div>
+  </div>
+</div>
+
+<!-- ============ OPTION A — foreground fill, 60/40 with swap ============ -->
+<div>
+  <div class="section-label">A — foreground fill, proportional, swap visible</div>
+  <div class="card">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-foreground" style="flex: 3;">save</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-secondary" style="flex: 1;">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note">save ~55%, swap + cancel ~35%, trash ~10%. foreground fill is theme-neutral (cream dark, charcoal light). swap sits naturally between save and cancel.</div>
+  </div>
+</div>
+
+<!-- ============ OPTION B — outlined save, all proportional ============ -->
+<div>
+  <div class="section-label">B — bold outline save, all proportional</div>
+  <div class="card">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-neutral-border" style="flex: 3; font-weight: 600;">save</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-secondary" style="flex: 1;">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note">no fill — just a thick 2px foreground border on save differentiates it. lighter weight overall. swap/cancel identical secondary treatment.</div>
+  </div>
+</div>
+
+<!-- ============ OPTION C — subtle fill save, even 3-way ============ -->
+<div>
+  <div class="section-label">C — subtle fill save, even thirds</div>
+  <div class="card">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-subtle" style="flex: 2;">save</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-secondary" style="flex: 1;">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note">save uses --subtle (#6B6259) fill — warm neutral, no color statement. save still visually dominant at 2:1:1 ratio.</div>
+  </div>
+</div>
+
+<!-- ============ OPTION D — surface fill save, equal weight ============ -->
+<div>
+  <div class="section-label">D — surface/border fill save, minimal hierarchy</div>
+  <div class="card">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-surface" style="flex: 2;">save</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-secondary" style="flex: 1;">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note">save uses --border fill with --muted stroke. very flat, almost equal weight with secondary buttons. relies on size for hierarchy.</div>
+  </div>
+</div>
+
+<!-- ============ OPTION E — foreground fill, 50/50 save+cancel, swap separate ============ -->
+<div>
+  <div class="section-label">E — foreground fill, save/cancel equal, swap smaller</div>
+  <div class="card">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-foreground" style="flex: 2;">save</button>
+      <button class="btn-secondary" style="flex: 2;">cancel</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note">save and cancel are equal width (primary pair). swap is smaller utility action. reorders to save|cancel|swap|trash.</div>
+  </div>
+</div>
+
+<!-- ============ COMPARISON: light mode ============ -->
+<div style="background: #FAF7F2; color: #1A1715; padding: 16px; border: 1px solid #DDD8D0;
+    --bg: #FAF7F2; --fg: #1A1715; --muted: #8C857D; --border: #DDD8D0; --accent: #C4572A;
+    --surface: #F0ECE4; --danger: #B8352A; --subtle: #A69B8E;">
+  <div class="section-label">Option A in light mode</div>
+  <div class="card" style="background: var(--surface); border-color: var(--border);">
+    <div class="card-title">barbell back squat</div>
+    <div class="btn-row">
+      <button class="save-foreground" style="flex: 3;">save</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-secondary" style="flex: 1;">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+  </div>
+  <div style="height: 12px;"></div>
+  <div class="card" style="background: var(--surface); border-color: var(--border);">
+    <div class="card-title">box jumps</div>
+    <div class="btn-row">
+      <button class="save-neutral-border" style="flex: 3; font-weight: 600;">save</button>
+      <button class="btn-secondary" style="flex: 1;">swap</button>
+      <button class="btn-secondary" style="flex: 1;">cancel</button>
+      <button class="btn-trash">del</button>
+    </div>
+    <div class="note" style="color: var(--muted);">Option B in light for comparison</div>
+  </div>
+</div>
+
+</body>
+</html>

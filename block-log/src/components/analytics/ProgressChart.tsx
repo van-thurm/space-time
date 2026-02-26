@@ -343,7 +343,7 @@ export function ProgressChart() {
   return (
     <div className="border border-border p-4">
       <div className="flex items-center justify-between mb-4 gap-2">
-        <h2 className="font-display font-bold text-balance">main lifts progress</h2>
+        <h2 className="font-display font-bold text-balance">progress</h2>
         <button
           onClick={() => setPickerOpen(true)}
           className="px-3 min-h-11 border border-border font-sans text-sm text-muted

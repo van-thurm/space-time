@@ -338,7 +338,7 @@ export function ExerciseCard({
                 e.stopPropagation();
                 handleSaveEdit();
               }}
-              className="flex-1 h-10 border border-foreground bg-foreground text-background font-sans text-sm hover:bg-foreground/90 transition-colors touch-manipulation"
+              className="flex-[2] h-10 border border-subtle bg-subtle text-background font-sans text-sm hover:bg-subtle/90 transition-colors touch-manipulation"
             >
               save
             </button>
@@ -347,7 +347,7 @@ export function ExerciseCard({
                 e.stopPropagation();
                 onSwapClick();
               }}
-              className="h-10 px-3 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
+              className="flex-1 h-10 border border-muted bg-border text-foreground font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
             >
               swap
             </button>
@@ -356,7 +356,7 @@ export function ExerciseCard({
                 e.stopPropagation();
                 setIsEditing(false);
               }}
-              className="h-10 px-3 border border-border font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
+              className="flex-1 h-10 border border-muted bg-border text-foreground font-sans text-sm hover:border-foreground transition-colors touch-manipulation"
             >
               cancel
             </button>

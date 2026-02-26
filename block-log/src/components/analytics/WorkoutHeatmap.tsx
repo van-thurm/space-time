@@ -62,7 +62,7 @@ export function WorkoutHeatmap() {
   return (
     <div className="border border-border p-4">
       <div className="mb-3">
-        <h2 className="font-display font-bold">workout completion</h2>
+        <h2 className="font-display font-bold">completion</h2>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-4 font-sans text-xs">
         <span className="min-h-11 px-2 inline-flex items-center justify-center border border-border bg-success/10 text-success whitespace-nowrap">
