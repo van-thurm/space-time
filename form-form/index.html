@@ -49,16 +49,10 @@
   .logo-icon { width: 20px; height: 20px; flex-shrink: 0; }
   .logo-wordmark { height: 15px; width: auto; }
   .toolbar-actions { display: flex; gap: 6px; }
-  .subtitle { font-size: 12px; color: #a3a3a3; margin-bottom: 24px; margin-top: 8px; letter-spacing: 0.01em; }
+  .subtitle { font-size: 12px; color: #a3a3a3; margin-bottom: 16px; margin-top: 8px; letter-spacing: 0.01em; }
 
-  .form-meta { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
-  .form-meta > .design-toggle { margin-bottom: 12px; }
-  .form-meta label { display: block; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: #a3a3a3; margin-bottom: 5px; }
-  .form-meta input, .form-meta textarea {
-    width: 100%; padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
-    font-family: inherit; font-size: 13px; margin-bottom: 12px;
-  }
-  .form-meta textarea { min-height: 60px; resize: vertical; }
+  .form-meta { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e5e5; }
+  .form-meta > .design-toggle { margin-bottom: 8px; }
 
   .question-card {
     background: #f5f5f5; border: 1px solid #e5e5e5; border-radius: 10px;
@@ -91,7 +85,7 @@
   .q-row input[type="number"] { width: 60px; }
 
   .q-hint-input {
-    width: 100%; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
+    flex: 1; min-width: 0; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
     font-family: inherit; font-size: 13px; color: #525252;
   }
 
@@ -100,10 +94,10 @@
     display: flex; gap: 6px; align-items: center; margin-bottom: 6px;
   }
   .option-row input {
-    flex: 1; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
-    font-family: inherit; font-size: 13px;
+    flex: 3; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
+    font-family: inherit; font-size: 13px; min-width: 0;
   }
-  .option-row .sub-input { font-size: 12px; color: #737373; }
+  .option-row .sub-input { flex: 2; font-size: 12px; color: #737373; }
   .option-row button {
     background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 2px 4px;
   }
@@ -141,10 +135,10 @@
   .btn-secondary { background: #fff; color: #1c1917; border: 1px solid #d4d4d4; }
   .btn-secondary:hover { background: #f5f5f5; }
 
-  .design-controls { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
+  .design-controls { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e5e5; }
   .design-toggle {
     font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em;
-    color: #a3a3a3; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    color: #a3a3a3; margin-bottom: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px;
     list-style: none; user-select: none; padding: 4px 6px; margin-left: -6px; border-radius: 6px;
   }
   .design-toggle::-webkit-details-marker { display: none; }
@@ -164,9 +158,10 @@
   .theme-swatch .swatch-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3); }
   .theme-swatch .swatch-name { font-size: 11px; font-weight: 400; color: #737373; }
   .design-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-  .design-row label { font-size: 11px; font-weight: 500; color: #a3a3a3; min-width: 80px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .design-row label { font-size: 11px; font-weight: 500; color: #a3a3a3; min-width: 100px; flex-shrink: 0; text-transform: uppercase; letter-spacing: 0.04em; }
   .design-row select { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
   .design-row input[type="text"] { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
+  .design-row textarea { padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; min-height: 52px; resize: vertical; }
 
   .accent-picker { display: flex; align-items: center; gap: 8px; flex: 1; }
   .accent-picker input[type="color"] {
@@ -259,8 +254,8 @@
 <body>
 
 <nav class="mobile-tabs" id="mobileTabs" role="tablist">
-  <button class="active" onclick="showTab('edit')" role="tab">Edit</button>
-  <button onclick="showTab('preview')" role="tab">Preview</button>
+  <button class="active" onclick="showTab('edit')" role="tab">edit</button>
+  <button onclick="showTab('preview')" role="tab">preview</button>
 </nav>
 
 <div class="layout">
@@ -287,8 +282,8 @@
       </svg>
     </div>
     <div class="toolbar-actions">
-      <button class="btn btn-primary" onclick="renderPreview()">Preview</button>
-      <button class="btn btn-secondary" onclick="downloadFiles()">Download</button>
+      <button class="btn btn-primary" onclick="renderPreview()">preview</button>
+      <button class="btn btn-secondary" onclick="downloadFiles()">download</button>
       <button class="btn-icon" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 18h6"/>
@@ -298,23 +293,31 @@
       </button>
     </div>
     </div>
-    <p class="subtitle">Build a form, get Apps Script files.</p>
+    <p class="subtitle">build a form, get Apps Script files.</p>
 
     <details class="form-meta" open>
       <summary class="design-toggle">
         <svg class="toggle-chevron" viewBox="0 0 12 12" fill="none">
           <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Header
+        header
       </summary>
-      <label>Label</label>
-      <input type="text" id="formLabel" value="Team Name" oninput="renderPreview()">
-      <label>Form title</label>
-      <input type="text" id="formTitle" value="Your form title" oninput="renderPreview()">
-      <label>Intro text</label>
-      <textarea id="formIntro" oninput="renderPreview()">A short description of what this form is for and how long it takes.</textarea>
-      <label>Callout box</label>
-      <textarea id="formCallout" oninput="renderPreview()"></textarea>
+      <div class="design-row">
+        <label>Label</label>
+        <input type="text" id="formLabel" value="team name" oninput="renderPreview()">
+      </div>
+      <div class="design-row">
+        <label>Form title</label>
+        <input type="text" id="formTitle" value="your form title" oninput="renderPreview()">
+      </div>
+      <div class="design-row" style="align-items: flex-start;">
+        <label style="padding-top: 6px;">Intro text</label>
+        <textarea id="formIntro" oninput="renderPreview()">a short description of what this form is for and how long it takes.</textarea>
+      </div>
+      <div class="design-row" style="align-items: flex-start;">
+        <label style="padding-top: 6px;">Callout box</label>
+        <textarea id="formCallout" oninput="renderPreview()"></textarea>
+      </div>
     </details>
 
     <details class="design-controls" open>
@@ -322,7 +325,7 @@
         <svg class="toggle-chevron" viewBox="0 0 12 12" fill="none">
           <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        Theme
+        theme
       </summary>
       <div class="theme-grid">
         <div class="theme-swatch active" onclick="setTheme('line')" data-theme="line">
@@ -333,7 +336,7 @@
               <div class="swatch-dot" style="background: #ffffff; border-color: #e5e5e5;"></div>
             </div>
           </div>
-          <div class="swatch-name">Line</div>
+          <div class="swatch-name">line</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('samsara')" data-theme="samsara">
           <div class="swatch-preview" style="background: #f0f4f8; border: 1px solid #d9e2ec;">
@@ -341,7 +344,7 @@
             <div class="swatch-dot" style="background: #e6f0ff; border-color: #b3d4ff;"></div>
             <div class="swatch-dot" style="background: #ffffff; border-color: #d9e2ec;"></div>
           </div>
-          <div class="swatch-name">Samsara Light</div>
+          <div class="swatch-name">samsara light</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('samsara-dark')" data-theme="samsara-dark">
           <div class="swatch-preview" style="background: #0f172a; border: 1px solid #1e293b;">
@@ -349,7 +352,7 @@
             <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
             <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
           </div>
-          <div class="swatch-name">Samsara Dark</div>
+          <div class="swatch-name">samsara dark</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('bold')" data-theme="bold">
           <div class="swatch-preview" style="background: #faf6f1; border: 1px solid #e8dfd6;">
@@ -357,7 +360,7 @@
             <div class="swatch-dot" style="background: #111111; border-color: #000;"></div>
             <div class="swatch-dot" style="background: #ffffff; border-color: #e8dfd6;"></div>
           </div>
-          <div class="swatch-name">Bold</div>
+          <div class="swatch-name">bold</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('minimal')" data-theme="minimal">
           <div class="swatch-preview" style="background: #ffffff; border: 1px solid #e0e0e0;">
@@ -365,7 +368,7 @@
             <div class="swatch-dot" style="background: #f5f5f5; border-color: #e0e0e0;"></div>
             <div class="swatch-dot" style="background: #ffffff; border-color: #e0e0e0;"></div>
           </div>
-          <div class="swatch-name">Minimal</div>
+          <div class="swatch-name">minimal</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('lisa-frank')" data-theme="lisa-frank">
           <div class="swatch-preview" style="background: linear-gradient(135deg, #FF69B4 0%, #FFD700 20%, #00FF7F 40%, #00CFFF 60%, #BF00FF 80%, #FF69B4 100%); border: none;">
@@ -373,7 +376,7 @@
             <div class="swatch-dot" style="background: #39FF14; border-color: #00ff7f;"></div>
             <div class="swatch-dot" style="background: #00CFFF; border-color: #00bfff;"></div>
           </div>
-          <div class="swatch-name">Lisa Frank</div>
+          <div class="swatch-name">lisa frank</div>
         </div>
       </div>
       <div class="design-row">
@@ -386,66 +389,66 @@
       <div class="design-row">
         <label>Font</label>
         <select id="fontFamily" onchange="renderPreview()">
-          <option value="system">System Sans</option>
-          <option value="inter">Inter</option>
-          <option value="lora">Lora (Serif)</option>
-          <option value="mono">JetBrains Mono</option>
-          <option value="comic">Comic Neue</option>
+          <option value="system">system sans</option>
+          <option value="inter">inter</option>
+          <option value="lora">lora (serif)</option>
+          <option value="mono">jetbrains mono</option>
+          <option value="comic">comic neue</option>
         </select>
       </div>
       <div class="design-row">
         <label>Corners</label>
         <select id="borderRadius" onchange="renderPreview()">
-          <option value="12px">Rounded (default)</option>
-          <option value="8px">Slightly rounded</option>
-          <option value="4px">Subtle</option>
-          <option value="0px">Sharp</option>
-          <option value="20px">Pill</option>
+          <option value="12px">rounded (default)</option>
+          <option value="8px">slightly rounded</option>
+          <option value="4px">subtle</option>
+          <option value="0px">sharp</option>
+          <option value="20px">pill</option>
         </select>
       </div>
       <div class="design-row">
         <label>Padding</label>
         <select id="formPadding" onchange="renderPreview()">
-          <option value="compact">Compact</option>
-          <option value="default" selected>Default</option>
-          <option value="spacious">Spacious</option>
+          <option value="compact">compact</option>
+          <option value="default" selected>default</option>
+          <option value="spacious">spacious</option>
         </select>
       </div>
       <div class="design-row">
         <label>Header align</label>
         <select id="headerAlign" onchange="renderPreview()">
-          <option value="left">Left</option>
-          <option value="center">Center</option>
-          <option value="right">Right</option>
+          <option value="left">left</option>
+          <option value="center">center</option>
+          <option value="right">right</option>
         </select>
       </div>
       <div class="design-row">
         <label>Number style</label>
         <select id="numberStyle" onchange="renderPreview()">
-          <option value="filled">Filled circle</option>
-          <option value="outline">Outline circle</option>
-          <option value="square">Square</option>
-          <option value="bold">Bold number</option>
-          <option value="inline">Inline</option>
+          <option value="filled">filled circle</option>
+          <option value="outline">outline circle</option>
+          <option value="square">square</option>
+          <option value="bold">bold number</option>
+          <option value="inline">inline</option>
         </select>
       </div>
       <div class="design-row">
         <label>Submit text</label>
-        <input type="text" id="submitText" value="Submit" oninput="renderPreview()">
+        <input type="text" id="submitText" value="submit" oninput="renderPreview()">
       </div>
       <div class="design-row">
         <label>Success title</label>
-        <input type="text" id="successTitle" value="Got it — thank you!" oninput="renderPreview()">
+        <input type="text" id="successTitle" value="got it — thank you!" oninput="renderPreview()">
       </div>
       <div class="design-row">
         <label>Success text</label>
-        <input type="text" id="successText" value="Your input shapes what we build next." oninput="renderPreview()">
+        <input type="text" id="successText" value="your input shapes what we build next." oninput="renderPreview()">
       </div>
     </details>
 
     <div id="questionList"></div>
 
-    <button class="add-question-btn" onclick="addQuestion()">+ Add question</button>
+    <button class="add-question-btn" onclick="addQuestion()">+ add question</button>
 
     <footer class="editor-footer">
       <svg class="vt-logo" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
@@ -606,39 +609,39 @@ function showTab(tab) {
 
 let questions = [
   {
-    id: 'q1', title: 'Which option best describes you?',
-    hint: 'Pick the one that fits best.',
+    id: 'q1', title: 'which option best describes you?',
+    hint: 'pick the one that fits best.',
     type: 'radio', required: true, maxSelect: 3,
     options: [
-      { label: 'Option A', sub: 'A short description', value: 'option_a' },
-      { label: 'Option B', sub: 'A short description', value: 'option_b' },
-      { label: 'Option C', sub: 'A short description', value: 'option_c' },
+      { label: 'option a', sub: 'a short description', value: 'option_a' },
+      { label: 'option b', sub: 'a short description', value: 'option_b' },
+      { label: 'option c', sub: 'a short description', value: 'option_c' },
     ]
   },
   {
-    id: 'q2', title: 'What are you most interested in?',
-    hint: 'Pick up to 3.',
+    id: 'q2', title: 'what are you most interested in?',
+    hint: 'pick up to 3.',
     type: 'checkbox', required: true, maxSelect: 3, includeOther: true,
     options: [
-      { label: 'Topic A', sub: '', value: 'topic_a' },
-      { label: 'Topic B', sub: '', value: 'topic_b' },
-      { label: 'Topic C', sub: '', value: 'topic_c' },
+      { label: 'topic a', sub: '', value: 'topic_a' },
+      { label: 'topic b', sub: '', value: 'topic_b' },
+      { label: 'topic c', sub: '', value: 'topic_c' },
     ]
   },
   {
-    id: 'q3', title: 'Rate your experience with each area',
-    hint: 'For each row, select your current level.',
+    id: 'q3', title: 'rate your experience with each area',
+    hint: 'for each row, select your current level.',
     type: 'matrix', required: false,
-    levels: ['Not yet', 'Beginner', 'Comfortable', 'Advanced'],
+    levels: ['not yet', 'beginner', 'comfortable', 'advanced'],
     matrixRows: [
-      { label: 'Area A', sub: 'A short description', value: 'area_a' },
-      { label: 'Area B', sub: 'A short description', value: 'area_b' },
+      { label: 'area a', sub: 'a short description', value: 'area_a' },
+      { label: 'area b', sub: 'a short description', value: 'area_b' },
     ]
   },
   {
-    id: 'q4', title: 'Any additional thoughts?',
+    id: 'q4', title: 'any additional thoughts?',
     hint: '',
-    type: 'textarea', required: false, placeholder: 'Type here...'
+    type: 'textarea', required: false, placeholder: 'type here...'
   },
 ];
 
@@ -667,7 +670,7 @@ function renderEditor() {
             '<button onclick="removeOption(' + idx + ',' + oi + ')">&times;</button>' +
           '</div>';
         }).join('') +
-        '<button class="add-option-btn" onclick="addOption(' + idx + ')">+ Add option</button>' +
+        '<button class="add-option-btn" onclick="addOption(' + idx + ')">+ add option</button>' +
         (q.type === 'checkbox' ? (
           '<div class="q-row" style="margin-top:8px">' +
             '<label>Max select</label>' +
@@ -675,14 +678,14 @@ function renderEditor() {
           '</div>' +
           '<div class="checkbox-row">' +
             '<input type="checkbox" ' + (q.includeOther ? 'checked' : '') + ' onchange="questions[' + idx + '].includeOther=this.checked;renderPreview()">' +
-            '<label>Include "Something else" option with text field</label>' +
+            '<label>include "something else" option with text field</label>' +
           '</div>'
         ) : '') +
       '</div>';
     }
 
     if (q.type === 'matrix') {
-      var levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
+      var levels = q.levels || ['not yet', 'exploring', 'capable', 'confident'];
       optionsHtml = '<div class="options-list">' +
         '<div class="q-row"><label>Levels</label>' +
           '<input type="text" style="flex:1" value="' + esc(levels.join(', ')) + '" onchange="questions[' + idx + '].levels=this.value.split(\',\').map(function(s){return s.trim()}).filter(Boolean);renderPreview()" placeholder="Comma-separated level names">' +
@@ -694,7 +697,7 @@ function renderEditor() {
             '<button onclick="removeMatrixRow(' + idx + ',' + ri + ')">&times;</button>' +
           '</div>';
         }).join('') +
-        '<button class="add-option-btn" onclick="addMatrixRow(' + idx + ')">+ Add row</button>' +
+        '<button class="add-option-btn" onclick="addMatrixRow(' + idx + ')">+ add row</button>' +
       '</div>';
     }
 
@@ -718,15 +721,15 @@ function renderEditor() {
       '<div class="q-row">' +
         '<label>Type</label>' +
         '<select onchange="questions[' + idx + '].type=this.value;if(this.value===\'radio\'||this.value===\'checkbox\'){questions[' + idx + '].options=questions[' + idx + '].options||[];}if(this.value===\'matrix\'){questions[' + idx + '].levels=questions[' + idx + '].levels||[\'Not yet\',\'Exploring\',\'Capable\',\'Confident\'];questions[' + idx + '].matrixRows=questions[' + idx + '].matrixRows||[];}renderEditor();renderPreview()">' +
-          '<option value="radio" ' + (q.type==='radio'?'selected':'') + '>Single select</option>' +
-          '<option value="checkbox" ' + (q.type==='checkbox'?'selected':'') + '>Multi-select</option>' +
-          '<option value="matrix" ' + (q.type==='matrix'?'selected':'') + '>Matrix (segmented)</option>' +
-          '<option value="text" ' + (q.type==='text'?'selected':'') + '>Short text</option>' +
-          '<option value="textarea" ' + (q.type==='textarea'?'selected':'') + '>Long text</option>' +
+          '<option value="radio" ' + (q.type==='radio'?'selected':'') + '>single select</option>' +
+          '<option value="checkbox" ' + (q.type==='checkbox'?'selected':'') + '>multi-select</option>' +
+          '<option value="matrix" ' + (q.type==='matrix'?'selected':'') + '>matrix (segmented)</option>' +
+          '<option value="text" ' + (q.type==='text'?'selected':'') + '>short text</option>' +
+          '<option value="textarea" ' + (q.type==='textarea'?'selected':'') + '>long text</option>' +
         '</select>' +
         '<div class="checkbox-row">' +
           '<input type="checkbox" ' + (q.required ? 'checked' : '') + ' onchange="questions[' + idx + '].required=this.checked;renderPreview()">' +
-          '<label>Required</label>' +
+          '<label>required</label>' +
         '</div>' +
       '</div>' +
       '<div class="q-row">' +
@@ -743,7 +746,7 @@ function escJs(s) { return (s||'').replace(/\\/g, '\\\\').replace(/'/g, "\\'").r
 
 function addQuestion() {
   questions.push({
-    id: 'q' + nextId++, title: 'New question', hint: '', type: 'text', required: false, options: [], placeholder: ''
+    id: 'q' + nextId++, title: 'new question', hint: '', type: 'text', required: false, options: [], placeholder: ''
   });
   renderEditor(); renderPreview();
 }
@@ -765,7 +768,7 @@ function moveQuestion(idx, dir) {
 function addOption(qIdx) {
   if (!questions[qIdx].options) questions[qIdx].options = [];
   var n = questions[qIdx].options.length + 1;
-  questions[qIdx].options.push({ label: 'Option ' + n, sub: '', value: 'option_' + n });
+  questions[qIdx].options.push({ label: 'option ' + n, sub: '', value: 'option_' + n });
   renderEditor(); renderPreview();
 }
 
@@ -783,7 +786,7 @@ function updateOption(qIdx, oIdx, field, value) {
 function addMatrixRow(qIdx) {
   if (!questions[qIdx].matrixRows) questions[qIdx].matrixRows = [];
   var n = questions[qIdx].matrixRows.length + 1;
-  questions[qIdx].matrixRows.push({ label: 'Activity ' + n, sub: '', value: 'activity_' + n });
+  questions[qIdx].matrixRows.push({ label: 'activity ' + n, sub: '', value: 'activity_' + n });
   renderEditor(); renderPreview();
 }
 
@@ -860,7 +863,7 @@ function generateFormHtml() {
   questions.forEach(function(q, idx) {
     var num = qNum++;
     var fieldName = slugify(q.title) || ('field_' + idx);
-    var optionalBadge = q.required ? '' : ' <span class="optional-badge">Optional</span>';
+    var optionalBadge = q.required ? '' : ' <span class="optional-badge">optional</span>';
 
     if (q.type === 'radio') {
       var optHtml = (q.options || []).map(function(o) {
@@ -915,7 +918,7 @@ function generateFormHtml() {
         cbOptHtml += '\n        <label class="option" data-group="' + fieldName + '">' +
           '\n          <input type="checkbox" name="' + fieldName + '" value="other">' +
           '\n          <span class="indicator checkbox"></span>' +
-          '\n          <div><div class="option-text">Something else</div></div>' +
+          '\n          <div><div class="option-text">something else</div></div>' +
           '\n        </label>';
       }
 
@@ -925,7 +928,7 @@ function generateFormHtml() {
         (q.hint ? '\n      <p class="hint">' + esc(q.hint) + '</p>' : '') +
         '\n      <div class="option-grid">' + cbOptHtml + '\n      </div>' +
         '\n      <div class="counter" id="' + fieldName + '-counter"><span class="count">0</span>/' + max + ' selected</div>' +
-        (q.includeOther ? '\n      <div class="other-input" id="' + fieldName + '-other"><input type="text" name="' + fieldName + '_other" placeholder="What else?"></div>' : '') +
+        (q.includeOther ? '\n      <div class="other-input" id="' + fieldName + '-other"><input type="text" name="' + fieldName + '_other" placeholder="what else?"></div>' : '') +
         '\n    </div>';
 
       jsHandlers += '\n  (function(){' +
@@ -961,7 +964,7 @@ function generateFormHtml() {
       if (q.includeOther) sheetColumns.push('data.' + fieldName + '_other');
 
     } else if (q.type === 'matrix') {
-      var levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
+      var levels = q.levels || ['not yet', 'exploring', 'capable', 'confident'];
       var rows = q.matrixRows || [];
       var rowsHtml = rows.map(function(r) {
         var rv = slugify(r.label) || r.value;
@@ -1126,7 +1129,7 @@ function generateFormHtml() {
     '    };\n' +
     '\n' +
     '    var btn = document.querySelector(\'.submit-btn\');\n' +
-    '    btn.textContent = \'Submitting\\u2026\';\n' +
+    '    btn.textContent = \'submitting\\u2026\';\n' +
     '    btn.disabled = true;\n' +
     '    btn.style.opacity = \'0.7\';\n' +
     '\n' +
@@ -1137,7 +1140,7 @@ function generateFormHtml() {
     '        window.scrollTo({ top: 0, behavior: \'smooth\' });\n' +
     '      })\n' +
     '      .withFailureHandler(function() {\n' +
-    '        btn.textContent = \'Something went wrong \\u2014 try again\';\n' +
+    '        btn.textContent = \'something went wrong \\u2014 try again\';\n' +
     '        btn.disabled = false;\n' +
     '        btn.style.opacity = \'1\';\n' +
     '        setTimeout(function() { btn.textContent = \'' + escJs(submitText) + '\'; }, 3000);\n' +
@@ -1203,6 +1206,10 @@ function downloadFiles() {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(function() {});
 }
+
+window.addEventListener('beforeunload', function(e) {
+  e.preventDefault();
+});
 
 renderEditor();
 setTheme(currentTheme);
