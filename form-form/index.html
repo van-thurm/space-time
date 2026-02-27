@@ -23,34 +23,40 @@
 <!-- Prevent Safari Reader -->
 <meta name="robots" content="noindex">
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; color: #1c1917; }
+  body { font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; color: #1c1917; }
 
   .layout { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
 
-  .editor { padding: 24px; overflow-y: auto; border-right: 1px solid #e5e5e5; background: #fff; }
+  .editor { padding: 0 24px 24px 24px; overflow-y: auto; border-right: 1px solid #e5e5e5; background: #fff; }
   .preview-pane { overflow-y: auto; background: #f5f5f5; }
   .preview-pane iframe { width: 100%; height: 100%; border: none; }
 
   .editor-toolbar {
     position: sticky; top: 0; z-index: 10; background: #fff;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0 10px 0; margin-bottom: 4px;
+    padding: 24px 0 10px 0; margin-bottom: 4px;
     border-bottom: 1px solid #e5e5e5;
   }
   .logo-header { display: flex; align-items: center; gap: 8px; }
   .logo-icon { width: 20px; height: 20px; flex-shrink: 0; }
   .logo-wordmark { height: 15px; width: auto; }
   .toolbar-actions { display: flex; gap: 6px; }
-  .subtitle { font-size: 12px; color: #1c1917; margin-bottom: 24px; margin-top: 8px; }
+  .subtitle { font-size: 12px; color: #a3a3a3; margin-bottom: 24px; margin-top: 8px; letter-spacing: 0.01em; }
 
   .form-meta { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
   .form-meta > .design-toggle { margin-bottom: 12px; }
-  .form-meta label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #737373; margin-bottom: 4px; }
+  .form-meta label { display: block; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: #a3a3a3; margin-bottom: 5px; }
   .form-meta input, .form-meta textarea {
-    width: 100%; padding: 8px 10px; border: 1px solid #d4d4d4; border-radius: 6px;
-    font-family: inherit; font-size: 14px; margin-bottom: 12px;
+    width: 100%; padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
+    font-family: inherit; font-size: 13px; margin-bottom: 12px;
   }
   .form-meta textarea { min-height: 60px; resize: vertical; }
 
@@ -62,11 +68,11 @@
   .question-card .q-header { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
   .question-card .q-num {
     width: 24px; height: 24px; border-radius: 50%; background: #1c1917; color: #fff;
-    font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .question-card .q-title-input {
     flex: 1; padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
-    font-family: inherit; font-size: 14px; font-weight: 600;
+    font-family: inherit; font-size: 14px; font-weight: 400;
   }
   .question-card .q-actions { display: flex; gap: 4px; }
   .question-card .q-actions button {
@@ -76,7 +82,7 @@
   .question-card .q-actions button:hover { background: #e5e5e5; }
 
   .q-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-  .q-row label { font-size: 12px; font-weight: 600; color: #737373; min-width: 60px; }
+  .q-row label { font-size: 11px; font-weight: 500; color: #a3a3a3; min-width: 60px; text-transform: uppercase; letter-spacing: 0.04em; }
   .q-row select, .q-row input[type="text"], .q-row input[type="number"] {
     padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
     font-family: inherit; font-size: 13px;
@@ -103,18 +109,18 @@
   }
   .add-option-btn {
     background: none; border: 1px dashed #d4d4d4; border-radius: 6px; padding: 5px 10px;
-    font-family: inherit; font-size: 12px; color: #737373; cursor: pointer; margin-top: 4px;
+    font-family: inherit; font-size: 12px; font-weight: 400; color: #a3a3a3; cursor: pointer; margin-top: 4px;
   }
   .add-option-btn:hover { border-color: #525252; color: #525252; }
 
   .checkbox-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
   .checkbox-row input[type="checkbox"] { margin: 0; accent-color: #525252; }
-  .checkbox-row label { font-size: 12px; color: #737373; min-width: auto; }
+  .checkbox-row label { font-size: 12px; font-weight: 400; color: #737373; min-width: auto; }
 
   .add-question-btn {
     width: 100%; padding: 12px; border: 2px dashed #d4d4d4; border-radius: 10px;
-    background: none; font-family: inherit; font-size: 14px; font-weight: 600;
-    color: #737373; cursor: pointer; margin-bottom: 16px;
+    background: none; font-family: inherit; font-size: 13px; font-weight: 400;
+    color: #a3a3a3; cursor: pointer; margin-bottom: 16px;
   }
   .add-question-btn:hover { border-color: #525252; color: #525252; }
 
@@ -127,8 +133,8 @@
   .vt-credit { font-size: 11px; color: #a3a3a3; letter-spacing: 0.04em; }
 
   .btn {
-    padding: 6px 12px; border: none; border-radius: 6px; font-family: inherit;
-    font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.01em;
+    padding: 6px 14px; border: none; border-radius: 6px; font-family: inherit;
+    font-size: 12px; font-weight: 500; cursor: pointer; letter-spacing: 0.02em;
   }
   .btn-primary { background: #1c1917; color: #fff; }
   .btn-primary:hover { background: #404040; }
@@ -137,8 +143,8 @@
 
   .design-controls { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
   .design-toggle {
-    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
-    color: #737373; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em;
+    color: #a3a3a3; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;
     list-style: none; user-select: none; padding: 4px 6px; margin-left: -6px; border-radius: 6px;
   }
   .design-toggle::-webkit-details-marker { display: none; }
@@ -156,9 +162,9 @@
     height: 40px; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 4px;
   }
   .theme-swatch .swatch-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3); }
-  .theme-swatch .swatch-name { font-size: 11px; font-weight: 600; color: #525252; }
+  .theme-swatch .swatch-name { font-size: 11px; font-weight: 400; color: #737373; }
   .design-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-  .design-row label { font-size: 12px; font-weight: 600; color: #737373; min-width: 80px; }
+  .design-row label { font-size: 11px; font-weight: 500; color: #a3a3a3; min-width: 80px; text-transform: uppercase; letter-spacing: 0.04em; }
   .design-row select { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
   .design-row input[type="text"] { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
 
@@ -176,10 +182,69 @@
   }
   .mobile-tabs button {
     padding: 12px 16px; border: none; background: none; font-family: inherit;
-    font-size: 14px; font-weight: 600; color: #737373; cursor: pointer;
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    font-size: 13px; font-weight: 500; color: #a3a3a3; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px; letter-spacing: 0.02em;
   }
   .mobile-tabs button.active { color: #1c1917; border-bottom-color: #1c1917; }
+
+  .btn-icon {
+    width: 32px; height: 32px; padding: 0; display: flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid #d4d4d4; border-radius: 6px; cursor: pointer; color: #737373;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+  }
+  .btn-icon:hover { background: #f5f5f5; color: #1c1917; }
+  .btn-icon svg { width: 16px; height: 16px; }
+
+  /* Dark mode — editor only */
+  .editor.dark { background: #1c1917; color: #e5e5e5; border-right-color: #2e2a27; }
+  .editor.dark .editor-toolbar { background: #1c1917; border-bottom-color: #2e2a27; }
+  .editor.dark .subtitle { color: #737373; }
+  .editor.dark .logo-header { color: #e5e5e5; }
+  .editor.dark .form-meta { border-bottom-color: #2e2a27; }
+  .editor.dark .form-meta label { color: #737373; }
+  .editor.dark .form-meta input,
+  .editor.dark .form-meta textarea {
+    background: #2e2a27; border-color: #3d3835; color: #e5e5e5;
+  }
+  .editor.dark .question-card { background: #2e2a27; border-color: #3d3835; }
+  .editor.dark .question-card .q-num { background: #e5e5e5; color: #1c1917; }
+  .editor.dark .question-card .q-title-input { background: #1c1917; border-color: #3d3835; color: #e5e5e5; }
+  .editor.dark .question-card .q-actions button { color: #737373; }
+  .editor.dark .question-card .q-actions button:hover { background: #3d3835; }
+  .editor.dark .q-row label { color: #737373; }
+  .editor.dark .q-row select,
+  .editor.dark .q-row input[type="text"],
+  .editor.dark .q-row input[type="number"] { background: #1c1917; border-color: #3d3835; color: #e5e5e5; }
+  .editor.dark .q-hint-input { background: #1c1917; border-color: #3d3835; color: #a3a3a3; }
+  .editor.dark .option-row input { background: #1c1917; border-color: #3d3835; color: #e5e5e5; }
+  .editor.dark .option-row button { color: #ef4444; }
+  .editor.dark .add-option-btn { border-color: #3d3835; color: #737373; }
+  .editor.dark .add-option-btn:hover { border-color: #737373; color: #a3a3a3; }
+  .editor.dark .checkbox-row label { color: #737373; }
+  .editor.dark .checkbox-row input[type="checkbox"] { accent-color: #a3a3a3; }
+  .editor.dark .add-question-btn { border-color: #3d3835; color: #737373; }
+  .editor.dark .add-question-btn:hover { border-color: #737373; color: #a3a3a3; }
+  .editor.dark .design-controls { border-bottom-color: #2e2a27; }
+  .editor.dark .design-toggle { color: #737373; }
+  .editor.dark .design-toggle:hover { color: #e5e5e5; background: #2e2a27; }
+  .editor.dark .theme-swatch { border-color: #3d3835; }
+  .editor.dark .theme-swatch:hover { border-color: #737373; }
+  .editor.dark .theme-swatch.active { border-color: #e5e5e5; box-shadow: 0 0 0 2px rgba(229,229,229,0.12); }
+  .editor.dark .theme-swatch .swatch-name { color: #a3a3a3; }
+  .editor.dark .design-row label { color: #737373; }
+  .editor.dark .design-row select,
+  .editor.dark .design-row input[type="text"] { background: #1c1917; border-color: #3d3835; color: #e5e5e5; }
+  .editor.dark .accent-picker input[type="color"] { background: #2e2a27; border-color: #3d3835; }
+  .editor.dark .accent-hex { color: #a3a3a3; }
+  .editor.dark .btn-primary { background: #e5e5e5; color: #1c1917; }
+  .editor.dark .btn-primary:hover { background: #d4d4d4; }
+  .editor.dark .btn-secondary { background: #2e2a27; color: #e5e5e5; border-color: #3d3835; }
+  .editor.dark .btn-secondary:hover { background: #3d3835; }
+  .editor.dark .btn-icon { border-color: #3d3835; color: #737373; }
+  .editor.dark .btn-icon:hover { background: #2e2a27; color: #e5e5e5; }
+  .editor.dark .editor-footer { border-top-color: #2e2a27; }
+  .editor.dark .vt-logo { color: #525252; }
+  .editor.dark .vt-credit { color: #525252; }
 
   @media (max-width: 768px) {
     .layout { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
@@ -202,28 +267,35 @@
   <div class="editor" id="editor">
     <div class="editor-toolbar">
     <div class="logo-header" aria-label="form form">
-      <svg class="logo-icon" viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="27" y="52" width="59" height="8" fill="#1E1E1E"/>
-        <rect x="27" y="26" width="59" height="8" fill="#1E1E1E"/>
-        <rect x="27" y="78" width="59" height="8" fill="#1E1E1E"/>
-        <rect width="20" height="8" fill="black"/>
-        <rect y="52" width="20" height="8" fill="black"/>
-        <rect y="26" width="20" height="8" fill="black"/>
+      <svg class="logo-icon" viewBox="0 0 86 86" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <rect x="27" y="52" width="59" height="8"/>
+        <rect x="27" y="26" width="59" height="8"/>
+        <rect x="27" y="78" width="59" height="8"/>
+        <rect width="20" height="8"/>
+        <rect y="52" width="20" height="8"/>
+        <rect y="26" width="20" height="8"/>
       </svg>
-      <svg class="logo-wordmark" viewBox="0 0 447 99" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M8.30054 98.124V35.9253C8.30054 29.3587 9.99754 24.5628 13.3915 21.5377C16.8593 18.4388 21.9134 16.8894 28.5539 16.8894H35.8583V25.522H26.7831C24.0531 25.522 21.9134 26.2967 20.364 27.8461C18.8883 29.3218 18.1505 31.4246 18.1505 34.1545V98.124H8.30054ZM0 51.2961V39.7989H36.9651V51.2961H0Z" fill="black"/>
-        <path d="M64.0827 83.7236C58.9917 83.7236 54.491 82.8382 50.5805 81.0674C46.6701 79.2966 43.3498 76.9725 40.6199 74.0949C37.9637 71.1436 35.9716 67.8603 34.6435 64.245C33.3154 60.6296 32.6514 56.9405 32.6514 53.1776V51.2961C32.6514 47.5332 33.3154 43.8441 34.6435 40.2287C36.0454 36.5396 38.1113 33.2563 40.8412 30.3787C43.5712 27.4274 46.8914 25.1033 50.8019 23.4063C54.7124 21.6355 59.1393 20.7501 64.0827 20.7501C69.1 20.7501 73.5638 21.6355 77.4743 23.4063C81.3848 25.1033 84.6681 27.4274 87.3243 30.3787C90.0542 33.2563 92.1201 36.5396 93.522 40.2287C94.9239 43.8441 95.6248 47.5332 95.6248 51.2961V53.1776C95.6248 56.9405 94.9239 60.6296 93.522 64.245C92.1939 67.8603 90.2018 71.1436 87.5456 74.0949C84.8894 76.9725 81.6061 79.2966 77.6956 81.0674C73.7852 82.8382 69.2475 83.7236 64.0827 83.7236ZM64.0827 74.5376C68.5835 74.5376 72.4202 73.5416 75.5928 71.5494C78.7655 69.5573 81.2003 66.9011 82.8973 63.5809C84.5943 60.1869 85.4428 56.3871 85.4428 52.1815C85.4428 47.9759 84.5574 44.213 82.7866 40.8928C81.0896 37.4988 78.6548 34.8426 75.4822 32.9242C72.3095 30.9321 68.5097 29.9361 64.0827 29.9361C59.8034 29.9361 56.0404 30.9321 52.794 32.9242C49.6214 34.8426 47.1496 37.4988 45.3789 40.8928C43.6819 44.213 42.8334 47.9759 42.8334 52.1815C42.8334 56.3871 43.6819 60.1869 45.3789 63.5809C47.0759 66.9011 49.5107 69.5573 52.6833 71.5494C55.856 73.5416 59.6558 74.5376 64.0827 74.5376Z" fill="black"/>
-        <path d="M100.694 85.5509V26.5617H108.773V50.91H108.331C108.331 42.2774 110.212 35.969 113.975 31.9848C117.812 27.9267 123.567 25.8977 131.24 25.8977H133.232V35.0836H129.469C123.493 35.0836 118.919 36.67 115.746 39.8426C112.573 43.0153 110.987 47.5898 110.987 53.5662V85.5509H100.694Z" fill="black"/>
-        <path d="M134.912 93.0922V34.1031H142.991V59.3367H141.663C141.663 53.5817 142.401 48.712 143.877 44.7277C145.426 40.7435 147.714 37.6815 150.739 35.5418C153.764 33.4021 157.6 32.3323 162.249 32.3323H162.691C167.34 32.3323 171.176 33.4021 174.202 35.5418C177.3 37.6815 179.588 40.7435 181.063 44.7277C182.539 48.712 183.277 53.5817 183.277 59.3367H180.289C180.289 53.5817 181.026 48.712 182.502 44.7277C184.051 40.7435 186.339 37.6815 189.364 35.5418C192.463 33.4021 196.336 32.3323 200.985 32.3323H201.427C206.076 32.3323 209.949 33.4021 213.048 35.5418C216.147 37.6815 218.434 40.7435 219.91 44.7277C221.459 48.712 222.234 53.5817 222.234 59.3367V93.0922H211.941V57.0126C211.941 52.2167 210.761 48.4907 208.4 45.8345C206.039 43.1045 202.718 41.7396 198.439 41.7396C194.012 41.7396 190.434 43.1414 187.704 45.9452C185.048 48.7489 183.719 52.6594 183.719 57.6766V93.0922H173.427V57.0126C173.427 52.2167 172.209 48.4907 169.775 45.8345C167.414 43.1045 164.093 41.7396 159.814 41.7396C155.387 41.7396 151.845 43.1414 149.189 45.9452C146.533 48.7489 145.205 52.6594 145.205 57.6766V93.0922H134.912Z" fill="black"/>
-        <path d="M232.394 81.2346V19.0359C232.394 12.4693 234.091 7.67339 237.485 4.6483C240.952 1.54943 246.006 0 252.647 0H259.951V8.63256H250.876C248.146 8.63256 246.006 9.40728 244.457 10.9567C242.981 12.4324 242.244 14.5352 242.244 17.2651V81.2346H232.394ZM224.093 30.546V19.0488H261.058V30.546H224.093Z" fill="black"/>
-        <path d="M288.176 85.0104C283.085 85.0104 278.584 84.125 274.674 82.3543C270.763 80.5835 267.443 78.2593 264.713 75.3818C262.057 72.4305 260.065 69.1472 258.737 65.5318C257.408 61.9165 256.744 58.2273 256.744 54.4644V52.583C256.744 48.8201 257.408 45.1309 258.737 41.5156C260.138 37.8265 262.204 34.5431 264.934 31.6656C267.664 28.7143 270.984 26.3902 274.895 24.6932C278.805 22.9224 283.232 22.037 288.176 22.037C293.193 22.037 297.657 22.9224 301.567 24.6932C305.478 26.3902 308.761 28.7143 311.417 31.6656C314.147 34.5431 316.213 37.8265 317.615 41.5156C319.017 45.1309 319.718 48.8201 319.718 52.583V54.4644C319.718 58.2273 319.017 61.9165 317.615 65.5318C316.287 69.1472 314.295 72.4305 311.639 75.3818C308.982 78.2593 305.699 80.5835 301.789 82.3543C297.878 84.125 293.341 85.0104 288.176 85.0104ZM288.176 75.8245C292.677 75.8245 296.513 74.8284 299.686 72.8363C302.859 70.8442 305.293 68.188 306.99 64.8678C308.687 61.4738 309.536 57.674 309.536 53.4684C309.536 49.2628 308.65 45.4999 306.88 42.1796C305.183 38.7856 302.748 36.1295 299.575 34.2111C296.403 32.219 292.603 31.2229 288.176 31.2229C283.896 31.2229 280.134 32.219 276.887 34.2111C273.714 36.1295 271.243 38.7856 269.472 42.1796C267.775 45.4999 266.926 49.2628 266.926 53.4684C266.926 57.674 267.775 61.4738 269.472 64.8678C271.169 68.188 273.604 70.8442 276.776 72.8363C279.949 74.8284 283.749 75.8245 288.176 75.8245Z" fill="black"/>
-        <path d="M324.787 89.4116V30.4225H332.866V54.7707H332.424C332.424 46.1382 334.305 39.8298 338.068 35.8455C341.905 31.7874 347.66 29.7584 355.333 29.7584H357.325V38.9444H353.562C347.586 38.9444 343.011 40.5307 339.839 43.7033C336.666 46.876 335.08 51.4505 335.08 57.4269V89.4116H324.787Z" fill="black"/>
-        <path d="M359.005 95.666V36.6768H367.084V61.9105H365.756C365.756 56.1555 366.494 51.2858 367.97 47.3015C369.519 43.3173 371.807 40.2553 374.832 38.1156C377.857 35.9759 381.693 34.9061 386.342 34.9061H386.784C391.433 34.9061 395.269 35.9759 398.295 38.1156C401.393 40.2553 403.681 43.3173 405.156 47.3015C406.632 51.2858 407.37 56.1555 407.37 61.9105H404.382C404.382 56.1555 405.119 51.2858 406.595 47.3015C408.144 43.3173 410.432 40.2553 413.457 38.1156C416.556 35.9759 420.429 34.9061 425.078 34.9061H425.52C430.169 34.9061 434.042 35.9759 437.141 38.1156C440.24 40.2553 442.527 43.3173 444.003 47.3015C445.552 51.2858 446.327 56.1555 446.327 61.9105V95.666H436.034V59.5863C436.034 54.7905 434.854 51.0645 432.493 48.4083C430.132 45.6783 426.811 44.3133 422.532 44.3133C418.105 44.3133 414.527 45.7152 411.797 48.519C409.141 51.3227 407.812 55.2332 407.812 60.2504V95.666H397.52V59.5863C397.52 54.7905 396.302 51.0645 393.868 48.4083C391.507 45.6783 388.186 44.3133 383.907 44.3133C379.48 44.3133 375.938 45.7152 373.282 48.519C370.626 51.3227 369.298 55.2332 369.298 60.2504V95.666H359.005Z" fill="black"/>
+      <svg class="logo-wordmark" viewBox="0 0 447 99" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8.30054 98.124V35.9253C8.30054 29.3587 9.99754 24.5628 13.3915 21.5377C16.8593 18.4388 21.9134 16.8894 28.5539 16.8894H35.8583V25.522H26.7831C24.0531 25.522 21.9134 26.2967 20.364 27.8461C18.8883 29.3218 18.1505 31.4246 18.1505 34.1545V98.124H8.30054ZM0 51.2961V39.7989H36.9651V51.2961H0Z"/>
+        <path d="M64.0827 83.7236C58.9917 83.7236 54.491 82.8382 50.5805 81.0674C46.6701 79.2966 43.3498 76.9725 40.6199 74.0949C37.9637 71.1436 35.9716 67.8603 34.6435 64.245C33.3154 60.6296 32.6514 56.9405 32.6514 53.1776V51.2961C32.6514 47.5332 33.3154 43.8441 34.6435 40.2287C36.0454 36.5396 38.1113 33.2563 40.8412 30.3787C43.5712 27.4274 46.8914 25.1033 50.8019 23.4063C54.7124 21.6355 59.1393 20.7501 64.0827 20.7501C69.1 20.7501 73.5638 21.6355 77.4743 23.4063C81.3848 25.1033 84.6681 27.4274 87.3243 30.3787C90.0542 33.2563 92.1201 36.5396 93.522 40.2287C94.9239 43.8441 95.6248 47.5332 95.6248 51.2961V53.1776C95.6248 56.9405 94.9239 60.6296 93.522 64.245C92.1939 67.8603 90.2018 71.1436 87.5456 74.0949C84.8894 76.9725 81.6061 79.2966 77.6956 81.0674C73.7852 82.8382 69.2475 83.7236 64.0827 83.7236ZM64.0827 74.5376C68.5835 74.5376 72.4202 73.5416 75.5928 71.5494C78.7655 69.5573 81.2003 66.9011 82.8973 63.5809C84.5943 60.1869 85.4428 56.3871 85.4428 52.1815C85.4428 47.9759 84.5574 44.213 82.7866 40.8928C81.0896 37.4988 78.6548 34.8426 75.4822 32.9242C72.3095 30.9321 68.5097 29.9361 64.0827 29.9361C59.8034 29.9361 56.0404 30.9321 52.794 32.9242C49.6214 34.8426 47.1496 37.4988 45.3789 40.8928C43.6819 44.213 42.8334 47.9759 42.8334 52.1815C42.8334 56.3871 43.6819 60.1869 45.3789 63.5809C47.0759 66.9011 49.5107 69.5573 52.6833 71.5494C55.856 73.5416 59.6558 74.5376 64.0827 74.5376Z"/>
+        <path d="M100.694 85.5509V26.5617H108.773V50.91H108.331C108.331 42.2774 110.212 35.969 113.975 31.9848C117.812 27.9267 123.567 25.8977 131.24 25.8977H133.232V35.0836H129.469C123.493 35.0836 118.919 36.67 115.746 39.8426C112.573 43.0153 110.987 47.5898 110.987 53.5662V85.5509H100.694Z"/>
+        <path d="M134.912 93.0922V34.1031H142.991V59.3367H141.663C141.663 53.5817 142.401 48.712 143.877 44.7277C145.426 40.7435 147.714 37.6815 150.739 35.5418C153.764 33.4021 157.6 32.3323 162.249 32.3323H162.691C167.34 32.3323 171.176 33.4021 174.202 35.5418C177.3 37.6815 179.588 40.7435 181.063 44.7277C182.539 48.712 183.277 53.5817 183.277 59.3367H180.289C180.289 53.5817 181.026 48.712 182.502 44.7277C184.051 40.7435 186.339 37.6815 189.364 35.5418C192.463 33.4021 196.336 32.3323 200.985 32.3323H201.427C206.076 32.3323 209.949 33.4021 213.048 35.5418C216.147 37.6815 218.434 40.7435 219.91 44.7277C221.459 48.712 222.234 53.5817 222.234 59.3367V93.0922H211.941V57.0126C211.941 52.2167 210.761 48.4907 208.4 45.8345C206.039 43.1045 202.718 41.7396 198.439 41.7396C194.012 41.7396 190.434 43.1414 187.704 45.9452C185.048 48.7489 183.719 52.6594 183.719 57.6766V93.0922H173.427V57.0126C173.427 52.2167 172.209 48.4907 169.775 45.8345C167.414 43.1045 164.093 41.7396 159.814 41.7396C155.387 41.7396 151.845 43.1414 149.189 45.9452C146.533 48.7489 145.205 52.6594 145.205 57.6766V93.0922H134.912Z"/>
+        <path d="M232.394 81.2346V19.0359C232.394 12.4693 234.091 7.67339 237.485 4.6483C240.952 1.54943 246.006 0 252.647 0H259.951V8.63256H250.876C248.146 8.63256 246.006 9.40728 244.457 10.9567C242.981 12.4324 242.244 14.5352 242.244 17.2651V81.2346H232.394ZM224.093 30.546V19.0488H261.058V30.546H224.093Z"/>
+        <path d="M288.176 85.0104C283.085 85.0104 278.584 84.125 274.674 82.3543C270.763 80.5835 267.443 78.2593 264.713 75.3818C262.057 72.4305 260.065 69.1472 258.737 65.5318C257.408 61.9165 256.744 58.2273 256.744 54.4644V52.583C256.744 48.8201 257.408 45.1309 258.737 41.5156C260.138 37.8265 262.204 34.5431 264.934 31.6656C267.664 28.7143 270.984 26.3902 274.895 24.6932C278.805 22.9224 283.232 22.037 288.176 22.037C293.193 22.037 297.657 22.9224 301.567 24.6932C305.478 26.3902 308.761 28.7143 311.417 31.6656C314.147 34.5431 316.213 37.8265 317.615 41.5156C319.017 45.1309 319.718 48.8201 319.718 52.583V54.4644C319.718 58.2273 319.017 61.9165 317.615 65.5318C316.287 69.1472 314.295 72.4305 311.639 75.3818C308.982 78.2593 305.699 80.5835 301.789 82.3543C297.878 84.125 293.341 85.0104 288.176 85.0104ZM288.176 75.8245C292.677 75.8245 296.513 74.8284 299.686 72.8363C302.859 70.8442 305.293 68.188 306.99 64.8678C308.687 61.4738 309.536 57.674 309.536 53.4684C309.536 49.2628 308.65 45.4999 306.88 42.1796C305.183 38.7856 302.748 36.1295 299.575 34.2111C296.403 32.219 292.603 31.2229 288.176 31.2229C283.896 31.2229 280.134 32.219 276.887 34.2111C273.714 36.1295 271.243 38.7856 269.472 42.1796C267.775 45.4999 266.926 49.2628 266.926 53.4684C266.926 57.674 267.775 61.4738 269.472 64.8678C271.169 68.188 273.604 70.8442 276.776 72.8363C279.949 74.8284 283.749 75.8245 288.176 75.8245Z"/>
+        <path d="M324.787 89.4116V30.4225H332.866V54.7707H332.424C332.424 46.1382 334.305 39.8298 338.068 35.8455C341.905 31.7874 347.66 29.7584 355.333 29.7584H357.325V38.9444H353.562C347.586 38.9444 343.011 40.5307 339.839 43.7033C336.666 46.876 335.08 51.4505 335.08 57.4269V89.4116H324.787Z"/>
+        <path d="M359.005 95.666V36.6768H367.084V61.9105H365.756C365.756 56.1555 366.494 51.2858 367.97 47.3015C369.519 43.3173 371.807 40.2553 374.832 38.1156C377.857 35.9759 381.693 34.9061 386.342 34.9061H386.784C391.433 34.9061 395.269 35.9759 398.295 38.1156C401.393 40.2553 403.681 43.3173 405.156 47.3015C406.632 51.2858 407.37 56.1555 407.37 61.9105H404.382C404.382 56.1555 405.119 51.2858 406.595 47.3015C408.144 43.3173 410.432 40.2553 413.457 38.1156C416.556 35.9759 420.429 34.9061 425.078 34.9061H425.52C430.169 34.9061 434.042 35.9759 437.141 38.1156C440.24 40.2553 442.527 43.3173 444.003 47.3015C445.552 51.2858 446.327 56.1555 446.327 61.9105V95.666H436.034V59.5863C436.034 54.7905 434.854 51.0645 432.493 48.4083C430.132 45.6783 426.811 44.3133 422.532 44.3133C418.105 44.3133 414.527 45.7152 411.797 48.519C409.141 51.3227 407.812 55.2332 407.812 60.2504V95.666H397.52V59.5863C397.52 54.7905 396.302 51.0645 393.868 48.4083C391.507 45.6783 388.186 44.3133 383.907 44.3133C379.48 44.3133 375.938 45.7152 373.282 48.519C370.626 51.3227 369.298 55.2332 369.298 60.2504V95.666H359.005Z"/>
       </svg>
     </div>
     <div class="toolbar-actions">
       <button class="btn btn-primary" onclick="renderPreview()">Preview</button>
       <button class="btn btn-secondary" onclick="downloadFiles()">Download</button>
+      <button class="btn-icon" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18h6"/>
+          <path d="M10 22h4"/>
+          <path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>
+        </svg>
+      </button>
     </div>
     </div>
     <p class="subtitle">Build a form, get Apps Script files.</p>
@@ -401,6 +473,17 @@
 </div>
 
 <script>
+function toggleDarkMode() {
+  const editor = document.getElementById('editor');
+  editor.classList.toggle('dark');
+  localStorage.setItem('ff-dark', editor.classList.contains('dark') ? '1' : '0');
+}
+(function() {
+  if (localStorage.getItem('ff-dark') === '1') {
+    document.getElementById('editor').classList.add('dark');
+  }
+})();
+
 const themes = {
   line: {
     surface: '#f5f2ec', card: '#ffffff', text: '#1c1917', textSecondary: '#57534e',
@@ -1103,18 +1186,18 @@ function renderPreview() {
 function downloadFiles() {
   var result = generateFormHtml();
   var codeGs = generateCodeGs(result.sheetColumns);
+  var formTitle = (document.getElementById('formTitle').value || 'form').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
-  download('form.html', result.html);
-  setTimeout(function() { download('Code.gs', codeGs); }, 300);
-}
-
-function download(filename, content) {
-  var blob = new Blob([content], { type: 'text/plain' });
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  var zip = new JSZip();
+  zip.file('form.html', result.html);
+  zip.file('Code.gs', codeGs);
+  zip.generateAsync({ type: 'blob' }).then(function(blob) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = formTitle + '.zip';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
 }
 
 if ('serviceWorker' in navigator) {
