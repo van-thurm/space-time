@@ -1,26 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="96" fill="#2563eb"/>
-  <g transform="translate(100, 88)">
-    <!-- back form -->
-    <rect x="40" y="0" width="232" height="296" rx="16" fill="rgba(255,255,255,0.25)"/>
-    <!-- front form -->
-    <rect x="0" y="40" width="232" height="296" rx="16" fill="#fff"/>
-    <!-- lines on front form -->
-    <rect x="32" y="80" width="120" height="12" rx="6" fill="#2563eb" opacity="0.7"/>
-    <rect x="32" y="112" width="168" height="8" rx="4" fill="#1c1917" opacity="0.15"/>
-    <rect x="32" y="132" width="148" height="8" rx="4" fill="#1c1917" opacity="0.15"/>
-    <!-- radio row 1 -->
-    <circle cx="48" cy="172" r="8" fill="none" stroke="#2563eb" stroke-width="3"/>
-    <circle cx="48" cy="172" r="4" fill="#2563eb"/>
-    <rect x="68" y="167" width="100" height="10" rx="5" fill="#1c1917" opacity="0.2"/>
-    <!-- radio row 2 -->
-    <circle cx="48" cy="204" r="8" fill="none" stroke="#d6d3d1" stroke-width="3"/>
-    <rect x="68" y="199" width="80" height="10" rx="5" fill="#1c1917" opacity="0.12"/>
-    <!-- radio row 3 -->
-    <circle cx="48" cy="236" r="8" fill="none" stroke="#d6d3d1" stroke-width="3"/>
-    <rect x="68" y="231" width="110" height="10" rx="5" fill="#1c1917" opacity="0.12"/>
-    <!-- submit button -->
-    <rect x="32" y="272" width="88" height="32" rx="8" fill="#2563eb"/>
-    <rect x="50" y="283" width="52" height="10" rx="5" fill="#fff"/>
-  </g>
+<svg width="86" height="86" viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="27" y="52" width="59" height="8" fill="#1E1E1E"/>
+<rect x="27" y="26" width="59" height="8" fill="#1E1E1E"/>
+<rect x="27" y="78" width="59" height="8" fill="#1E1E1E"/>
+<rect width="20" height="8" fill="black"/>
+<rect y="52" width="20" height="8" fill="black"/>
+<rect y="26" width="20" height="8" fill="black"/>
 </svg>

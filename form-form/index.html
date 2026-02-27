@@ -7,7 +7,7 @@
 
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#111111">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="form form">
@@ -25,58 +25,68 @@
 
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f4; color: #1c1917; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: #f5f5f5; color: #1c1917; }
 
   .layout { display: grid; grid-template-columns: 1fr 1fr; height: 100vh; }
 
-  .editor { padding: 24px; overflow-y: auto; border-right: 1px solid #e7e5e4; background: #fff; }
-  .preview-pane { overflow-y: auto; background: #fafaf9; }
+  .editor { padding: 24px; overflow-y: auto; border-right: 1px solid #e5e5e5; background: #fff; }
+  .preview-pane { overflow-y: auto; background: #f5f5f5; }
   .preview-pane iframe { width: 100%; height: 100%; border: none; }
 
-  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; letter-spacing: -0.02em; }
-  .subtitle { font-size: 13px; color: #78716c; margin-bottom: 24px; }
+  .editor-toolbar {
+    position: sticky; top: 0; z-index: 10; background: #fff;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 10px 0; margin-bottom: 4px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+  .logo-header { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 20px; height: 20px; flex-shrink: 0; }
+  .logo-wordmark { height: 15px; width: auto; }
+  .toolbar-actions { display: flex; gap: 6px; }
+  .subtitle { font-size: 12px; color: #1c1917; margin-bottom: 24px; margin-top: 8px; }
 
-  .form-meta { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e7e5e4; }
-  .form-meta label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; margin-bottom: 4px; }
+  .form-meta { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
+  .form-meta > .design-toggle { margin-bottom: 12px; }
+  .form-meta label { display: block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #737373; margin-bottom: 4px; }
   .form-meta input, .form-meta textarea {
-    width: 100%; padding: 8px 10px; border: 1px solid #d6d3d1; border-radius: 6px;
+    width: 100%; padding: 8px 10px; border: 1px solid #d4d4d4; border-radius: 6px;
     font-family: inherit; font-size: 14px; margin-bottom: 12px;
   }
   .form-meta textarea { min-height: 60px; resize: vertical; }
 
   .question-card {
-    background: #fafaf9; border: 1px solid #e7e5e4; border-radius: 10px;
+    background: #f5f5f5; border: 1px solid #e5e5e5; border-radius: 10px;
     padding: 16px; margin-bottom: 12px; position: relative;
   }
   .question-card.dragging { opacity: 0.5; }
   .question-card .q-header { display: flex; gap: 8px; align-items: center; margin-bottom: 12px; }
   .question-card .q-num {
-    width: 24px; height: 24px; border-radius: 50%; background: #2563eb; color: #fff;
+    width: 24px; height: 24px; border-radius: 50%; background: #1c1917; color: #fff;
     font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .question-card .q-title-input {
-    flex: 1; padding: 6px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    flex: 1; padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
     font-family: inherit; font-size: 14px; font-weight: 600;
   }
   .question-card .q-actions { display: flex; gap: 4px; }
   .question-card .q-actions button {
     background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 4px;
-    font-size: 16px; color: #78716c;
+    font-size: 16px; color: #737373;
   }
-  .question-card .q-actions button:hover { background: #e7e5e4; }
+  .question-card .q-actions button:hover { background: #e5e5e5; }
 
   .q-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-  .q-row label { font-size: 12px; font-weight: 600; color: #78716c; min-width: 60px; }
+  .q-row label { font-size: 12px; font-weight: 600; color: #737373; min-width: 60px; }
   .q-row select, .q-row input[type="text"], .q-row input[type="number"] {
-    padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
     font-family: inherit; font-size: 13px;
   }
   .q-row select { min-width: 140px; }
   .q-row input[type="number"] { width: 60px; }
 
   .q-hint-input {
-    width: 100%; padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
-    font-family: inherit; font-size: 13px; color: #57534e;
+    width: 100%; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
+    font-family: inherit; font-size: 13px; color: #525252;
   }
 
   .options-list { margin-top: 8px; }
@@ -84,77 +94,92 @@
     display: flex; gap: 6px; align-items: center; margin-bottom: 6px;
   }
   .option-row input {
-    flex: 1; padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px;
+    flex: 1; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
     font-family: inherit; font-size: 13px;
   }
-  .option-row .sub-input { font-size: 12px; color: #78716c; }
+  .option-row .sub-input { font-size: 12px; color: #737373; }
   .option-row button {
     background: none; border: none; cursor: pointer; color: #dc2626; font-size: 16px; padding: 2px 4px;
   }
   .add-option-btn {
-    background: none; border: 1px dashed #d6d3d1; border-radius: 6px; padding: 5px 10px;
-    font-family: inherit; font-size: 12px; color: #78716c; cursor: pointer; margin-top: 4px;
+    background: none; border: 1px dashed #d4d4d4; border-radius: 6px; padding: 5px 10px;
+    font-family: inherit; font-size: 12px; color: #737373; cursor: pointer; margin-top: 4px;
   }
-  .add-option-btn:hover { border-color: #2563eb; color: #2563eb; }
+  .add-option-btn:hover { border-color: #525252; color: #525252; }
 
   .checkbox-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-  .checkbox-row input[type="checkbox"] { margin: 0; }
-  .checkbox-row label { font-size: 12px; color: #78716c; min-width: auto; }
+  .checkbox-row input[type="checkbox"] { margin: 0; accent-color: #525252; }
+  .checkbox-row label { font-size: 12px; color: #737373; min-width: auto; }
 
   .add-question-btn {
-    width: 100%; padding: 12px; border: 2px dashed #d6d3d1; border-radius: 10px;
+    width: 100%; padding: 12px; border: 2px dashed #d4d4d4; border-radius: 10px;
     background: none; font-family: inherit; font-size: 14px; font-weight: 600;
-    color: #78716c; cursor: pointer; margin-bottom: 16px;
+    color: #737373; cursor: pointer; margin-bottom: 16px;
   }
-  .add-question-btn:hover { border-color: #2563eb; color: #2563eb; }
+  .add-question-btn:hover { border-color: #525252; color: #525252; }
 
-  .bottom-bar {
-    display: flex; gap: 8px; padding-top: 16px; border-top: 1px solid #e7e5e4;
-    position: sticky; bottom: 0; background: #fff; padding-bottom: 16px;
+  .editor-footer {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    padding: 24px 0 12px 0; margin-top: 8px;
+    border-top: 1px solid #e5e5e5;
   }
+  .vt-logo { color: #a3a3a3; }
+  .vt-credit { font-size: 11px; color: #a3a3a3; letter-spacing: 0.04em; }
+
   .btn {
-    padding: 10px 20px; border: none; border-radius: 8px; font-family: inherit;
-    font-size: 14px; font-weight: 600; cursor: pointer;
+    padding: 6px 12px; border: none; border-radius: 6px; font-family: inherit;
+    font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.01em;
   }
-  .btn-primary { background: #2563eb; color: #fff; }
-  .btn-primary:hover { background: #1d4ed8; }
-  .btn-secondary { background: #f5f5f4; color: #1c1917; border: 1px solid #d6d3d1; }
-  .btn-secondary:hover { background: #e7e5e4; }
+  .btn-primary { background: #1c1917; color: #fff; }
+  .btn-primary:hover { background: #404040; }
+  .btn-secondary { background: #fff; color: #1c1917; border: 1px solid #d4d4d4; }
+  .btn-secondary:hover { background: #f5f5f5; }
 
-  .include-name { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
-  .include-name input { margin: 0; }
-  .include-name label { font-size: 13px; color: #57534e; }
-
-  .design-controls { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e7e5e4; }
-  .design-controls h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #78716c; margin-bottom: 12px; }
+  .design-controls { margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid #e5e5e5; }
+  .design-toggle {
+    font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #737373; margin-bottom: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px;
+    list-style: none; user-select: none; padding: 4px 6px; margin-left: -6px; border-radius: 6px;
+  }
+  .design-toggle::-webkit-details-marker { display: none; }
+  .design-toggle:hover { color: #1c1917; background: #f0f0f0; }
+  .toggle-chevron { width: 10px; height: 10px; transition: transform 0.2s ease; flex-shrink: 0; }
+  details[open] > .design-toggle .toggle-chevron { transform: rotate(90deg); }
   .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
   .theme-swatch {
-    border: 2px solid #e7e5e4; border-radius: 8px; padding: 10px; cursor: pointer;
+    border: 2px solid #e5e5e5; border-radius: 8px; padding: 10px; cursor: pointer;
     text-align: center; transition: all 0.15s ease; position: relative;
   }
-  .theme-swatch:hover { border-color: #a8a29e; }
-  .theme-swatch.active { border-color: #2563eb; box-shadow: 0 0 0 2px rgba(37,99,235,0.2); }
+  .theme-swatch:hover { border-color: #a3a3a3; }
+  .theme-swatch.active { border-color: #1c1917; box-shadow: 0 0 0 2px rgba(28,25,23,0.12); }
   .theme-swatch .swatch-preview {
     height: 40px; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; gap: 4px;
   }
   .theme-swatch .swatch-dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3); }
-  .theme-swatch .swatch-name { font-size: 11px; font-weight: 600; color: #57534e; }
+  .theme-swatch .swatch-name { font-size: 11px; font-weight: 600; color: #525252; }
   .design-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-  .design-row label { font-size: 12px; font-weight: 600; color: #78716c; min-width: 80px; }
-  .design-row select { padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
-  .design-row input[type="text"] { padding: 5px 8px; border: 1px solid #d6d3d1; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
+  .design-row label { font-size: 12px; font-weight: 600; color: #737373; min-width: 80px; }
+  .design-row select { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
+  .design-row input[type="text"] { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
+
+  .accent-picker { display: flex; align-items: center; gap: 8px; flex: 1; }
+  .accent-picker input[type="color"] {
+    width: 32px; height: 28px; border: 1px solid #d4d4d4; border-radius: 6px;
+    cursor: pointer; padding: 2px; background: #fff;
+  }
+  .accent-hex { font-size: 12px; color: #737373; font-family: ui-monospace, 'SF Mono', 'Menlo', monospace; }
 
   /* Mobile: stack layout with tab toggle */
   .mobile-tabs {
-    display: none; background: #fff; border-bottom: 1px solid #e7e5e4;
+    display: none; background: #fff; border-bottom: 1px solid #e5e5e5;
     padding: 0 16px; position: sticky; top: 0; z-index: 10;
   }
   .mobile-tabs button {
     padding: 12px 16px; border: none; background: none; font-family: inherit;
-    font-size: 14px; font-weight: 600; color: #78716c; cursor: pointer;
+    font-size: 14px; font-weight: 600; color: #737373; cursor: pointer;
     border-bottom: 2px solid transparent; margin-bottom: -1px;
   }
-  .mobile-tabs button.active { color: #2563eb; border-bottom-color: #2563eb; }
+  .mobile-tabs button.active { color: #1c1917; border-bottom-color: #1c1917; }
 
   @media (max-width: 768px) {
     .layout { grid-template-columns: 1fr; height: auto; min-height: 100vh; }
@@ -175,30 +200,68 @@
 
 <div class="layout">
   <div class="editor" id="editor">
-    <h1>form form</h1>
+    <div class="editor-toolbar">
+    <div class="logo-header" aria-label="form form">
+      <svg class="logo-icon" viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="27" y="52" width="59" height="8" fill="#1E1E1E"/>
+        <rect x="27" y="26" width="59" height="8" fill="#1E1E1E"/>
+        <rect x="27" y="78" width="59" height="8" fill="#1E1E1E"/>
+        <rect width="20" height="8" fill="black"/>
+        <rect y="52" width="20" height="8" fill="black"/>
+        <rect y="26" width="20" height="8" fill="black"/>
+      </svg>
+      <svg class="logo-wordmark" viewBox="0 0 447 99" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8.30054 98.124V35.9253C8.30054 29.3587 9.99754 24.5628 13.3915 21.5377C16.8593 18.4388 21.9134 16.8894 28.5539 16.8894H35.8583V25.522H26.7831C24.0531 25.522 21.9134 26.2967 20.364 27.8461C18.8883 29.3218 18.1505 31.4246 18.1505 34.1545V98.124H8.30054ZM0 51.2961V39.7989H36.9651V51.2961H0Z" fill="black"/>
+        <path d="M64.0827 83.7236C58.9917 83.7236 54.491 82.8382 50.5805 81.0674C46.6701 79.2966 43.3498 76.9725 40.6199 74.0949C37.9637 71.1436 35.9716 67.8603 34.6435 64.245C33.3154 60.6296 32.6514 56.9405 32.6514 53.1776V51.2961C32.6514 47.5332 33.3154 43.8441 34.6435 40.2287C36.0454 36.5396 38.1113 33.2563 40.8412 30.3787C43.5712 27.4274 46.8914 25.1033 50.8019 23.4063C54.7124 21.6355 59.1393 20.7501 64.0827 20.7501C69.1 20.7501 73.5638 21.6355 77.4743 23.4063C81.3848 25.1033 84.6681 27.4274 87.3243 30.3787C90.0542 33.2563 92.1201 36.5396 93.522 40.2287C94.9239 43.8441 95.6248 47.5332 95.6248 51.2961V53.1776C95.6248 56.9405 94.9239 60.6296 93.522 64.245C92.1939 67.8603 90.2018 71.1436 87.5456 74.0949C84.8894 76.9725 81.6061 79.2966 77.6956 81.0674C73.7852 82.8382 69.2475 83.7236 64.0827 83.7236ZM64.0827 74.5376C68.5835 74.5376 72.4202 73.5416 75.5928 71.5494C78.7655 69.5573 81.2003 66.9011 82.8973 63.5809C84.5943 60.1869 85.4428 56.3871 85.4428 52.1815C85.4428 47.9759 84.5574 44.213 82.7866 40.8928C81.0896 37.4988 78.6548 34.8426 75.4822 32.9242C72.3095 30.9321 68.5097 29.9361 64.0827 29.9361C59.8034 29.9361 56.0404 30.9321 52.794 32.9242C49.6214 34.8426 47.1496 37.4988 45.3789 40.8928C43.6819 44.213 42.8334 47.9759 42.8334 52.1815C42.8334 56.3871 43.6819 60.1869 45.3789 63.5809C47.0759 66.9011 49.5107 69.5573 52.6833 71.5494C55.856 73.5416 59.6558 74.5376 64.0827 74.5376Z" fill="black"/>
+        <path d="M100.694 85.5509V26.5617H108.773V50.91H108.331C108.331 42.2774 110.212 35.969 113.975 31.9848C117.812 27.9267 123.567 25.8977 131.24 25.8977H133.232V35.0836H129.469C123.493 35.0836 118.919 36.67 115.746 39.8426C112.573 43.0153 110.987 47.5898 110.987 53.5662V85.5509H100.694Z" fill="black"/>
+        <path d="M134.912 93.0922V34.1031H142.991V59.3367H141.663C141.663 53.5817 142.401 48.712 143.877 44.7277C145.426 40.7435 147.714 37.6815 150.739 35.5418C153.764 33.4021 157.6 32.3323 162.249 32.3323H162.691C167.34 32.3323 171.176 33.4021 174.202 35.5418C177.3 37.6815 179.588 40.7435 181.063 44.7277C182.539 48.712 183.277 53.5817 183.277 59.3367H180.289C180.289 53.5817 181.026 48.712 182.502 44.7277C184.051 40.7435 186.339 37.6815 189.364 35.5418C192.463 33.4021 196.336 32.3323 200.985 32.3323H201.427C206.076 32.3323 209.949 33.4021 213.048 35.5418C216.147 37.6815 218.434 40.7435 219.91 44.7277C221.459 48.712 222.234 53.5817 222.234 59.3367V93.0922H211.941V57.0126C211.941 52.2167 210.761 48.4907 208.4 45.8345C206.039 43.1045 202.718 41.7396 198.439 41.7396C194.012 41.7396 190.434 43.1414 187.704 45.9452C185.048 48.7489 183.719 52.6594 183.719 57.6766V93.0922H173.427V57.0126C173.427 52.2167 172.209 48.4907 169.775 45.8345C167.414 43.1045 164.093 41.7396 159.814 41.7396C155.387 41.7396 151.845 43.1414 149.189 45.9452C146.533 48.7489 145.205 52.6594 145.205 57.6766V93.0922H134.912Z" fill="black"/>
+        <path d="M232.394 81.2346V19.0359C232.394 12.4693 234.091 7.67339 237.485 4.6483C240.952 1.54943 246.006 0 252.647 0H259.951V8.63256H250.876C248.146 8.63256 246.006 9.40728 244.457 10.9567C242.981 12.4324 242.244 14.5352 242.244 17.2651V81.2346H232.394ZM224.093 30.546V19.0488H261.058V30.546H224.093Z" fill="black"/>
+        <path d="M288.176 85.0104C283.085 85.0104 278.584 84.125 274.674 82.3543C270.763 80.5835 267.443 78.2593 264.713 75.3818C262.057 72.4305 260.065 69.1472 258.737 65.5318C257.408 61.9165 256.744 58.2273 256.744 54.4644V52.583C256.744 48.8201 257.408 45.1309 258.737 41.5156C260.138 37.8265 262.204 34.5431 264.934 31.6656C267.664 28.7143 270.984 26.3902 274.895 24.6932C278.805 22.9224 283.232 22.037 288.176 22.037C293.193 22.037 297.657 22.9224 301.567 24.6932C305.478 26.3902 308.761 28.7143 311.417 31.6656C314.147 34.5431 316.213 37.8265 317.615 41.5156C319.017 45.1309 319.718 48.8201 319.718 52.583V54.4644C319.718 58.2273 319.017 61.9165 317.615 65.5318C316.287 69.1472 314.295 72.4305 311.639 75.3818C308.982 78.2593 305.699 80.5835 301.789 82.3543C297.878 84.125 293.341 85.0104 288.176 85.0104ZM288.176 75.8245C292.677 75.8245 296.513 74.8284 299.686 72.8363C302.859 70.8442 305.293 68.188 306.99 64.8678C308.687 61.4738 309.536 57.674 309.536 53.4684C309.536 49.2628 308.65 45.4999 306.88 42.1796C305.183 38.7856 302.748 36.1295 299.575 34.2111C296.403 32.219 292.603 31.2229 288.176 31.2229C283.896 31.2229 280.134 32.219 276.887 34.2111C273.714 36.1295 271.243 38.7856 269.472 42.1796C267.775 45.4999 266.926 49.2628 266.926 53.4684C266.926 57.674 267.775 61.4738 269.472 64.8678C271.169 68.188 273.604 70.8442 276.776 72.8363C279.949 74.8284 283.749 75.8245 288.176 75.8245Z" fill="black"/>
+        <path d="M324.787 89.4116V30.4225H332.866V54.7707H332.424C332.424 46.1382 334.305 39.8298 338.068 35.8455C341.905 31.7874 347.66 29.7584 355.333 29.7584H357.325V38.9444H353.562C347.586 38.9444 343.011 40.5307 339.839 43.7033C336.666 46.876 335.08 51.4505 335.08 57.4269V89.4116H324.787Z" fill="black"/>
+        <path d="M359.005 95.666V36.6768H367.084V61.9105H365.756C365.756 56.1555 366.494 51.2858 367.97 47.3015C369.519 43.3173 371.807 40.2553 374.832 38.1156C377.857 35.9759 381.693 34.9061 386.342 34.9061H386.784C391.433 34.9061 395.269 35.9759 398.295 38.1156C401.393 40.2553 403.681 43.3173 405.156 47.3015C406.632 51.2858 407.37 56.1555 407.37 61.9105H404.382C404.382 56.1555 405.119 51.2858 406.595 47.3015C408.144 43.3173 410.432 40.2553 413.457 38.1156C416.556 35.9759 420.429 34.9061 425.078 34.9061H425.52C430.169 34.9061 434.042 35.9759 437.141 38.1156C440.24 40.2553 442.527 43.3173 444.003 47.3015C445.552 51.2858 446.327 56.1555 446.327 61.9105V95.666H436.034V59.5863C436.034 54.7905 434.854 51.0645 432.493 48.4083C430.132 45.6783 426.811 44.3133 422.532 44.3133C418.105 44.3133 414.527 45.7152 411.797 48.519C409.141 51.3227 407.812 55.2332 407.812 60.2504V95.666H397.52V59.5863C397.52 54.7905 396.302 51.0645 393.868 48.4083C391.507 45.6783 388.186 44.3133 383.907 44.3133C379.48 44.3133 375.938 45.7152 373.282 48.519C370.626 51.3227 369.298 55.2332 369.298 60.2504V95.666H359.005Z" fill="black"/>
+      </svg>
+    </div>
+    <div class="toolbar-actions">
+      <button class="btn btn-primary" onclick="renderPreview()">Preview</button>
+      <button class="btn btn-secondary" onclick="downloadFiles()">Download</button>
+    </div>
+    </div>
     <p class="subtitle">Build a form, get Apps Script files.</p>
 
-    <div class="form-meta">
+    <details class="form-meta" open>
+      <summary class="design-toggle">
+        <svg class="toggle-chevron" viewBox="0 0 12 12" fill="none">
+          <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Header
+      </summary>
+      <label>Label</label>
+      <input type="text" id="formLabel" value="Team Name" oninput="renderPreview()">
       <label>Form title</label>
       <input type="text" id="formTitle" value="Your form title" oninput="renderPreview()">
-      <label>Eyebrow label</label>
-      <input type="text" id="formLabel" value="Team Name" oninput="renderPreview()">
       <label>Intro text</label>
       <textarea id="formIntro" oninput="renderPreview()">A short description of what this form is for and how long it takes.</textarea>
-      <label>Callout box (optional)</label>
+      <label>Callout box</label>
       <textarea id="formCallout" oninput="renderPreview()"></textarea>
-    </div>
+    </details>
 
-    <div class="design-controls">
-      <h3>Theme</h3>
+    <details class="design-controls" open>
+      <summary class="design-toggle">
+        <svg class="toggle-chevron" viewBox="0 0 12 12" fill="none">
+          <path d="M4.5 2.5L8 6L4.5 9.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Theme
+      </summary>
       <div class="theme-grid">
-        <div class="theme-swatch active" onclick="setTheme('clean')" data-theme="clean">
-          <div class="swatch-preview" style="background: #fafaf9; border: 1px solid #e7e5e4;">
-            <div class="swatch-dot" style="background: #2563eb; border-color: #1d4ed8;"></div>
-            <div class="swatch-dot" style="background: #eff6ff; border-color: #bfdbfe;"></div>
-            <div class="swatch-dot" style="background: #ffffff; border-color: #e7e5e4;"></div>
+        <div class="theme-swatch active" onclick="setTheme('line')" data-theme="line">
+          <div class="swatch-preview" style="background: #f5f2ec; border: 1px solid #d9d5cd; justify-content: flex-start; padding-left: 0; gap: 0;">
+            <div style="width: 5px; height: 100%; background: #2563eb; border-radius: 6px 0 0 6px; flex-shrink: 0;"></div>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <div class="swatch-dot" style="background: #2563eb; border-color: #1d4ed8;"></div>
+              <div class="swatch-dot" style="background: #ffffff; border-color: #e5e5e5;"></div>
+            </div>
           </div>
-          <div class="swatch-name">Clean</div>
+          <div class="swatch-name">Line</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('samsara')" data-theme="samsara">
           <div class="swatch-preview" style="background: #f0f4f8; border: 1px solid #d9e2ec;">
@@ -206,7 +269,7 @@
             <div class="swatch-dot" style="background: #e6f0ff; border-color: #b3d4ff;"></div>
             <div class="swatch-dot" style="background: #ffffff; border-color: #d9e2ec;"></div>
           </div>
-          <div class="swatch-name">Samsara</div>
+          <div class="swatch-name">Samsara Light</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('samsara-dark')" data-theme="samsara-dark">
           <div class="swatch-preview" style="background: #0f172a; border: 1px solid #1e293b;">
@@ -214,8 +277,49 @@
             <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
             <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
           </div>
-          <div class="swatch-name">Dark</div>
+          <div class="swatch-name">Samsara Dark</div>
         </div>
+        <div class="theme-swatch" onclick="setTheme('bold')" data-theme="bold">
+          <div class="swatch-preview" style="background: #faf6f1; border: 1px solid #e8dfd6;">
+            <div class="swatch-dot" style="background: #E53935; border-color: #c62828;"></div>
+            <div class="swatch-dot" style="background: #111111; border-color: #000;"></div>
+            <div class="swatch-dot" style="background: #ffffff; border-color: #e8dfd6;"></div>
+          </div>
+          <div class="swatch-name">Bold</div>
+        </div>
+        <div class="theme-swatch" onclick="setTheme('minimal')" data-theme="minimal">
+          <div class="swatch-preview" style="background: #ffffff; border: 1px solid #e0e0e0;">
+            <div class="swatch-dot" style="background: #111111; border-color: #000;"></div>
+            <div class="swatch-dot" style="background: #f5f5f5; border-color: #e0e0e0;"></div>
+            <div class="swatch-dot" style="background: #ffffff; border-color: #e0e0e0;"></div>
+          </div>
+          <div class="swatch-name">Minimal</div>
+        </div>
+        <div class="theme-swatch" onclick="setTheme('lisa-frank')" data-theme="lisa-frank">
+          <div class="swatch-preview" style="background: linear-gradient(135deg, #FF69B4 0%, #FFD700 20%, #00FF7F 40%, #00CFFF 60%, #BF00FF 80%, #FF69B4 100%); border: none;">
+            <div class="swatch-dot" style="background: #FF1493; border-color: #ff69b4;"></div>
+            <div class="swatch-dot" style="background: #39FF14; border-color: #00ff7f;"></div>
+            <div class="swatch-dot" style="background: #00CFFF; border-color: #00bfff;"></div>
+          </div>
+          <div class="swatch-name">Lisa Frank</div>
+        </div>
+      </div>
+      <div class="design-row">
+        <label>Accent</label>
+        <div class="accent-picker">
+          <input type="color" id="accentColor" value="#2563eb" oninput="setAccentColor(this.value)" onchange="setAccentColor(this.value)">
+          <span id="accentHex" class="accent-hex">#2563eb</span>
+        </div>
+      </div>
+      <div class="design-row">
+        <label>Font</label>
+        <select id="fontFamily" onchange="renderPreview()">
+          <option value="system">System Sans</option>
+          <option value="inter">Inter</option>
+          <option value="lora">Lora (Serif)</option>
+          <option value="mono">JetBrains Mono</option>
+          <option value="comic">Comic Neue</option>
+        </select>
       </div>
       <div class="design-row">
         <label>Corners</label>
@@ -225,6 +329,32 @@
           <option value="4px">Subtle</option>
           <option value="0px">Sharp</option>
           <option value="20px">Pill</option>
+        </select>
+      </div>
+      <div class="design-row">
+        <label>Padding</label>
+        <select id="formPadding" onchange="renderPreview()">
+          <option value="compact">Compact</option>
+          <option value="default" selected>Default</option>
+          <option value="spacious">Spacious</option>
+        </select>
+      </div>
+      <div class="design-row">
+        <label>Header align</label>
+        <select id="headerAlign" onchange="renderPreview()">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </div>
+      <div class="design-row">
+        <label>Number style</label>
+        <select id="numberStyle" onchange="renderPreview()">
+          <option value="filled">Filled circle</option>
+          <option value="outline">Outline circle</option>
+          <option value="square">Square</option>
+          <option value="bold">Bold number</option>
+          <option value="inline">Inline</option>
         </select>
       </div>
       <div class="design-row">
@@ -239,21 +369,30 @@
         <label>Success text</label>
         <input type="text" id="successText" value="Your input shapes what we build next." oninput="renderPreview()">
       </div>
-    </div>
-
-    <div class="include-name">
-      <input type="checkbox" id="includeName" checked onchange="renderPreview()">
-      <label for="includeName">Include a "Your name" field as question 1</label>
-    </div>
+    </details>
 
     <div id="questionList"></div>
 
     <button class="add-question-btn" onclick="addQuestion()">+ Add question</button>
 
-    <div class="bottom-bar">
-      <button class="btn btn-primary" onclick="renderPreview()">Preview</button>
-      <button class="btn btn-secondary" onclick="downloadFiles()">Download Files</button>
-    </div>
+    <footer class="editor-footer">
+      <svg class="vt-logo" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+        <rect x="1" y="1" width="2" height="2"/>
+        <rect x="2" y="3" width="2" height="2"/>
+        <rect x="3" y="5" width="2" height="2"/>
+        <rect x="4" y="7" width="2" height="2"/>
+        <rect x="7" y="1" width="2" height="2"/>
+        <rect x="6" y="3" width="2" height="2"/>
+        <rect x="5" y="5" width="2" height="2"/>
+        <rect x="10" y="1" width="2" height="2"/>
+        <rect x="12" y="1" width="2" height="2"/>
+        <rect x="14" y="1" width="1" height="2"/>
+        <rect x="12" y="3" width="2" height="2"/>
+        <rect x="12" y="5" width="2" height="2"/>
+        <rect x="12" y="7" width="2" height="2"/>
+      </svg>
+      <span class="vt-credit">built by van thurm</span>
+    </footer>
   </div>
 
   <div class="preview-pane" id="previewPane">
@@ -263,41 +402,111 @@
 
 <script>
 const themes = {
-  clean: {
-    surface: '#fafaf9', card: '#ffffff', text: '#1c1917', textSecondary: '#57534e',
+  line: {
+    surface: '#f5f2ec', card: '#ffffff', text: '#1c1917', textSecondary: '#57534e',
     textTertiary: '#a8a29e', accent: '#2563eb', accentLight: '#eff6ff',
-    accentBorder: '#bfdbfe', border: '#e7e5e4', borderFocus: '#2563eb',
+    accentBorder: '#bfdbfe', border: '#d9d5cd', borderFocus: '#2563eb',
     success: '#16a34a', successLight: '#f0fdf4', btnHover: '#1d4ed8',
-    btnShadow: 'rgba(37, 99, 235, 0.3)', focusRing: 'rgba(37, 99, 235, 0.1)'
+    btnShadow: 'rgba(37, 99, 235, 0.3)', focusRing: 'rgba(37, 99, 235, 0.1)',
+    suggestedFont: 'inter',
+    cardStyle: 'line'
   },
   samsara: {
     surface: '#f0f4f8', card: '#ffffff', text: '#0B1F3F', textSecondary: '#486581',
     textTertiary: '#9fb3c8', accent: '#0065FF', accentLight: '#e6f0ff',
     accentBorder: '#b3d4ff', border: '#d9e2ec', borderFocus: '#0065FF',
     success: '#27AB83', successLight: '#effcf6', btnHover: '#0050cc',
-    btnShadow: 'rgba(0, 101, 255, 0.3)', focusRing: 'rgba(0, 101, 255, 0.1)'
+    btnShadow: 'rgba(0, 101, 255, 0.3)', focusRing: 'rgba(0, 101, 255, 0.1)',
+    suggestedFont: 'system'
   },
   'samsara-dark': {
     surface: '#0f172a', card: '#1e293b', text: '#f1f5f9', textSecondary: '#94a3b8',
     textTertiary: '#64748b', accent: '#38bdf8', accentLight: '#0f2942',
     accentBorder: '#1e3a5f', border: '#334155', borderFocus: '#38bdf8',
     success: '#34d399', successLight: '#064e3b', btnHover: '#0ea5e9',
-    btnShadow: 'rgba(56, 189, 248, 0.3)', focusRing: 'rgba(56, 189, 248, 0.15)'
+    btnShadow: 'rgba(56, 189, 248, 0.3)', focusRing: 'rgba(56, 189, 248, 0.15)',
+    suggestedFont: 'system'
+  },
+  bold: {
+    surface: '#faf6f1', card: '#ffffff', text: '#111111', textSecondary: '#444444',
+    textTertiary: '#888888', accent: '#E53935', accentLight: 'rgba(229,57,53,0.06)',
+    accentBorder: 'rgba(229,57,53,0.18)', border: '#e8dfd6', borderFocus: '#E53935',
+    success: '#2e7d32', successLight: '#f0fdf4', btnHover: '#c62828',
+    btnShadow: 'rgba(229, 57, 53, 0.3)', focusRing: 'rgba(229, 57, 53, 0.12)',
+    suggestedFont: 'lora',
+    dramaticHeadline: true
+  },
+  minimal: {
+    surface: '#ffffff', card: '#ffffff', text: '#111111', textSecondary: '#555555',
+    textTertiary: '#999999', accent: '#111111', accentLight: 'rgba(17,17,17,0.05)',
+    accentBorder: 'rgba(17,17,17,0.15)', border: '#e0e0e0', borderFocus: '#111111',
+    success: '#16a34a', successLight: '#f0fdf4', btnHover: '#333333',
+    btnShadow: 'rgba(17, 17, 17, 0.2)', focusRing: 'rgba(17, 17, 17, 0.08)',
+    suggestedFont: 'system',
+    suggestedNumberStyle: 'inline'
+  },
+  'lisa-frank': {
+    surface: 'linear-gradient(135deg, #FF69B4 0%, #FFD700 20%, #00FF7F 40%, #00CFFF 60%, #BF00FF 80%, #FF69B4 100%)',
+    card: '#fff5fb', text: '#2d0a3e', textSecondary: '#5a1a6e',
+    textTertiary: '#9b59b6', accent: '#FF1493', accentLight: 'rgba(255,20,147,0.1)',
+    accentBorder: '#FF69B4', border: '#FF69B4', borderFocus: '#FF1493',
+    success: '#39FF14', successLight: 'rgba(57,255,20,0.15)', btnHover: '#e0007a',
+    btnShadow: 'rgba(255,20,147,0.4)', focusRing: 'rgba(255,20,147,0.2)',
+    suggestedFont: 'comic'
   }
 };
 
-let currentTheme = 'clean';
+const fontMap = {
+  system: { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif", googleFont: null },
+  inter: { family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", googleFont: 'Inter:wght@400;500;600;700' },
+  lora: { family: "'Lora', Georgia, 'Times New Roman', serif", googleFont: 'Lora:ital,wght@0,400;0,500;0,600;0,700;1,400' },
+  mono: { family: "'JetBrains Mono', 'SF Mono', 'Menlo', monospace", googleFont: 'JetBrains+Mono:wght@400;500;600;700' },
+  comic: { family: "'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive", googleFont: 'Comic+Neue:ital,wght@0,300;0,400;0,700;1,400' }
+};
+
+const paddingMap = {
+  compact: { section: '20px 24px', body: '16px 12px 60px', gap: '12px' },
+  default: { section: '32px', body: '24px 16px 80px', gap: '20px' },
+  spacious: { section: '40px 44px', body: '32px 24px 100px', gap: '24px' }
+};
+
+let currentTheme = 'line';
+let customAccent = null;
+
+function hexToRgb(hex) {
+  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+}
+
+function setAccentColor(hex) {
+  customAccent = hex;
+  document.getElementById('accentHex').textContent = hex;
+  renderPreview();
+}
 
 function setTheme(name) {
   currentTheme = name;
-  document.querySelectorAll('.theme-swatch').forEach(s => s.classList.toggle('active', s.dataset.theme === name));
+  customAccent = null;
+  var themeAccent = themes[name].accent;
+  var picker = document.getElementById('accentColor');
+  if (themeAccent.startsWith('#') && themeAccent.length === 7) {
+    picker.value = themeAccent;
+  } else {
+    picker.value = '#2563eb';
+  }
+  document.getElementById('accentHex').textContent = picker.value;
+  var suggestedFont = themes[name].suggestedFont || 'system';
+  document.getElementById('fontFamily').value = suggestedFont;
+  var suggestedNumberStyle = themes[name].suggestedNumberStyle || 'filled';
+  document.getElementById('numberStyle').value = suggestedNumberStyle;
+  document.querySelectorAll('.theme-swatch').forEach(function(s) { s.classList.toggle('active', s.dataset.theme === name); });
   renderPreview();
 }
 
 function showTab(tab) {
-  const editor = document.getElementById('editor');
-  const preview = document.getElementById('previewPane');
-  const buttons = document.querySelectorAll('#mobileTabs button');
+  var editor = document.getElementById('editor');
+  var preview = document.getElementById('previewPane');
+  var buttons = document.querySelectorAll('#mobileTabs button');
   if (tab === 'edit') {
     editor.classList.remove('hidden');
     preview.classList.add('hidden');
@@ -357,92 +566,91 @@ function slugify(str) {
 }
 
 function renderEditor() {
-  const list = document.getElementById('questionList');
+  var list = document.getElementById('questionList');
   list.innerHTML = '';
-  questions.forEach((q, idx) => {
-    const num = document.getElementById('includeName').checked ? idx + 2 : idx + 1;
-    const card = document.createElement('div');
+  questions.forEach(function(q, idx) {
+    var num = idx + 1;
+    var card = document.createElement('div');
     card.className = 'question-card';
     card.dataset.idx = idx;
 
-    let optionsHtml = '';
+    var optionsHtml = '';
     if (q.type === 'radio' || q.type === 'checkbox') {
-      optionsHtml = `<div class="options-list">
-        ${(q.options || []).map((o, oi) => `
-          <div class="option-row">
-            <input type="text" value="${esc(o.label)}" placeholder="Option label" onchange="updateOption(${idx},${oi},'label',this.value)">
-            <input type="text" class="sub-input" value="${esc(o.sub || '')}" placeholder="Subtitle (optional)" onchange="updateOption(${idx},${oi},'sub',this.value)">
-            <button onclick="removeOption(${idx},${oi})">&times;</button>
-          </div>
-        `).join('')}
-        <button class="add-option-btn" onclick="addOption(${idx})">+ Add option</button>
-        ${q.type === 'checkbox' ? `
-          <div class="q-row" style="margin-top:8px">
-            <label>Max select</label>
-            <input type="number" value="${q.maxSelect || 3}" min="1" max="20" onchange="questions[${idx}].maxSelect=+this.value;renderPreview()">
-          </div>
-          <div class="checkbox-row">
-            <input type="checkbox" ${q.includeOther ? 'checked' : ''} onchange="questions[${idx}].includeOther=this.checked;renderPreview()">
-            <label>Include "Something else" option with text field</label>
-          </div>
-        ` : ''}
-      </div>`;
+      optionsHtml = '<div class="options-list">' +
+        (q.options || []).map(function(o, oi) {
+          return '<div class="option-row">' +
+            '<input type="text" value="' + esc(o.label) + '" placeholder="Option label" onchange="updateOption(' + idx + ',' + oi + ',\'label\',this.value)">' +
+            '<input type="text" class="sub-input" value="' + esc(o.sub || '') + '" placeholder="Subtitle (optional)" onchange="updateOption(' + idx + ',' + oi + ',\'sub\',this.value)">' +
+            '<button onclick="removeOption(' + idx + ',' + oi + ')">&times;</button>' +
+          '</div>';
+        }).join('') +
+        '<button class="add-option-btn" onclick="addOption(' + idx + ')">+ Add option</button>' +
+        (q.type === 'checkbox' ? (
+          '<div class="q-row" style="margin-top:8px">' +
+            '<label>Max select</label>' +
+            '<input type="number" value="' + (q.maxSelect || 3) + '" min="1" max="20" onchange="questions[' + idx + '].maxSelect=+this.value;renderPreview()">' +
+          '</div>' +
+          '<div class="checkbox-row">' +
+            '<input type="checkbox" ' + (q.includeOther ? 'checked' : '') + ' onchange="questions[' + idx + '].includeOther=this.checked;renderPreview()">' +
+            '<label>Include "Something else" option with text field</label>' +
+          '</div>'
+        ) : '') +
+      '</div>';
     }
 
     if (q.type === 'matrix') {
-      const levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
-      optionsHtml = `<div class="options-list">
-        <div class="q-row"><label>Levels</label>
-          <input type="text" style="flex:1" value="${esc(levels.join(', '))}" onchange="questions[${idx}].levels=this.value.split(',').map(s=>s.trim()).filter(Boolean);renderPreview()" placeholder="Comma-separated level names">
-        </div>
-        ${(q.matrixRows || []).map((r, ri) => `
-          <div class="option-row">
-            <input type="text" value="${esc(r.label)}" placeholder="Row label" onchange="updateMatrixRow(${idx},${ri},'label',this.value)">
-            <input type="text" class="sub-input" value="${esc(r.sub || '')}" placeholder="Subtitle" onchange="updateMatrixRow(${idx},${ri},'sub',this.value)">
-            <button onclick="removeMatrixRow(${idx},${ri})">&times;</button>
-          </div>
-        `).join('')}
-        <button class="add-option-btn" onclick="addMatrixRow(${idx})">+ Add row</button>
-      </div>`;
+      var levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
+      optionsHtml = '<div class="options-list">' +
+        '<div class="q-row"><label>Levels</label>' +
+          '<input type="text" style="flex:1" value="' + esc(levels.join(', ')) + '" onchange="questions[' + idx + '].levels=this.value.split(\',\').map(function(s){return s.trim()}).filter(Boolean);renderPreview()" placeholder="Comma-separated level names">' +
+        '</div>' +
+        (q.matrixRows || []).map(function(r, ri) {
+          return '<div class="option-row">' +
+            '<input type="text" value="' + esc(r.label) + '" placeholder="Row label" onchange="updateMatrixRow(' + idx + ',' + ri + ',\'label\',this.value)">' +
+            '<input type="text" class="sub-input" value="' + esc(r.sub || '') + '" placeholder="Subtitle" onchange="updateMatrixRow(' + idx + ',' + ri + ',\'sub\',this.value)">' +
+            '<button onclick="removeMatrixRow(' + idx + ',' + ri + ')">&times;</button>' +
+          '</div>';
+        }).join('') +
+        '<button class="add-option-btn" onclick="addMatrixRow(' + idx + ')">+ Add row</button>' +
+      '</div>';
     }
 
     if (q.type === 'text' || q.type === 'textarea') {
-      optionsHtml = `<div class="q-row">
-        <label>Placeholder</label>
-        <input type="text" style="flex:1" value="${esc(q.placeholder || '')}" onchange="questions[${idx}].placeholder=this.value;renderPreview()">
-      </div>`;
+      optionsHtml = '<div class="q-row">' +
+        '<label>Placeholder</label>' +
+        '<input type="text" style="flex:1" value="' + esc(q.placeholder || '') + '" onchange="questions[' + idx + '].placeholder=this.value;renderPreview()">' +
+      '</div>';
     }
 
-    card.innerHTML = `
-      <div class="q-header">
-        <div class="q-num">${num}</div>
-        <input class="q-title-input" value="${esc(q.title)}" onchange="questions[${idx}].title=this.value;renderPreview()">
-        <div class="q-actions">
-          <button onclick="moveQuestion(${idx},-1)" title="Move up">&uarr;</button>
-          <button onclick="moveQuestion(${idx},1)" title="Move down">&darr;</button>
-          <button onclick="removeQuestion(${idx})" title="Delete">&times;</button>
-        </div>
-      </div>
-      <div class="q-row">
-        <label>Type</label>
-        <select onchange="questions[${idx}].type=this.value;if(this.value==='radio'||this.value==='checkbox'){questions[${idx}].options=questions[${idx}].options||[];}if(this.value==='matrix'){questions[${idx}].levels=questions[${idx}].levels||['Not yet','Exploring','Capable','Confident'];questions[${idx}].matrixRows=questions[${idx}].matrixRows||[];}renderEditor();renderPreview()">
-          <option value="radio" ${q.type==='radio'?'selected':''}>Single select</option>
-          <option value="checkbox" ${q.type==='checkbox'?'selected':''}>Multi-select</option>
-          <option value="matrix" ${q.type==='matrix'?'selected':''}>Matrix (segmented)</option>
-          <option value="text" ${q.type==='text'?'selected':''}>Short text</option>
-          <option value="textarea" ${q.type==='textarea'?'selected':''}>Long text</option>
-        </select>
-        <div class="checkbox-row">
-          <input type="checkbox" ${q.required ? 'checked' : ''} onchange="questions[${idx}].required=this.checked;renderPreview()">
-          <label>Required</label>
-        </div>
-      </div>
-      <div class="q-row">
-        <label>Hint</label>
-        <input class="q-hint-input" value="${esc(q.hint || '')}" onchange="questions[${idx}].hint=this.value;renderPreview()">
-      </div>
-      ${optionsHtml}
-    `;
+    card.innerHTML =
+      '<div class="q-header">' +
+        '<div class="q-num">' + num + '</div>' +
+        '<input class="q-title-input" value="' + esc(q.title) + '" onchange="questions[' + idx + '].title=this.value;renderPreview()">' +
+        '<div class="q-actions">' +
+          '<button onclick="moveQuestion(' + idx + ',-1)" title="Move up">&uarr;</button>' +
+          '<button onclick="moveQuestion(' + idx + ',1)" title="Move down">&darr;</button>' +
+          '<button onclick="removeQuestion(' + idx + ')" title="Delete">&times;</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="q-row">' +
+        '<label>Type</label>' +
+        '<select onchange="questions[' + idx + '].type=this.value;if(this.value===\'radio\'||this.value===\'checkbox\'){questions[' + idx + '].options=questions[' + idx + '].options||[];}if(this.value===\'matrix\'){questions[' + idx + '].levels=questions[' + idx + '].levels||[\'Not yet\',\'Exploring\',\'Capable\',\'Confident\'];questions[' + idx + '].matrixRows=questions[' + idx + '].matrixRows||[];}renderEditor();renderPreview()">' +
+          '<option value="radio" ' + (q.type==='radio'?'selected':'') + '>Single select</option>' +
+          '<option value="checkbox" ' + (q.type==='checkbox'?'selected':'') + '>Multi-select</option>' +
+          '<option value="matrix" ' + (q.type==='matrix'?'selected':'') + '>Matrix (segmented)</option>' +
+          '<option value="text" ' + (q.type==='text'?'selected':'') + '>Short text</option>' +
+          '<option value="textarea" ' + (q.type==='textarea'?'selected':'') + '>Long text</option>' +
+        '</select>' +
+        '<div class="checkbox-row">' +
+          '<input type="checkbox" ' + (q.required ? 'checked' : '') + ' onchange="questions[' + idx + '].required=this.checked;renderPreview()">' +
+          '<label>Required</label>' +
+        '</div>' +
+      '</div>' +
+      '<div class="q-row">' +
+        '<label>Hint</label>' +
+        '<input class="q-hint-input" value="' + esc(q.hint || '') + '" onchange="questions[' + idx + '].hint=this.value;renderPreview()">' +
+      '</div>' +
+      optionsHtml;
     list.appendChild(card);
   });
 }
@@ -463,15 +671,17 @@ function removeQuestion(idx) {
 }
 
 function moveQuestion(idx, dir) {
-  const newIdx = idx + dir;
+  var newIdx = idx + dir;
   if (newIdx < 0 || newIdx >= questions.length) return;
-  [questions[idx], questions[newIdx]] = [questions[newIdx], questions[idx]];
+  var temp = questions[idx];
+  questions[idx] = questions[newIdx];
+  questions[newIdx] = temp;
   renderEditor(); renderPreview();
 }
 
 function addOption(qIdx) {
   if (!questions[qIdx].options) questions[qIdx].options = [];
-  const n = questions[qIdx].options.length + 1;
+  var n = questions[qIdx].options.length + 1;
   questions[qIdx].options.push({ label: 'Option ' + n, sub: '', value: 'option_' + n });
   renderEditor(); renderPreview();
 }
@@ -489,7 +699,7 @@ function updateOption(qIdx, oIdx, field, value) {
 
 function addMatrixRow(qIdx) {
   if (!questions[qIdx].matrixRows) questions[qIdx].matrixRows = [];
-  const n = questions[qIdx].matrixRows.length + 1;
+  var n = questions[qIdx].matrixRows.length + 1;
   questions[qIdx].matrixRows.push({ label: 'Activity ' + n, sub: '', value: 'activity_' + n });
   renderEditor(); renderPreview();
 }
@@ -506,386 +716,401 @@ function updateMatrixRow(qIdx, rIdx, field, value) {
 }
 
 function generateFormHtml() {
-  const title = document.getElementById('formTitle').value;
-  const label = document.getElementById('formLabel').value;
-  const intro = document.getElementById('formIntro').value;
-  const callout = document.getElementById('formCallout').value;
-  const includeName = document.getElementById('includeName').checked;
+  var title = document.getElementById('formTitle').value;
+  var label = document.getElementById('formLabel').value;
+  var intro = document.getElementById('formIntro').value;
+  var callout = document.getElementById('formCallout').value;
 
-  let qNum = includeName ? 2 : 1;
-  let sectionsHtml = '';
-  let jsHandlers = '';
-  let dataFields = '';
-  let validationJs = '';
-  let sheetColumns = ['data.submitted_at'];
+  var fontConfig = fontMap[document.getElementById('fontFamily').value] || fontMap.system;
+  var padConfig = paddingMap[document.getElementById('formPadding').value] || paddingMap['default'];
 
-  if (includeName) {
-    sectionsHtml += `
-    <div class="section">
-      <div class="section-number">1</div>
-      <h2>Your name</h2>
-      <p class="hint">So we know who to follow up with.</p>
-      <input type="text" name="respondent_name" placeholder="First and last name" required>
-    </div>`;
-    dataFields += `      name: document.querySelector('input[name="respondent_name"]').value.trim(),\n`;
-    validationJs += `
-    var nameInput = document.querySelector('input[name="respondent_name"]');
-    if (!nameInput.value.trim()) { nameInput.scrollIntoView({behavior:'smooth',block:'center'}); nameInput.focus(); return; }\n`;
-    sheetColumns.push('data.name');
+  var baseTheme = themes[currentTheme];
+  var accent = customAccent || baseTheme.accent;
+  var rgb = hexToRgb(accent);
+  var isDark = (currentTheme === 'samsara-dark');
+
+  var t = {};
+  for (var k in baseTheme) t[k] = baseTheme[k];
+
+  if (customAccent && rgb) {
+    var aL = isDark ? 0.15 : 0.08;
+    var aB = isDark ? 0.35 : 0.2;
+    var aF = isDark ? 0.2 : 0.12;
+    t.accent = accent;
+    t.accentLight = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + aL + ')';
+    t.accentBorder = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + aB + ')';
+    t.borderFocus = accent;
+    t.btnHover = 'rgb(' + Math.max(0,rgb.r-30) + ',' + Math.max(0,rgb.g-30) + ',' + Math.max(0,rgb.b-30) + ')';
+    t.btnShadow = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.3)';
+    t.focusRing = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + aF + ')';
   }
 
-  questions.forEach((q, idx) => {
-    const num = qNum++;
-    const fieldName = slugify(q.title) || ('field_' + idx);
-    const optionalBadge = q.required ? '' : ' <span class="optional-badge">Optional</span>';
+  var cardStyle = t.cardStyle || 'card';
+  var numberStyle = document.getElementById('numberStyle').value || 'filled';
+  var headerAlign = document.getElementById('headerAlign').value || 'left';
+  var sectionBorder = cardStyle === 'line' ? 'border: none; border-radius: 0; box-shadow: 0 1px 4px rgba(0,0,0,0.06);' : 'border: 1px solid var(--border); border-radius: var(--radius);';
+  var numberCss;
+  if (numberStyle === 'outline') {
+    numberCss = 'display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: transparent; border: 2px solid var(--accent); color: var(--accent); font-size: 13px; font-weight: 700; margin-bottom: 12px;';
+  } else if (numberStyle === 'square') {
+    numberCss = 'display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 4px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; margin-bottom: 12px;';
+  } else if (numberStyle === 'bold') {
+    numberCss = 'font-size: 20px; font-weight: 800; color: var(--accent); margin-bottom: 12px;';
+  } else if (numberStyle === 'inline') {
+    numberCss = 'display: inline; font-size: 16px; font-weight: 700; color: var(--text-tertiary); margin-right: 6px; vertical-align: baseline;';
+  } else {
+    numberCss = 'display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 13px; font-weight: 700; margin-bottom: 12px;';
+  }
+
+  var fontLink = '';
+  if (fontConfig.googleFont) {
+    fontLink = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=' + fontConfig.googleFont + '&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'">';
+  }
+
+  var qNum = 1;
+  var sectionsHtml = '';
+  var jsHandlers = '';
+  var dataFields = '';
+  var validationJs = '';
+  var sheetColumns = ['data.submitted_at'];
+
+  questions.forEach(function(q, idx) {
+    var num = qNum++;
+    var fieldName = slugify(q.title) || ('field_' + idx);
+    var optionalBadge = q.required ? '' : ' <span class="optional-badge">Optional</span>';
 
     if (q.type === 'radio') {
-      let optHtml = (q.options || []).map(o => `
-        <label class="option" data-group="${fieldName}">
-          <input type="radio" name="${fieldName}" value="${escJs(o.value)}">
-          <span class="indicator"></span>
-          <div>
-            <div class="option-text">${esc(o.label)}</div>
-            ${o.sub ? `<div class="option-sub">${esc(o.sub)}</div>` : ''}
-          </div>
-        </label>`).join('');
-
-      sectionsHtml += `
-    <div class="section">
-      <div class="section-number">${num}</div>
-      <h2>${esc(q.title)}${optionalBadge}</h2>
-      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
-      <div class="option-grid">${optHtml}
-      </div>
-    </div>`;
-
-      jsHandlers += `
-  document.querySelectorAll('.option[data-group="${fieldName}"]').forEach(function(option) {
-    option.addEventListener('click', function(e) {
-      e.preventDefault(); e.stopPropagation();
-      document.querySelectorAll('.option[data-group="${fieldName}"]').forEach(function(o){o.classList.remove('selected')});
-      option.classList.add('selected');
-      option.querySelector('input').checked = true;
-    });
-  });\n`;
-
-      dataFields += `      ${fieldName}: (document.querySelector('input[name="${fieldName}"]:checked')||{value:''}).value,\n`;
-      if (q.required) {
-        validationJs += `
-    if (!document.querySelector('input[name="${fieldName}"]:checked')) {
-      document.querySelector('[data-group="${fieldName}"]').closest('.section').scrollIntoView({behavior:'smooth',block:'center'}); return;
-    }\n`;
-      }
-      sheetColumns.push(`data.${fieldName}`);
-
-    } else if (q.type === 'checkbox') {
-      const max = q.maxSelect || 3;
-      let optHtml = (q.options || []).map(o => `
-        <label class="option" data-group="${fieldName}">
-          <input type="checkbox" name="${fieldName}" value="${escJs(o.value)}">
-          <span class="indicator checkbox"></span>
-          <div>
-            <div class="option-text">${esc(o.label)}</div>
-            ${o.sub ? `<div class="option-sub">${esc(o.sub)}</div>` : ''}
-          </div>
-        </label>`).join('');
-
-      if (q.includeOther) {
-        optHtml += `
-        <label class="option" data-group="${fieldName}">
-          <input type="checkbox" name="${fieldName}" value="other">
-          <span class="indicator checkbox"></span>
-          <div><div class="option-text">Something else</div></div>
-        </label>`;
-      }
-
-      sectionsHtml += `
-    <div class="section">
-      <div class="section-number">${num}</div>
-      <h2>${esc(q.title)}${optionalBadge}</h2>
-      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
-      <div class="option-grid">${optHtml}
-      </div>
-      <div class="counter" id="${fieldName}-counter"><span class="count">0</span>/${max} selected</div>
-      ${q.includeOther ? `<div class="other-input" id="${fieldName}-other"><input type="text" name="${fieldName}_other" placeholder="What else?"></div>` : ''}
-    </div>`;
-
-      jsHandlers += `
-  (function(){
-    var max = ${max};
-    var counter = document.getElementById('${fieldName}-counter');
-    ${q.includeOther ? `var otherBox = document.getElementById('${fieldName}-other');` : ''}
-    function counted() { return document.querySelectorAll('.option[data-group="${fieldName}"].selected').length; }
-    document.querySelectorAll('.option[data-group="${fieldName}"]').forEach(function(option) {
-      option.addEventListener('click', function(e) {
-        e.preventDefault(); e.stopPropagation();
-        var input = option.querySelector('input');
-        var isSelected = option.classList.contains('selected');
-        if (!isSelected && counted() >= max) { counter.style.color='#dc2626'; setTimeout(function(){counter.style.color=''},600); return; }
-        option.classList.toggle('selected');
-        input.checked = !isSelected;
-        var c = counted();
-        counter.querySelector('.count').textContent = c;
-        counter.classList.toggle('at-max', c === max);
-        ${q.includeOther ? `if (input.value==='other') otherBox.classList.toggle('visible',!isSelected);` : ''}
-      });
-    });
-  })();\n`;
-
-      dataFields += `      ${fieldName}: Array.from(document.querySelectorAll('input[name="${fieldName}"]:checked')).map(function(i){return i.value}),\n`;
-      if (q.includeOther) dataFields += `      ${fieldName}_other: (document.querySelector('input[name="${fieldName}_other"]')||{value:''}).value,\n`;
-
-      if (q.required) {
-        validationJs += `
-    if (document.querySelectorAll('input[name="${fieldName}"]:checked').length===0) {
-      document.querySelector('[data-group="${fieldName}"]').closest('.section').scrollIntoView({behavior:'smooth',block:'center'}); return;
-    }\n`;
-      }
-      sheetColumns.push(`data.${fieldName}.join(', ')`);
-      if (q.includeOther) sheetColumns.push(`data.${fieldName}_other`);
-
-    } else if (q.type === 'matrix') {
-      const levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
-      const rows = q.matrixRows || [];
-      let rowsHtml = rows.map(r => {
-        const rv = slugify(r.label) || r.value;
-        return `
-        <div class="matrix-row" data-activity="${rv}">
-          <div class="matrix-label">
-            <div class="label-text">${esc(r.label)}</div>
-            ${r.sub ? `<div class="label-sub">${esc(r.sub)}</div>` : ''}
-          </div>
-          <div class="seg-control">
-            ${levels.map(lv => `<button type="button" class="seg-option" data-value="${slugify(lv)}">${esc(lv)}</button>`).join('\n            ')}
-          </div>
-        </div>`;
+      var optHtml = (q.options || []).map(function(o) {
+        return '\n        <label class="option" data-group="' + fieldName + '">' +
+          '\n          <input type="radio" name="' + fieldName + '" value="' + escJs(o.value) + '">' +
+          '\n          <span class="indicator"></span>' +
+          '\n          <div>' +
+          '\n            <div class="option-text">' + esc(o.label) + '</div>' +
+          (o.sub ? '\n            <div class="option-sub">' + esc(o.sub) + '</div>' : '') +
+          '\n          </div>' +
+          '\n        </label>';
       }).join('');
 
-      sectionsHtml += `
-    <div class="section">
-      <div class="section-number">${num}</div>
-      <h2>${esc(q.title)}${optionalBadge}</h2>
-      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
-      <div class="proficiency-matrix" id="${fieldName}-matrix">${rowsHtml}
-      </div>
-    </div>`;
+      sectionsHtml += '\n    <div class="section">' +
+        '\n      <div class="section-number">' + num + '</div>' +
+        '\n      <h2>' + esc(q.title) + optionalBadge + '</h2>' +
+        (q.hint ? '\n      <p class="hint">' + esc(q.hint) + '</p>' : '') +
+        '\n      <div class="option-grid">' + optHtml + '\n      </div>' +
+        '\n    </div>';
 
-      jsHandlers += `
-  document.querySelectorAll('#${fieldName}-matrix .seg-option').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var control = btn.closest('.seg-control');
-      control.querySelectorAll('.seg-option').forEach(function(b){b.classList.remove('active')});
-      btn.classList.add('active');
-      btn.closest('.matrix-row').classList.add('has-selection');
-    });
-  });\n`;
+      jsHandlers += '\n  document.querySelectorAll(\'.option[data-group="' + fieldName + '"]\').forEach(function(option) {' +
+        '\n    option.addEventListener(\'click\', function(e) {' +
+        '\n      e.preventDefault(); e.stopPropagation();' +
+        '\n      document.querySelectorAll(\'.option[data-group="' + fieldName + '"]\').forEach(function(o){o.classList.remove(\'selected\')});' +
+        '\n      option.classList.add(\'selected\');' +
+        '\n      option.querySelector(\'input\').checked = true;' +
+        '\n    });' +
+        '\n  });\n';
 
-      rows.forEach(r => {
-        const rv = slugify(r.label) || r.value;
-        const colName = fieldName + '_' + rv;
-        dataFields += `      ${colName}: (function(){ var a = document.querySelector('#${fieldName}-matrix [data-activity="${rv}"] .seg-option.active'); return a ? a.dataset.value : ''; })(),\n`;
-        sheetColumns.push(`data.${colName}`);
+      dataFields += '      ' + fieldName + ': (document.querySelector(\'input[name="' + fieldName + '"]:checked\')||{value:\'\'}).value,\n';
+      if (q.required) {
+        validationJs += '\n    if (!document.querySelector(\'input[name="' + fieldName + '"]:checked\')) {' +
+          '\n      document.querySelector(\'[data-group="' + fieldName + '"]\').closest(\'.section\').scrollIntoView({behavior:\'smooth\',block:\'center\'}); return;' +
+          '\n    }\n';
+      }
+      sheetColumns.push('data.' + fieldName);
+
+    } else if (q.type === 'checkbox') {
+      var max = q.maxSelect || 3;
+      var cbOptHtml = (q.options || []).map(function(o) {
+        return '\n        <label class="option" data-group="' + fieldName + '">' +
+          '\n          <input type="checkbox" name="' + fieldName + '" value="' + escJs(o.value) + '">' +
+          '\n          <span class="indicator checkbox"></span>' +
+          '\n          <div>' +
+          '\n            <div class="option-text">' + esc(o.label) + '</div>' +
+          (o.sub ? '\n            <div class="option-sub">' + esc(o.sub) + '</div>' : '') +
+          '\n          </div>' +
+          '\n        </label>';
+      }).join('');
+
+      if (q.includeOther) {
+        cbOptHtml += '\n        <label class="option" data-group="' + fieldName + '">' +
+          '\n          <input type="checkbox" name="' + fieldName + '" value="other">' +
+          '\n          <span class="indicator checkbox"></span>' +
+          '\n          <div><div class="option-text">Something else</div></div>' +
+          '\n        </label>';
+      }
+
+      sectionsHtml += '\n    <div class="section">' +
+        '\n      <div class="section-number">' + num + '</div>' +
+        '\n      <h2>' + esc(q.title) + optionalBadge + '</h2>' +
+        (q.hint ? '\n      <p class="hint">' + esc(q.hint) + '</p>' : '') +
+        '\n      <div class="option-grid">' + cbOptHtml + '\n      </div>' +
+        '\n      <div class="counter" id="' + fieldName + '-counter"><span class="count">0</span>/' + max + ' selected</div>' +
+        (q.includeOther ? '\n      <div class="other-input" id="' + fieldName + '-other"><input type="text" name="' + fieldName + '_other" placeholder="What else?"></div>' : '') +
+        '\n    </div>';
+
+      jsHandlers += '\n  (function(){' +
+        '\n    var max = ' + max + ';' +
+        '\n    var counter = document.getElementById(\'' + fieldName + '-counter\');' +
+        (q.includeOther ? '\n    var otherBox = document.getElementById(\'' + fieldName + '-other\');' : '') +
+        '\n    function counted() { return document.querySelectorAll(\'.option[data-group="' + fieldName + '"].selected\').length; }' +
+        '\n    document.querySelectorAll(\'.option[data-group="' + fieldName + '"]\').forEach(function(option) {' +
+        '\n      option.addEventListener(\'click\', function(e) {' +
+        '\n        e.preventDefault(); e.stopPropagation();' +
+        '\n        var input = option.querySelector(\'input\');' +
+        '\n        var isSelected = option.classList.contains(\'selected\');' +
+        '\n        if (!isSelected && counted() >= max) { counter.style.color=\'#dc2626\'; setTimeout(function(){counter.style.color=\'\'},600); return; }' +
+        '\n        option.classList.toggle(\'selected\');' +
+        '\n        input.checked = !isSelected;' +
+        '\n        var c = counted();' +
+        '\n        counter.querySelector(\'.count\').textContent = c;' +
+        '\n        counter.classList.toggle(\'at-max\', c === max);' +
+        (q.includeOther ? '\n        if (input.value===\'other\') otherBox.classList.toggle(\'visible\',!isSelected);' : '') +
+        '\n      });' +
+        '\n    });' +
+        '\n  })();\n';
+
+      dataFields += '      ' + fieldName + ': Array.from(document.querySelectorAll(\'input[name="' + fieldName + '"]:checked\')).map(function(i){return i.value}),\n';
+      if (q.includeOther) dataFields += '      ' + fieldName + '_other: (document.querySelector(\'input[name="' + fieldName + '_other"]\')||{value:\'\'}).value,\n';
+
+      if (q.required) {
+        validationJs += '\n    if (document.querySelectorAll(\'input[name="' + fieldName + '"]:checked\').length===0) {' +
+          '\n      document.querySelector(\'[data-group="' + fieldName + '"]\').closest(\'.section\').scrollIntoView({behavior:\'smooth\',block:\'center\'}); return;' +
+          '\n    }\n';
+      }
+      sheetColumns.push('data.' + fieldName + '.join(\', \')');
+      if (q.includeOther) sheetColumns.push('data.' + fieldName + '_other');
+
+    } else if (q.type === 'matrix') {
+      var levels = q.levels || ['Not yet', 'Exploring', 'Capable', 'Confident'];
+      var rows = q.matrixRows || [];
+      var rowsHtml = rows.map(function(r) {
+        var rv = slugify(r.label) || r.value;
+        return '\n        <div class="matrix-row" data-activity="' + rv + '">' +
+          '\n          <div class="matrix-label">' +
+          '\n            <div class="label-text">' + esc(r.label) + '</div>' +
+          (r.sub ? '\n            <div class="label-sub">' + esc(r.sub) + '</div>' : '') +
+          '\n          </div>' +
+          '\n          <div class="seg-control">' +
+          '\n            ' + levels.map(function(lv) { return '<button type="button" class="seg-option" data-value="' + slugify(lv) + '">' + esc(lv) + '</button>'; }).join('\n            ') +
+          '\n          </div>' +
+          '\n        </div>';
+      }).join('');
+
+      sectionsHtml += '\n    <div class="section">' +
+        '\n      <div class="section-number">' + num + '</div>' +
+        '\n      <h2>' + esc(q.title) + optionalBadge + '</h2>' +
+        (q.hint ? '\n      <p class="hint">' + esc(q.hint) + '</p>' : '') +
+        '\n      <div class="proficiency-matrix" id="' + fieldName + '-matrix">' + rowsHtml + '\n      </div>' +
+        '\n    </div>';
+
+      jsHandlers += '\n  document.querySelectorAll(\'#' + fieldName + '-matrix .seg-option\').forEach(function(btn) {' +
+        '\n    btn.addEventListener(\'click\', function() {' +
+        '\n      var control = btn.closest(\'.seg-control\');' +
+        '\n      control.querySelectorAll(\'.seg-option\').forEach(function(b){b.classList.remove(\'active\')});' +
+        '\n      btn.classList.add(\'active\');' +
+        '\n      btn.closest(\'.matrix-row\').classList.add(\'has-selection\');' +
+        '\n    });' +
+        '\n  });\n';
+
+      rows.forEach(function(r) {
+        var rv = slugify(r.label) || r.value;
+        var colName = fieldName + '_' + rv;
+        dataFields += '      ' + colName + ': (function(){ var a = document.querySelector(\'#' + fieldName + '-matrix [data-activity="' + rv + '"] .seg-option.active\'); return a ? a.dataset.value : \'\'; })(),\n';
+        sheetColumns.push('data.' + colName);
       });
 
     } else if (q.type === 'text') {
-      sectionsHtml += `
-    <div class="section">
-      <div class="section-number">${num}</div>
-      <h2>${esc(q.title)}${optionalBadge}</h2>
-      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
-      <input type="text" name="${fieldName}" placeholder="${escJs(q.placeholder || '')}">
-    </div>`;
-      dataFields += `      ${fieldName}: document.querySelector('input[name="${fieldName}"]').value,\n`;
-      sheetColumns.push(`data.${fieldName}`);
+      sectionsHtml += '\n    <div class="section">' +
+        '\n      <div class="section-number">' + num + '</div>' +
+        '\n      <h2>' + esc(q.title) + optionalBadge + '</h2>' +
+        (q.hint ? '\n      <p class="hint">' + esc(q.hint) + '</p>' : '') +
+        '\n      <input type="text" name="' + fieldName + '" placeholder="' + escJs(q.placeholder || '') + '">' +
+        '\n    </div>';
+      dataFields += '      ' + fieldName + ': document.querySelector(\'input[name="' + fieldName + '"]\').value,\n';
+      sheetColumns.push('data.' + fieldName);
 
     } else if (q.type === 'textarea') {
-      sectionsHtml += `
-    <div class="section">
-      <div class="section-number">${num}</div>
-      <h2>${esc(q.title)}${optionalBadge}</h2>
-      ${q.hint ? `<p class="hint">${esc(q.hint)}</p>` : ''}
-      <textarea name="${fieldName}" placeholder="${escJs(q.placeholder || '')}"></textarea>
-    </div>`;
-      dataFields += `      ${fieldName}: document.querySelector('textarea[name="${fieldName}"]').value,\n`;
-      sheetColumns.push(`data.${fieldName}`);
+      sectionsHtml += '\n    <div class="section">' +
+        '\n      <div class="section-number">' + num + '</div>' +
+        '\n      <h2>' + esc(q.title) + optionalBadge + '</h2>' +
+        (q.hint ? '\n      <p class="hint">' + esc(q.hint) + '</p>' : '') +
+        '\n      <textarea name="' + fieldName + '" placeholder="' + escJs(q.placeholder || '') + '"></textarea>' +
+        '\n    </div>';
+      dataFields += '      ' + fieldName + ': document.querySelector(\'textarea[name="' + fieldName + '"]\').value,\n';
+      sheetColumns.push('data.' + fieldName);
     }
   });
 
-  const calloutHtml = callout ? `
-    <div class="highlight"><strong>${callout.split(':')[0]}:</strong>${callout.includes(':') ? callout.substring(callout.indexOf(':')+1) : ''}</div>` : '';
+  var calloutHtml = callout ? '\n    <div class="highlight"><strong>' + callout.split(':')[0] + ':</strong>' + (callout.includes(':') ? callout.substring(callout.indexOf(':') + 1) : '') + '</div>' : '';
 
-  const t = themes[currentTheme];
-  const radius = document.getElementById('borderRadius').value;
-  const radiusSm = Math.max(0, parseInt(radius) - 4) + 'px';
-  const submitText = document.getElementById('submitText').value || 'Submit';
-  const successTitleText = document.getElementById('successTitle').value || 'Got it — thank you!';
-  const successBodyText = document.getElementById('successText').value || 'Your input shapes what we build next.';
+  var radius = document.getElementById('borderRadius').value;
+  var radiusSm = Math.max(0, parseInt(radius) - 4) + 'px';
+  var submitText = document.getElementById('submitText').value || 'Submit';
+  var successTitleText = document.getElementById('successTitle').value || 'Got it — thank you!';
+  var successBodyText = document.getElementById('successText').value || 'Your input shapes what we build next.';
 
-  const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<sty` + `le>
-  :root {
-    --surface: ${t.surface}; --card: ${t.card}; --text: ${t.text}; --text-secondary: ${t.textSecondary};
-    --text-tertiary: ${t.textTertiary}; --accent: ${t.accent}; --accent-light: ${t.accentLight};
-    --accent-border: ${t.accentBorder}; --border: ${t.border}; --border-focus: ${t.borderFocus};
-    --success: ${t.success}; --success-light: ${t.successLight}; --radius: ${radius}; --radius-sm: ${radiusSm};
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--surface); color: var(--text); line-height: 1.6; min-height: 100vh; padding: 24px 16px 80px; }
-  .container { max-width: 640px; margin: 0 auto; }
-  .hero { padding: 48px 0 40px; }
-  .hero-label { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
-  .hero h1 { font-size: 32px; font-weight: 700; line-height: 1.2; margin-bottom: 16px; letter-spacing: -0.02em; }
-  .hero p { font-size: 16px; color: var(--text-secondary); max-width: 540px; }
-  .hero p + p { margin-top: 12px; }
-  .highlight { background: var(--accent-light); border: 1px solid var(--accent-border); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 20px; font-size: 14px; color: var(--text); line-height: 1.5; }
-  .highlight strong { font-weight: 600; }
-  .section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 20px; }
-  .section-number { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: white; font-size: 13px; font-weight: 700; margin-bottom: 12px; }
-  .section h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em; }
-  .section .hint { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
-  .option-grid { display: flex; flex-direction: column; gap: 8px; }
-  .option { position: relative; display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; user-select: none; }
-  .option:hover { border-color: var(--accent); background: var(--accent-light); }
-  .option.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 1px var(--accent); }
-  .option input { position: absolute; opacity: 0; pointer-events: none; }
-  .option .indicator { flex-shrink: 0; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; margin-top: 1px; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; }
-  .option .indicator.checkbox { border-radius: 5px; }
-  .option.selected .indicator { border-color: var(--accent); background: var(--accent); }
-  .option.selected .indicator::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: white; }
-  .option.selected .indicator.checkbox::after { content: ''; width: 10px; height: 7px; border-radius: 0; background: none; border-bottom: 2.5px solid white; border-left: 2.5px solid white; transform: rotate(-45deg); margin-top: -2px; }
-  .option .option-text { font-size: 15px; font-weight: 500; line-height: 1.4; }
-  .option .option-sub { font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
-  .counter { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }
-  .counter .count { font-weight: 600; color: var(--accent); }
-  .counter.at-max .count { color: var(--success); }
-  textarea, input[type="text"] { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; line-height: 1.5; color: var(--text); background: ${t.card}; resize: vertical; transition: border-color 0.15s ease; }
-  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px ${t.focusRing}; }
-  textarea::placeholder, input[type="text"]::placeholder { color: var(--text-tertiary); }
-  textarea { min-height: 100px; }
-  .other-input { margin-top: 10px; display: none; }
-  .other-input.visible { display: block; }
-  .optional-badge { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); background: var(--surface); padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
-  .submit-section { text-align: center; padding: 12px 0; }
-  .submit-btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 48px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }
-  .submit-btn:hover { background: ${t.btnHover}; transform: translateY(-1px); box-shadow: 0 4px 12px ${t.btnShadow}; }
-  .success-state { display: none; text-align: center; padding: 60px 32px; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); }
-  .success-state.visible { display: block; }
-  .success-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--success-light); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }
-  .success-icon svg { width: 28px; height: 28px; color: var(--success); }
-  .success-state h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }
-  .success-state p { color: var(--text-secondary); font-size: 15px; }
-  .footer-note { text-align: center; font-size: 13px; color: var(--text-tertiary); margin-top: 16px; }
-  .proficiency-matrix { display: flex; flex-direction: column; gap: 10px; }
-  .matrix-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); transition: all 0.15s ease; }
-  .matrix-row.has-selection { border-color: var(--accent); background: var(--accent-light); }
-  .matrix-label { flex: 1; min-width: 0; }
-  .matrix-label .label-text { font-size: 15px; font-weight: 500; line-height: 1.4; }
-  .matrix-label .label-sub { font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }
-  .seg-control { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2px; gap: 2px; flex-shrink: 0; }
-  .seg-option { padding: 6px 10px; font-size: 12px; font-weight: 500; border-radius: 4px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; color: var(--text-secondary); user-select: none; border: none; background: none; font-family: inherit; }
-  .seg-option:hover { color: var(--text); background: var(--card); }
-  .seg-option.active { background: var(--accent); color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  @media (max-width: 640px) { .matrix-row { flex-direction: column; align-items: stretch; gap: 10px; } .seg-control { width: 100%; } .seg-option { flex: 1; text-align: center; padding: 8px 6px; } }
-  @media (max-width: 480px) { .section { padding: 24px 20px; } .hero h1 { font-size: 26px; } }
-</sty` + `le>
-</head>
-<body>
-<div class="container">
-  <header class="hero">
-    <div class="hero-label">${esc(label)}</div>
-    <h1>${esc(title)}</h1>
-    <p>${esc(intro)}</p>${calloutHtml}
-  </header>
-  <form id="learningForm">${sectionsHtml}
-    <div class="submit-section">
-      <button type="submit" class="submit-btn">${esc(submitText)}</button>
-      <p class="footer-note">Responses are collected securely. Takes effect immediately.</p>
-    </div>
-  </form>
-  <div class="success-state" id="success">
-    <div class="success-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>
-    <h2>${esc(successTitleText)}</h2>
-    <p>${esc(successBodyText)}</p>
-  </div>
-</div>
-<scr` + `ipt>
-${jsHandlers}
-  document.getElementById('learningForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-${validationJs}
-    var data = {
-${dataFields}      submitted_at: new Date().toISOString()
-    };
+  var html = '<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n' +
+    fontLink +
+    '<sty' + 'le>\n' +
+    '  :root {\n' +
+    '    --surface: ' + t.surface + '; --card: ' + t.card + '; --text: ' + t.text + '; --text-secondary: ' + t.textSecondary + ';\n' +
+    '    --text-tertiary: ' + t.textTertiary + '; --accent: ' + t.accent + '; --accent-light: ' + t.accentLight + ';\n' +
+    '    --accent-border: ' + t.accentBorder + '; --border: ' + t.border + '; --border-focus: ' + t.borderFocus + ';\n' +
+    '    --success: ' + t.success + '; --success-light: ' + t.successLight + '; --radius: ' + radius + '; --radius-sm: ' + radiusSm + ';\n' +
+    '  }\n' +
+    '  * { margin: 0; padding: 0; box-sizing: border-box; }\n' +
+    '  body { font-family: ' + fontConfig.family + '; background: var(--surface); background-attachment: fixed; color: var(--text); line-height: 1.6; min-height: 100vh; padding: ' + padConfig.body + '; }\n' +
+    '  .container { max-width: 640px; margin: 0 auto;' + (cardStyle === 'line' ? (headerAlign === 'right' ? ' border-right: 5px solid var(--accent); padding-right: 24px;' : headerAlign === 'center' ? ' border-left: 5px solid var(--accent); border-right: 5px solid var(--accent); padding-left: 24px; padding-right: 24px;' : ' border-left: 5px solid var(--accent); padding-left: 24px;') : '') + ' }\n' +
+    '  .hero { padding: 48px 0 40px;' + (headerAlign !== 'left' ? ' text-align: ' + headerAlign + ';' : '') + ' }\n' +
+    '  .hero-label { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }\n' +
+    '  .hero h1 { font-size: ' + (t.dramaticHeadline ? '44px; font-weight: 700; line-height: 1.1; letter-spacing: -0.03em' : '32px; font-weight: 700; line-height: 1.2; letter-spacing: -0.02em') + '; margin-bottom: 16px; }\n' +
+    '  .hero p { font-size: 16px; color: var(--text-secondary); max-width: 540px;' + (headerAlign === 'center' ? ' margin-left: auto; margin-right: auto;' : (headerAlign === 'right' ? ' margin-left: auto;' : '')) + ' }\n' +
+    '  .hero p + p { margin-top: 12px; }\n' +
+    '  .highlight { background: var(--accent-light); border: 1px solid var(--accent-border); border-radius: var(--radius-sm); padding: 14px 16px; margin-top: 20px; font-size: 14px; color: var(--text); line-height: 1.5; }\n' +
+    '  .highlight strong { font-weight: 600; }\n' +
+    '  .section { background: var(--card); ' + sectionBorder + ' padding: ' + padConfig.section + '; margin-bottom: ' + padConfig.gap + '; }\n' +
+    '  .section-number { ' + numberCss + ' }\n' +
+    '  .section h2 { font-size: 18px; font-weight: 600; margin-bottom: 6px; letter-spacing: -0.01em;' + (numberStyle === 'inline' ? ' display: inline;' : '') + ' }\n' +
+    '  .section .hint { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;' + (numberStyle === 'inline' ? ' margin-top: 8px; display: block;' : '') + ' }\n' +
+    '  .option-grid { display: flex; flex-direction: column; gap: 8px; }\n' +
+    '  .option { position: relative; display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; user-select: none; }\n' +
+    '  .option:hover { border-color: var(--accent); background: var(--accent-light); }\n' +
+    '  .option.selected { border-color: var(--accent); background: var(--accent-light); box-shadow: 0 0 0 1px var(--accent); }\n' +
+    '  .option input { position: absolute; opacity: 0; pointer-events: none; }\n' +
+    '  .option .indicator { flex-shrink: 0; width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; margin-top: 1px; transition: all 0.15s ease; display: flex; align-items: center; justify-content: center; }\n' +
+    '  .option .indicator.checkbox { border-radius: 5px; }\n' +
+    '  .option.selected .indicator { border-color: var(--accent); background: var(--accent); }\n' +
+    '  .option.selected .indicator::after { content: \'\'; width: 8px; height: 8px; border-radius: 50%; background: white; }\n' +
+    '  .option.selected .indicator.checkbox::after { content: \'\'; width: 10px; height: 7px; border-radius: 0; background: none; border-bottom: 2.5px solid white; border-left: 2.5px solid white; transform: rotate(-45deg); margin-top: -2px; }\n' +
+    '  .option .option-text { font-size: 15px; font-weight: 500; line-height: 1.4; }\n' +
+    '  .option .option-sub { font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }\n' +
+    '  .counter { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--text-tertiary); margin-top: 8px; }\n' +
+    '  .counter .count { font-weight: 600; color: var(--accent); }\n' +
+    '  .counter.at-max .count { color: var(--success); }\n' +
+    '  textarea, input[type="text"] { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-family: inherit; font-size: 15px; line-height: 1.5; color: var(--text); background: ' + t.card + '; resize: vertical; transition: border-color 0.15s ease; }\n' +
+    '  textarea:focus, input[type="text"]:focus { outline: none; border-color: var(--border-focus); box-shadow: 0 0 0 3px ' + t.focusRing + '; }\n' +
+    '  textarea::placeholder, input[type="text"]::placeholder { color: var(--text-tertiary); }\n' +
+    '  textarea { min-height: 100px; }\n' +
+    '  .other-input { margin-top: 10px; display: none; }\n' +
+    '  .other-input.visible { display: block; }\n' +
+    '  .optional-badge { display: inline-block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); background: var(--surface); padding: 2px 8px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }\n' +
+    '  .submit-section { text-align: center; padding: 12px 0; }\n' +
+    '  .submit-btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 48px; background: var(--accent); color: white; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.15s ease; }\n' +
+    '  .submit-btn:hover { background: ' + t.btnHover + '; transform: translateY(-1px); box-shadow: 0 4px 12px ' + t.btnShadow + '; }\n' +
+    '  .success-state { display: none; text-align: center; padding: 60px 32px; background: var(--card); ' + sectionBorder + ' }\n' +
+    '  .success-state.visible { display: block; }\n' +
+    '  .success-icon { width: 56px; height: 56px; border-radius: 50%; background: var(--success-light); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; }\n' +
+    '  .success-icon svg { width: 28px; height: 28px; color: var(--success); }\n' +
+    '  .success-state h2 { font-size: 22px; font-weight: 600; margin-bottom: 8px; }\n' +
+    '  .success-state p { color: var(--text-secondary); font-size: 15px; }\n' +
+    '' +
+    '  .proficiency-matrix { display: flex; flex-direction: column; gap: 10px; }\n' +
+    '  .matrix-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); transition: all 0.15s ease; }\n' +
+    '  .matrix-row.has-selection { border-color: var(--accent); background: var(--accent-light); }\n' +
+    '  .matrix-label { flex: 1; min-width: 0; }\n' +
+    '  .matrix-label .label-text { font-size: 15px; font-weight: 500; line-height: 1.4; }\n' +
+    '  .matrix-label .label-sub { font-size: 13px; color: var(--text-secondary); font-weight: 400; margin-top: 2px; }\n' +
+    '  .seg-control { display: flex; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 2px; gap: 2px; flex-shrink: 0; }\n' +
+    '  .seg-option { padding: 6px 10px; font-size: 12px; font-weight: 500; border-radius: 4px; cursor: pointer; transition: all 0.15s ease; white-space: nowrap; color: var(--text-secondary); user-select: none; border: none; background: none; font-family: inherit; }\n' +
+    '  .seg-option:hover { color: var(--text); background: var(--card); }\n' +
+    '  .seg-option.active { background: var(--accent); color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }\n' +
+    '  @media (max-width: 640px) { .matrix-row { flex-direction: column; align-items: stretch; gap: 10px; } .seg-control { width: 100%; } .seg-option { flex: 1; text-align: center; padding: 8px 6px; } }\n' +
+    '  @media (max-width: 480px) { .section { padding: 24px 20px; } .hero h1 { font-size: 26px; } }\n' +
+    '</sty' + 'le>\n' +
+    '</head>\n<body>\n' +
+    '<div class="container">\n' +
+    '  <header class="hero">\n' +
+    '    <div class="hero-label">' + esc(label) + '</div>\n' +
+    '    <h1>' + esc(title) + '</h1>\n' +
+    '    <p>' + esc(intro) + '</p>' + calloutHtml + '\n' +
+    '  </header>\n' +
+    '  <form id="learningForm">' + sectionsHtml + '\n' +
+    '    <div class="submit-section">\n' +
+    '      <button type="submit" class="submit-btn">' + esc(submitText) + '</button>\n' +
+    '' +
+    '    </div>\n' +
+    '  </form>\n' +
+    '  <div class="success-state" id="success">\n' +
+    '    <div class="success-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg></div>\n' +
+    '    <h2>' + esc(successTitleText) + '</h2>\n' +
+    '    <p>' + esc(successBodyText) + '</p>\n' +
+    '  </div>\n' +
+    '</div>\n' +
+    '<scr' + 'ipt>\n' +
+    jsHandlers +
+    '  document.getElementById(\'learningForm\').addEventListener(\'submit\', function(e) {\n' +
+    '    e.preventDefault();\n' +
+    validationJs +
+    '    var data = {\n' +
+    dataFields + '      submitted_at: new Date().toISOString()\n' +
+    '    };\n' +
+    '\n' +
+    '    var btn = document.querySelector(\'.submit-btn\');\n' +
+    '    btn.textContent = \'Submitting\\u2026\';\n' +
+    '    btn.disabled = true;\n' +
+    '    btn.style.opacity = \'0.7\';\n' +
+    '\n' +
+    '    google.script.run\n' +
+    '      .withSuccessHandler(function() {\n' +
+    '        document.getElementById(\'learningForm\').style.display = \'none\';\n' +
+    '        document.getElementById(\'success\').classList.add(\'visible\');\n' +
+    '        window.scrollTo({ top: 0, behavior: \'smooth\' });\n' +
+    '      })\n' +
+    '      .withFailureHandler(function() {\n' +
+    '        btn.textContent = \'Something went wrong \\u2014 try again\';\n' +
+    '        btn.disabled = false;\n' +
+    '        btn.style.opacity = \'1\';\n' +
+    '        setTimeout(function() { btn.textContent = \'' + escJs(submitText) + '\'; }, 3000);\n' +
+    '      })\n' +
+    '      .processForm(data);\n' +
+    '  });\n' +
+    '</scr' + 'ipt>\n' +
+    '</body>\n</html>';
 
-    var btn = document.querySelector('.submit-btn');
-    btn.textContent = 'Submitting\u2026';
-    btn.disabled = true;
-    btn.style.opacity = '0.7';
-
-    google.script.run
-      .withSuccessHandler(function() {
-        document.getElementById('learningForm').style.display = 'none';
-        document.getElementById('success').classList.add('visible');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      })
-      .withFailureHandler(function() {
-        btn.textContent = 'Something went wrong \u2014 try again';
-        btn.disabled = false;
-        btn.style.opacity = '1';
-        setTimeout(function() { btn.textContent = '${escJs(submitText)}'; }, 3000);
-      })
-      .processForm(data);
-  });
-</scr` + `ipt>
-</body>
-</html>`;
-
-  return { html, sheetColumns };
+  return { html: html, sheetColumns: sheetColumns };
 }
 
 function generateCodeGs(sheetColumns) {
-  return `function doGet() {
-  return HtmlService.createHtmlOutputFromFile('form')
-    .setTitle('${escJs(document.getElementById('formTitle').value)}')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-}
-
-function processForm(data) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  sheet.appendRow([
-    ${sheetColumns.join(',\n    ')}
-  ]);
-  return { status: 'ok' };
-}
-`;
+  return 'function doGet() {\n' +
+    '  return HtmlService.createHtmlOutputFromFile(\'form\')\n' +
+    '    .setTitle(\'' + escJs(document.getElementById('formTitle').value) + '\')\n' +
+    '    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);\n' +
+    '}\n\n' +
+    'function processForm(data) {\n' +
+    '  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();\n' +
+    '  sheet.appendRow([\n' +
+    '    ' + sheetColumns.join(',\n    ') + '\n' +
+    '  ]);\n' +
+    '  return { status: \'ok\' };\n' +
+    '}\n';
 }
 
 function renderPreview() {
-  const { html } = generateFormHtml();
-  const previewHtml = html.replace('google.script.run', '// google.script.run (preview)')
-    .replace('.processForm(data);', `
-        document.getElementById('learningForm').style.display = 'none';
-        document.getElementById('success').classList.add('visible');
-        window.scrollTo({ top: 0, behavior: 'smooth' });`);
-  const frame = document.getElementById('previewFrame');
-  frame.srcdoc = previewHtml;
+  var result = generateFormHtml();
+  var html = result.html;
+  var startMarker = 'google.script.run';
+  var endMarker = '.processForm(data);';
+  var si = html.indexOf(startMarker);
+  var ei = html.indexOf(endMarker);
+  if (si !== -1 && ei !== -1) {
+    html = html.substring(0, si) +
+      'document.getElementById(\'learningForm\').style.display = \'none\';\n' +
+      '        document.getElementById(\'success\').classList.add(\'visible\');\n' +
+      '        window.scrollTo({ top: 0, behavior: \'smooth\' });' +
+      html.substring(ei + endMarker.length);
+  }
+  var frame = document.getElementById('previewFrame');
+  frame.srcdoc = html;
 }
 
 function downloadFiles() {
-  const { html, sheetColumns } = generateFormHtml();
-  const codeGs = generateCodeGs(sheetColumns);
+  var result = generateFormHtml();
+  var codeGs = generateCodeGs(result.sheetColumns);
 
-  download('form.html', html);
-  setTimeout(() => download('Code.gs', codeGs), 300);
+  download('form.html', result.html);
+  setTimeout(function() { download('Code.gs', codeGs); }, 300);
 }
 
 function download(filename, content) {
-  const blob = new Blob([content], { type: 'text/plain' });
-  const a = document.createElement('a');
+  var blob = new Blob([content], { type: 'text/plain' });
+  var a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = filename;
   a.click();
@@ -893,11 +1118,11 @@ function download(filename, content) {
 }
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js').catch(function() {});
 }
 
 renderEditor();
-renderPreview();
+setTheme(currentTheme);
 </script>
 </body>
 </html>
