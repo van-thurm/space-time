@@ -421,20 +421,37 @@
   }
   .roster-empty { text-align: center; padding: 48px 20px; color: #a3a3a3; font-size: 13px; }
 
-  .add-item-bar {
-    padding: 8px 20px 0; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  .add-item-bar { padding: 8px 20px 0; }
+  .add-item-trigger {
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    color: #737373; background: none; border: 1px dashed #d4d4d4; border-radius: 8px;
+    padding: 10px 16px; cursor: pointer; width: 100%; text-align: left;
+    transition: color 0.15s, border-color 0.15s;
   }
-  .add-item-bar input {
-    font-family: inherit; font-size: 13px; padding: 7px 10px; border: 1px solid #d4d4d4;
-    border-radius: 6px; background: #fff; color: #1c1917; flex: 1; min-width: 80px;
+  .add-item-trigger:hover { color: #1c1917; border-color: #a3a3a3; }
+  .add-item-card {
+    background: #fff; border: 1px solid #e5e5e5; border-radius: 10px;
+    padding: 16px; display: flex; flex-direction: column; gap: 10px;
   }
-  .add-item-bar input::placeholder { color: #a3a3a3; }
-  .add-item-bar button {
-    font-family: inherit; font-size: 12px; font-weight: 600; padding: 7px 14px;
-    border-radius: 6px; border: none; background: #1c1917; color: #fff; cursor: pointer;
-    white-space: nowrap; min-height: 36px;
+  .add-item-field { display: flex; flex-direction: column; gap: 4px; }
+  .add-item-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.04em; color: #a3a3a3;
   }
-  .add-item-bar button:hover { opacity: 0.85; }
+  .add-item-input {
+    font-family: inherit; font-size: 14px; padding: 8px 10px;
+    border: 1px solid #d4d4d4; border-radius: 6px; background: #fff; color: #1c1917;
+    transition: border-color 0.15s;
+  }
+  .add-item-input:focus { outline: none; border-color: #1c1917; }
+  .add-item-input::placeholder { color: #a3a3a3; }
+  .add-item-submit {
+    font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 20px;
+    border-radius: 7px; border: none; background: #1c1917; color: #fff;
+    cursor: pointer; align-self: flex-end; transition: opacity 0.15s;
+  }
+  .add-item-submit:disabled { opacity: 0.3; cursor: default; }
+  .add-item-submit:not(:disabled):hover { opacity: 0.85; }
   .item-remove {
     opacity: 0; background: none; border: none; color: #dc2626; font-size: 14px;
     cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: opacity 0.15s;
@@ -590,8 +607,13 @@
   body.dark .roster-row input[type="checkbox"]:checked::after { border-color: #0a0a0a; }
   body.dark .person-name { color: #fafafa; }
   body.dark .roster-empty { color: #737373; }
-  body.dark .add-item-bar input { background: #171717; border-color: #404040; color: #fafafa; }
-  body.dark .add-item-bar button { background: #fafafa; color: #0a0a0a; }
+  body.dark .add-item-trigger { color: #525252; border-color: #404040; }
+  body.dark .add-item-trigger:hover { color: #fafafa; border-color: #737373; }
+  body.dark .add-item-card { background: #171717; border-color: #262626; }
+  body.dark .add-item-input { background: #0a0a0a; border-color: #404040; color: #fafafa; }
+  body.dark .add-item-input:focus { border-color: #fafafa; }
+  body.dark .add-item-input::placeholder { color: #525252; }
+  body.dark .add-item-submit { background: #fafafa; color: #0a0a0a; }
   body.dark .item-remove:hover { background: #2d0a0a; }
   body.dark .danger-link { color: #f87171; }
   body.dark .danger-link:hover { background: #2d0a0a; }
@@ -1734,6 +1756,7 @@ var switcherOpen = false;
 var deleteConfirm = false;
 var openFilterKey = null;
 var fieldSetupOpen = false;
+var addCardOpen = false;
 
 function getVisibleItems() {
   var list = curList();
@@ -1872,11 +1895,13 @@ function renderListsPage() {
     listEl.innerHTML = '<div class="roster-empty">' + (list.items.length === 0 ? 'No items yet. Add one below.' : 'No items match these filters.') + '</div>';
   } else {
     listEl.innerHTML = '';
+    var idKey = list.fields[0].key;
     vis.forEach(function(item) {
       var checked = sel.has(item.id);
+      var titleVal = item[idKey] || '';
       var pillsHtml = '';
       list.fields.forEach(function(f, fi) {
-        if (f.key === 'name') return;
+        if (fi === 0) return;
         var val = item[f.key];
         if (!val) return;
         var color = scheme.colors[(fi - 1) % scheme.colors.length];
@@ -1887,11 +1912,11 @@ function renderListsPage() {
       row.tabIndex = 0;
       row.setAttribute('role', 'checkbox');
       row.setAttribute('aria-checked', checked);
-      row.setAttribute('aria-label', item.name);
+      row.setAttribute('aria-label', titleVal);
       row.innerHTML =
         '<input type="checkbox" tabindex="-1" ' + (checked ? 'checked' : '') + ' aria-hidden="true">' +
-        '<div class="person-info"><div class="person-name">' + esc(item.name) + '</div><div class="person-pills">' + pillsHtml + '</div></div>' +
-        '<button class="item-remove" onclick="event.stopPropagation();removeItem(\'' + item.id + '\')" title="Remove" aria-label="Remove ' + esc(item.name) + '">&times;</button>';
+        '<div class="person-info"><div class="person-name">' + esc(titleVal) + '</div><div class="person-pills">' + pillsHtml + '</div></div>' +
+        '<button class="item-remove" onclick="event.stopPropagation();removeItem(\'' + item.id + '\')" title="Remove" aria-label="Remove ' + esc(titleVal) + '">&times;</button>';
       row.addEventListener('click', (function(id) { return function(e) {
         if (e.target.classList.contains('item-remove')) return;
         toggleItem(id); };
@@ -1905,10 +1930,23 @@ function renderListsPage() {
 
   // Add item bar
   var addBar = document.getElementById('addItemBar');
-  var addInputs = list.fields.map(function(f) {
-    return '<input type="text" placeholder="' + esc(f.label) + '" data-field="' + f.key + '">';
-  }).join('');
-  addBar.innerHTML = addInputs + '<button onclick="addItemFromBar()">add</button>';
+  if (!addCardOpen) {
+    addBar.innerHTML = '<button class="add-item-trigger" onclick="openAddCard()">+ add item</button>';
+  } else {
+    var cardFields = list.fields.map(function(f, fi) {
+      var isId = fi === 0;
+      var inputAttrs = isId
+        ? ' oninput="toggleAddCardBtn()" onkeydown="if(event.key===\'Enter\'){addItemFromCard();}"'
+        : ' onkeydown="if(event.key===\'Enter\'){addItemFromCard();}"';
+      return '<div class="add-item-field">' +
+        '<label class="add-item-label">' + esc(f.label) + '</label>' +
+        '<input type="text" class="add-item-input" data-field="' + f.key + '" placeholder="' + esc(f.label) + '"' + inputAttrs + '>' +
+      '</div>';
+    }).join('');
+    addBar.innerHTML = '<div class="add-item-card">' + cardFields +
+      '<button class="add-item-submit" onclick="addItemFromCard()" disabled>Add</button>' +
+    '</div>';
+  }
 
   // Danger zone
   var dz = document.getElementById('dangerZone');
@@ -1928,20 +1966,26 @@ function renderListsPage() {
 
 var _swClickTs = 0;
 var _filterClickTs = 0;
+var _cardClickTs = 0;
 function toggleSwitcher() { _swClickTs = Date.now(); switcherOpen = !switcherOpen; openFilterKey = null; renderListsPage(); }
 function closeSwitcher() { if (switcherOpen) { switcherOpen = false; renderListsPage(); } }
 document.addEventListener('click', function(e) {
   if (Date.now() - _swClickTs < 100) return;
   if (Date.now() - _filterClickTs < 100) return;
+  if (Date.now() - _cardClickTs < 100) return;
   var changed = false;
   if (switcherOpen && !e.target.closest('.list-switcher')) { switcherOpen = false; changed = true; }
   if (openFilterKey && !e.target.closest('.filter-dd')) { openFilterKey = null; changed = true; }
+  if (addCardOpen && !e.target.closest('.add-item-card')) { addCardOpen = false; changed = true; }
   if (changed) renderListsPage();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape' && addCardOpen) { addCardOpen = false; renderListsPage(); }
 });
 
 function switchList(id) {
   listsData.currentListId = id;
-  listFilters = {}; listSearch = ''; switcherOpen = false; deleteConfirm = false; fieldSetupOpen = false;
+  listFilters = {}; listSearch = ''; switcherOpen = false; deleteConfirm = false; fieldSetupOpen = false; addCardOpen = false;
   saveLists(); renderListsPage();
 }
 
@@ -1950,7 +1994,7 @@ function createNewList() {
     fields: [{key:'name',label:'Name'}], items: [], selected: [] };
   listsData.lists.push(nl);
   listsData.currentListId = nl.id;
-  listFilters = {}; listSearch = ''; switcherOpen = false; fieldSetupOpen = true;
+  listFilters = {}; listSearch = ''; switcherOpen = false; fieldSetupOpen = true; addCardOpen = false;
   saveLists(); renderListsPage();
   var inp = document.querySelector('.list-name-editable');
   if (inp) { inp.focus(); inp.select(); }
@@ -2052,21 +2096,35 @@ function clearAllSelected() {
   saveLists(); renderListsPage();
 }
 
-function addItemFromBar() {
+function openAddCard() {
+  addCardOpen = true;
+  _cardClickTs = Date.now();
+  renderListsPage();
+  var card = document.querySelector('.add-item-card');
+  if (card) { var inp = card.querySelector('input'); if (inp) inp.focus(); }
+}
+
+function toggleAddCardBtn() {
+  var card = document.querySelector('.add-item-card');
+  if (!card) return;
+  var idInput = card.querySelector('input');
+  var btn = card.querySelector('.add-item-submit');
+  if (btn) btn.disabled = !idInput || !idInput.value.trim();
+}
+
+function addItemFromCard() {
   var list = curList();
-  var bar = document.getElementById('addItemBar');
-  var inputs = bar.querySelectorAll('input');
+  var card = document.querySelector('.add-item-card');
+  if (!card) return;
+  var inputs = card.querySelectorAll('input');
+  var idInput = inputs[0];
+  if (!idInput || !idInput.value.trim()) return;
   var item = { id: iid() };
-  var hasVal = false;
-  inputs.forEach(function(inp) {
-    item[inp.dataset.field] = inp.value.trim();
-    if (inp.value.trim()) hasVal = true;
-  });
-  if (!hasVal) return;
+  inputs.forEach(function(inp) { item[inp.dataset.field] = inp.value.trim(); });
   list.items.push(item);
   saveLists(); renderListsPage();
-  var newInputs = document.getElementById('addItemBar').querySelectorAll('input');
-  if (newInputs.length) newInputs[0].focus();
+  var newCard = document.querySelector('.add-item-card');
+  if (newCard) { var firstInp = newCard.querySelector('input'); if (firstInp) firstInp.focus(); }
 }
 
 function removeItem(id) {
@@ -2081,7 +2139,7 @@ document.getElementById('rosterCopyBtn').addEventListener('click', function() {
   var list = curList();
   if (!list.selected.length) return;
   var sel = new Set(list.selected);
-  var vals = list.items.filter(function(it) { return sel.has(it.id); }).map(function(it) { return it[list.copyField] || it.name; });
+  var vals = list.items.filter(function(it) { return sel.has(it.id); }).map(function(it) { return it[list.copyField] || it[list.fields[0].key] || ''; });
   var text = vals.join(', ');
   var btn = document.getElementById('rosterCopyBtn');
   var toast = document.getElementById('rosterToast');
