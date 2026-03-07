@@ -27,6 +27,14 @@ For service worker testing, use a local server:
 npx serve .
 ```
 
+## Customize it
+
+Fork this repo and use your AI coding assistant to customize themes, add fields, or extend functionality. Everything lives in a single `index.html` — no build step required.
+
+- **Themes**: add or modify color palettes in the `THEMES` object
+- **Lists**: lists support custom fields per list — add categories like "Email", "Team", "City", or anything you need
+- **Persistence**: data is stored in `localStorage` by default. For persistent local storage across sessions, you can add a lightweight local server (e.g. a Python script that reads/writes a JSON file). form-form will automatically sync with a server at `/api/lists` if one is running.
+
 ## Files
 
 | File | Purpose |

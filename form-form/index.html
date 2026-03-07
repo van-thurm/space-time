@@ -668,21 +668,21 @@
           </div>
           <div class="swatch-name">line</div>
         </div>
-        <div class="theme-swatch" onclick="setTheme('samsara')" data-theme="samsara">
+        <div class="theme-swatch" onclick="setTheme('corporate light')" data-theme="corporate light">
           <div class="swatch-preview" style="background: #f0f4f8; border: 1px solid #d9e2ec;">
             <div class="swatch-dot" style="background: #0065FF; border-color: #0050cc;"></div>
             <div class="swatch-dot" style="background: #e6f0ff; border-color: #b3d4ff;"></div>
             <div class="swatch-dot" style="background: #ffffff; border-color: #d9e2ec;"></div>
           </div>
-          <div class="swatch-name">samsara light</div>
+          <div class="swatch-name">corporate light</div>
         </div>
-        <div class="theme-swatch" onclick="setTheme('samsara-dark')" data-theme="samsara-dark">
+        <div class="theme-swatch" onclick="setTheme('corporate dark')" data-theme="corporate dark">
           <div class="swatch-preview" style="background: #0f172a; border: 1px solid #1e293b;">
             <div class="swatch-dot" style="background: #38bdf8; border-color: #0ea5e9;"></div>
             <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
             <div class="swatch-dot" style="background: #1e293b; border-color: #334155;"></div>
           </div>
-          <div class="swatch-name">samsara dark</div>
+          <div class="swatch-name">corporate dark</div>
         </div>
         <div class="theme-swatch" onclick="setTheme('bold')" data-theme="bold">
           <div class="swatch-preview" style="background: #faf6f1; border: 1px solid #e8dfd6;">
@@ -870,7 +870,7 @@ const themes = {
     suggestedFont: 'inter',
     cardStyle: 'line'
   },
-  samsara: {
+  'corporate light': {
     surface: '#f0f4f8', card: '#ffffff', text: '#0B1F3F', textSecondary: '#486581',
     textTertiary: '#9fb3c8', accent: '#0065FF', accentLight: '#e6f0ff',
     accentBorder: '#b3d4ff', border: '#d9e2ec', borderFocus: '#0065FF',
@@ -878,7 +878,7 @@ const themes = {
     btnShadow: 'rgba(0, 101, 255, 0.3)', focusRing: 'rgba(0, 101, 255, 0.1)',
     suggestedFont: 'system'
   },
-  'samsara-dark': {
+  'corporate dark': {
     surface: '#0f172a', card: '#1e293b', text: '#f1f5f9', textSecondary: '#94a3b8',
     textTertiary: '#64748b', accent: '#38bdf8', accentLight: '#0f2942',
     accentBorder: '#1e3a5f', border: '#334155', borderFocus: '#38bdf8',
@@ -1186,7 +1186,7 @@ function generateFormHtml() {
   var baseTheme = themes[currentTheme];
   var accent = customAccent || baseTheme.accent;
   var rgb = hexToRgb(accent);
-  var isDark = (currentTheme === 'samsara-dark');
+  var isDark = (currentTheme === 'corporate dark');
 
   var t = {};
   for (var k in baseTheme) t[k] = baseTheme[k];
@@ -1622,7 +1622,7 @@ function loadLists() {
   var id = lid();
   var items = DEFAULT_ITEMS.map(function(it) { var o = {}; for (var k in it) o[k] = it[k]; o.id = iid(); return o; });
   return {
-    lists: [{ id: id, name: 'Design Team', colorScheme: 'bauhaus', copyField: 'email',
+    lists: [{ id: id, name: 'my list', colorScheme: 'bauhaus', copyField: 'email',
       fields: [{key:'name',label:'Name'},{key:'email',label:'Email'},{key:'role',label:'Role'},{key:'team',label:'Team'},{key:'city',label:'City'}],
       items: items, selected: [] }],
     currentListId: id
@@ -1913,7 +1913,7 @@ function confirmDeleteList() {
   if (listsData.lists.length === 0) {
     var id = lid();
     var items = DEFAULT_ITEMS.map(function(it) { var o = {}; for (var k in it) o[k] = it[k]; o.id = iid(); return o; });
-    listsData.lists.push({ id: id, name: 'Design Team', colorScheme: 'bauhaus', copyField: 'email',
+    listsData.lists.push({ id: id, name: 'my list', colorScheme: 'bauhaus', copyField: 'email',
       fields: [{key:'name',label:'Name'},{key:'email',label:'Email'},{key:'role',label:'Role'},{key:'team',label:'Team'},{key:'city',label:'City'}],
       items: items, selected: [] });
     listsData.currentListId = id;
