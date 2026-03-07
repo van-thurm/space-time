@@ -491,6 +491,46 @@
   }
   .lists-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  /* ── Field setup panel ── */
+  .gear-btn {
+    background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px;
+    font-size: 16px; line-height: 1; color: #a3a3a3; flex-shrink: 0; margin-top: 4px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .gear-btn:hover { color: #1c1917; background: #f0f0f0; }
+  .gear-btn.active { color: #1c1917; }
+  .field-setup-panel {
+    margin-top: 10px; padding: 12px 14px; background: #fff; border: 1px solid #e5e5e5;
+    border-radius: 10px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .field-row { display: flex; align-items: center; gap: 8px; }
+  .field-row-tag {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;
+    color: #a3a3a3; min-width: 22px;
+  }
+  .field-label-input {
+    flex: 1; font-family: inherit; font-size: 13px; padding: 5px 8px;
+    border: 1px solid #d4d4d4; border-radius: 6px; background: #fff; color: #1c1917;
+  }
+  .field-label-input:focus { outline: none; border-color: #1c1917; }
+  .field-row-delete {
+    background: none; border: none; cursor: pointer; padding: 3px 7px; border-radius: 4px;
+    font-size: 15px; font-weight: 600; color: #a3a3a3; transition: color 0.15s, background 0.15s;
+  }
+  .field-row-delete:hover { color: #dc2626; background: #fef2f2; }
+  .add-category-btn {
+    align-self: flex-start; font-family: inherit; font-size: 12px; font-weight: 500;
+    color: #737373; background: none; border: 1px dashed #d4d4d4; border-radius: 6px;
+    padding: 5px 10px; cursor: pointer; margin-top: 2px; transition: color 0.15s, border-color 0.15s;
+  }
+  .add-category-btn:hover { color: #1c1917; border-color: #a3a3a3; }
+  .field-setup-done {
+    align-self: flex-end; font-family: inherit; font-size: 12px; font-weight: 600;
+    padding: 5px 14px; border-radius: 6px; border: none; background: #1c1917; color: #fff;
+    cursor: pointer; margin-top: 2px; transition: opacity 0.15s;
+  }
+  .field-setup-done:hover { opacity: 0.8; }
+
   /* ── Dark mode — app nav ── */
   body.dark .app-nav { background: #1c1917; border-bottom-color: #2e2a27; }
   body.dark .nav-logo { color: #e5e5e5; }
@@ -520,6 +560,15 @@
   body.dark .scheme-swatch.active { border-color: #fafafa; }
   body.dark .copy-field-row label { color: #737373; }
   body.dark .copy-field-row select { background: #171717; border-color: #404040; color: #fafafa; }
+  body.dark .gear-btn { color: #525252; }
+  body.dark .gear-btn:hover { color: #fafafa; background: #1c1c1c; }
+  body.dark .gear-btn.active { color: #fafafa; }
+  body.dark .field-setup-panel { background: #171717; border-color: #262626; }
+  body.dark .field-label-input { background: #0a0a0a; border-color: #404040; color: #fafafa; }
+  body.dark .field-label-input:focus { border-color: #fafafa; }
+  body.dark .add-category-btn { color: #737373; border-color: #404040; }
+  body.dark .add-category-btn:hover { color: #fafafa; border-color: #737373; }
+  body.dark .field-setup-done { background: #fafafa; color: #0a0a0a; }
   body.dark .lists-filters { background: #0a0a0a; border-bottom-color: #262626; }
   body.dark .lists-filters input[type="search"] { background: #171717; border-color: #404040; color: #fafafa; }
   body.dark .lists-filters input[type="search"]::placeholder { color: #737373; }
@@ -1684,6 +1733,7 @@ var listSearch = '';
 var switcherOpen = false;
 var deleteConfirm = false;
 var openFilterKey = null;
+var fieldSetupOpen = false;
 
 function getVisibleItems() {
   var list = curList();
@@ -1756,9 +1806,29 @@ function renderListsPage() {
     return '<option value="' + f.key + '"' + (list.copyField === f.key ? ' selected' : '') + '>' + esc(f.label) + '</option>';
   }).join('');
 
+  var fieldRows = list.fields.map(function(f, fi) {
+    var tag = fi === 0 ? '<span class="field-row-tag">ID</span>' : '<span class="field-row-tag"></span>';
+    var del = fi === 0 ? '' : '<button class="field-row-delete" onclick="removeField(\'' + f.key + '\')" title="Remove field" aria-label="Remove ' + esc(f.label) + ' field">&times;</button>';
+    return '<div class="field-row">' +
+      tag +
+      '<input class="field-label-input" value="' + esc(f.label) + '" placeholder="e.g. Email, Team, Role" ' +
+        'onblur="renameField(\'' + f.key + '\',this.value)" ' +
+        'onkeydown="if(event.key===\'Enter\'){this.blur()}" aria-label="Field label">' +
+      del +
+    '</div>';
+  }).join('');
+  var fieldPanel = fieldSetupOpen
+    ? '<div class="field-setup-panel">' +
+        fieldRows +
+        '<button class="add-category-btn" onclick="addCategory()">+ add category</button>' +
+        '<button class="field-setup-done" onclick="toggleFieldSetup()">done</button>' +
+      '</div>'
+    : '';
+
   hdr.innerHTML =
     '<div class="lists-header-top">' +
       '<input class="list-name-editable" value="' + esc(list.name) + '" onblur="renameCurrentList(this.value)" onkeydown="if(event.key===\'Enter\'){this.blur()}" aria-label="List name">' +
+      '<button class="gear-btn' + (fieldSetupOpen ? ' active' : '') + '" onclick="toggleFieldSetup()" title="Configure fields" aria-label="Configure fields">⚙</button>' +
       '<div class="lists-header-actions">' +
         '<button onclick="selectAllVisible()" aria-label="Select all visible">select all</button>' +
         '<button onclick="clearAllSelected()" aria-label="Clear selections">clear</button>' +
@@ -1771,7 +1841,8 @@ function renderListsPage() {
     '<div class="copy-field-row">' +
       '<label>copies</label>' +
       '<select onchange="setCopyField(this.value)" aria-label="Field to copy">' + copyOpts + '</select>' +
-    '</div>';
+    '</div>' +
+    fieldPanel;
 
   // Filters
   var filDiv = document.getElementById('listsFilters');
@@ -1870,16 +1941,16 @@ document.addEventListener('click', function(e) {
 
 function switchList(id) {
   listsData.currentListId = id;
-  listFilters = {}; listSearch = ''; switcherOpen = false; deleteConfirm = false;
+  listFilters = {}; listSearch = ''; switcherOpen = false; deleteConfirm = false; fieldSetupOpen = false;
   saveLists(); renderListsPage();
 }
 
 function createNewList() {
-  var nl = { id: lid(), name: 'Untitled list', colorScheme: 'bauhaus', copyField: 'email',
-    fields: [{key:'name',label:'Name'},{key:'email',label:'Email'}], items: [], selected: [] };
+  var nl = { id: lid(), name: 'Untitled list', colorScheme: 'bauhaus', copyField: 'name',
+    fields: [{key:'name',label:'Name'}], items: [], selected: [] };
   listsData.lists.push(nl);
   listsData.currentListId = nl.id;
-  listFilters = {}; listSearch = ''; switcherOpen = false;
+  listFilters = {}; listSearch = ''; switcherOpen = false; fieldSetupOpen = true;
   saveLists(); renderListsPage();
   var inp = document.querySelector('.list-name-editable');
   if (inp) { inp.focus(); inp.select(); }
@@ -1926,6 +1997,37 @@ function confirmDeleteList() {
 
 function setListScheme(key) { curList().colorScheme = key; saveLists(); renderListsPage(); }
 function setCopyField(key) { curList().copyField = key; saveLists(); renderListsPage(); }
+
+function toggleFieldSetup() { fieldSetupOpen = !fieldSetupOpen; renderListsPage(); }
+
+function addCategory() {
+  var list = curList();
+  var key = 'f' + Date.now().toString(36);
+  list.fields.push({ key: key, label: '' });
+  saveLists(); renderListsPage();
+  var panel = document.querySelector('.field-setup-panel');
+  if (panel) {
+    var inputs = panel.querySelectorAll('.field-label-input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }
+}
+
+function removeField(key) {
+  var list = curList();
+  list.fields = list.fields.filter(function(f) { return f.key !== key; });
+  if (list.copyField === key) list.copyField = list.fields[0].key;
+  saveLists(); renderListsPage();
+}
+
+function renameField(key, label) {
+  var list = curList();
+  var f = list.fields.find(function(f) { return f.key === key; });
+  if (!f) return;
+  var newLabel = label.trim();
+  if (!newLabel && list.fields.indexOf(f) === 0) return;
+  f.label = newLabel;
+  saveLists(); renderListsPage();
+}
 
 function setFilter(key, val) { listFilters[key] = val ? [val] : []; renderListsPage(); }
 function setSearch(val) { listSearch = val; renderListsPage(); }
