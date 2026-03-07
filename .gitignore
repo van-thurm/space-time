@@ -1,0 +1,21 @@
+.DS_Store
+.playwright-mcp/
+palette-full.png
+.vercel
+
+# editor / IDE config
+.vscode/
+
+# private planning + session files
+.claude/
+.cursor/
+.agents/
+RESUMESESSION_HANDOFF.md
+*HANDOFF*.md
+
+# form-form local launchers and data
+form-form/lists-data.json
+form-form/.server.pid
+form-form/server.py
+form-form/form form.app/
+form-form/form-form.command
