@@ -452,6 +452,15 @@
   }
   .add-item-submit:disabled { opacity: 0.3; cursor: default; }
   .add-item-submit:not(:disabled):hover { opacity: 0.85; }
+  .add-item-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .add-item-cancel {
+    font-family: inherit; font-size: 13px; font-weight: 600; padding: 9px 20px;
+    border-radius: 7px; border: 1px solid #d4d4d4; background: #fff; color: #737373;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .add-item-cancel:hover { background: #f5f5f5; }
+  .person-name { cursor: pointer; }
+  .person-name:hover { text-decoration: underline; text-decoration-color: #a3a3a3; }
   .item-remove {
     opacity: 0; background: none; border: none; color: #dc2626; font-size: 14px;
     cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: opacity 0.15s;
@@ -614,6 +623,8 @@
   body.dark .add-item-input:focus { border-color: #fafafa; }
   body.dark .add-item-input::placeholder { color: #525252; }
   body.dark .add-item-submit { background: #fafafa; color: #0a0a0a; }
+  body.dark .add-item-cancel { background: #171717; border-color: #404040; color: #a3a3a3; }
+  body.dark .add-item-cancel:hover { background: #262626; }
   body.dark .item-remove:hover { background: #2d0a0a; }
   body.dark .danger-link { color: #f87171; }
   body.dark .danger-link:hover { background: #2d0a0a; }
@@ -1742,8 +1753,8 @@ function pillStyle(hex) {
 }
 
 function getFilterableFields(list) {
-  return list.fields.filter(function(f) {
-    if (f.key === 'name') return false;
+  return list.fields.filter(function(f, fi) {
+    if (fi === 0) return false;
     var vals = {};
     list.items.forEach(function(it) { if (it[f.key]) vals[it[f.key]] = 1; });
     return Object.keys(vals).length > 1 && Object.keys(vals).length <= 20;
@@ -1757,6 +1768,7 @@ var deleteConfirm = false;
 var openFilterKey = null;
 var fieldSetupOpen = false;
 var addCardOpen = false;
+var editingItemId = null;
 
 function getVisibleItems() {
   var list = curList();
@@ -1765,7 +1777,8 @@ function getVisibleItems() {
       var f = listFilters[k];
       if (f && f.length > 0 && f.indexOf(it[k]) === -1) return false;
     }
-    if (listSearch && it.name.toLowerCase().indexOf(listSearch.toLowerCase()) === -1) return false;
+    var _idKey = list.fields[0].key;
+    if (listSearch && (it[_idKey] || '').toLowerCase().indexOf(listSearch.toLowerCase()) === -1) return false;
     return true;
   });
 }
@@ -1915,22 +1928,51 @@ function renderListsPage() {
       row.setAttribute('aria-label', titleVal);
       row.innerHTML =
         '<input type="checkbox" tabindex="-1" ' + (checked ? 'checked' : '') + ' aria-hidden="true">' +
-        '<div class="person-info"><div class="person-name">' + esc(titleVal) + '</div><div class="person-pills">' + pillsHtml + '</div></div>' +
+        '<div class="person-info"><div class="person-name" title="Click to edit" tabindex="0" role="button" aria-label="Edit ' + esc(titleVal) + '">' + esc(titleVal) + '</div><div class="person-pills">' + pillsHtml + '</div></div>' +
         '<button class="item-remove" onclick="event.stopPropagation();removeItem(\'' + item.id + '\')" title="Remove" aria-label="Remove ' + esc(titleVal) + '">&times;</button>';
       row.addEventListener('click', (function(id) { return function(e) {
         if (e.target.classList.contains('item-remove')) return;
+        if (e.target.closest('.person-name')) { openEditCard(id); return; }
         toggleItem(id); };
       })(item.id));
       row.addEventListener('keydown', (function(id) { return function(e) {
         if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggleItem(id); }
       };})(item.id));
+      var nameEl = row.querySelector('.person-name');
+      if (nameEl) {
+        nameEl.addEventListener('keydown', (function(id) { return function(e) {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); openEditCard(id); }
+        };})(item.id));
+      }
       listEl.appendChild(row);
     });
   }
 
   // Add item bar
   var addBar = document.getElementById('addItemBar');
-  if (!addCardOpen) {
+  if (editingItemId !== null) {
+    var editItem = list.items.find(function(it) { return it.id === editingItemId; });
+    if (!editItem) {
+      editingItemId = null;
+      addBar.innerHTML = '<button class="add-item-trigger" onclick="openAddCard()">+ add item</button>';
+    } else {
+      var editFields = list.fields.map(function(f, fi) {
+        var isId = fi === 0;
+        var inputAttrs = isId ? ' oninput="toggleAddCardBtn()"' : '';
+        return '<div class="add-item-field">' +
+          '<label class="add-item-label">' + esc(f.label) + '</label>' +
+          '<input type="text" class="add-item-input" data-field="' + f.key + '" value="' + esc(editItem[f.key] || '') + '" placeholder="' + esc(f.label) + '"' + inputAttrs + '>' +
+        '</div>';
+      }).join('');
+      var idVal = editItem[list.fields[0].key] || '';
+      addBar.innerHTML = '<div class="add-item-card">' + editFields +
+        '<div class="add-item-actions">' +
+          '<button class="add-item-cancel" onclick="cancelEdit()">Cancel</button>' +
+          '<button class="add-item-submit" onclick="saveEditedItem()"' + (!idVal.trim() ? ' disabled' : '') + '>Save</button>' +
+        '</div>' +
+      '</div>';
+    }
+  } else if (!addCardOpen) {
     addBar.innerHTML = '<button class="add-item-trigger" onclick="openAddCard()">+ add item</button>';
   } else {
     var cardFields = list.fields.map(function(f, fi) {
@@ -1977,15 +2019,19 @@ document.addEventListener('click', function(e) {
   if (switcherOpen && !e.target.closest('.list-switcher')) { switcherOpen = false; changed = true; }
   if (openFilterKey && !e.target.closest('.filter-dd')) { openFilterKey = null; changed = true; }
   if (addCardOpen && !e.target.closest('.add-item-card')) { addCardOpen = false; changed = true; }
+  if (editingItemId !== null && !e.target.closest('.add-item-card')) { editingItemId = null; changed = true; }
   if (changed) renderListsPage();
 });
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape' && addCardOpen) { addCardOpen = false; renderListsPage(); }
+  if (e.key === 'Escape') {
+    if (editingItemId !== null) { editingItemId = null; renderListsPage(); }
+    else if (addCardOpen) { addCardOpen = false; renderListsPage(); }
+  }
 });
 
 function switchList(id) {
   listsData.currentListId = id;
-  listFilters = {}; listSearch = ''; switcherOpen = false; deleteConfirm = false; fieldSetupOpen = false; addCardOpen = false;
+  listFilters = {}; listSearch = ''; switcherOpen = false; deleteConfirm = false; fieldSetupOpen = false; addCardOpen = false; editingItemId = null;
   saveLists(); renderListsPage();
 }
 
@@ -1994,7 +2040,7 @@ function createNewList() {
     fields: [{key:'name',label:'Name'}], items: [], selected: [] };
   listsData.lists.push(nl);
   listsData.currentListId = nl.id;
-  listFilters = {}; listSearch = ''; switcherOpen = false; fieldSetupOpen = true; addCardOpen = false;
+  listFilters = {}; listSearch = ''; switcherOpen = false; fieldSetupOpen = true; addCardOpen = false; editingItemId = null;
   saveLists(); renderListsPage();
   var inp = document.querySelector('.list-name-editable');
   if (inp) { inp.focus(); inp.select(); }
@@ -2098,10 +2144,39 @@ function clearAllSelected() {
 
 function openAddCard() {
   addCardOpen = true;
+  editingItemId = null;
   _cardClickTs = Date.now();
   renderListsPage();
   var card = document.querySelector('.add-item-card');
   if (card) { var inp = card.querySelector('input'); if (inp) inp.focus(); }
+}
+
+function openEditCard(id) {
+  editingItemId = id;
+  addCardOpen = false;
+  _cardClickTs = Date.now();
+  renderListsPage();
+  var card = document.querySelector('.add-item-card');
+  if (card) { var inp = card.querySelector('input'); if (inp) inp.focus(); }
+}
+
+function cancelEdit() {
+  editingItemId = null;
+  renderListsPage();
+}
+
+function saveEditedItem() {
+  var list = curList();
+  var card = document.querySelector('.add-item-card');
+  if (!card || !editingItemId) return;
+  var item = list.items.find(function(it) { return it.id === editingItemId; });
+  if (!item) { editingItemId = null; renderListsPage(); return; }
+  var inputs = card.querySelectorAll('input');
+  var idInput = inputs[0];
+  if (!idInput || !idInput.value.trim()) return;
+  inputs.forEach(function(inp) { item[inp.dataset.field] = inp.value.trim(); });
+  editingItemId = null;
+  saveLists(); renderListsPage();
 }
 
 function toggleAddCardBtn() {
