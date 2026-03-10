@@ -7,7 +7,7 @@ small tools and projects.
 ### [clarissa](https://github.com/van-thurm/clarissa)
 creative assistant tui. git stats, daily tasks, horoscopes, ascii, vibes. then a shortcut to connect me to the stuff i need to work.
 
-npx hey-clarissa 
+```npx hey-clarissa``` 
 
 ### [baby clarissa](baby%20clarissa/)
 original tui, archived for reference.
