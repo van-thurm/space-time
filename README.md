@@ -12,6 +12,9 @@ simple form maker, capable of making not-ugly forms, with ( almost ) no frills. 
 
 **live:** [van-thurm.github.io/space-time/form-form](https://van-thurm.github.io/space-time/form-form/)
 
+### [portfolio-case-study-skill](portfolio-case-study-skill/)
+ai agent skill for writing and reviewing portfolio case studies. structured q&a intake, impact calculator, vanity metric detection. built for design ops, creative tech, and design leadership roles.
+
 ### [clarissa](https://github.com/van-thurm/clarissa)
 creative assistant tui — how i start my morning. git stats, daily tasks, horoscopes, ascii, vibes. then a shortcut to connect me to the stuff i need to work.
 

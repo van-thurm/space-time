@@ -1,33 +1,28 @@
-# Portfolio Case Study Skill
+# portfolio-case-study-skill
 
-An AI agent skill for generating, reviewing, and refining portfolio case studies — optimized for design leadership, design ops, and creative technology roles.
+ai agent skill for writing, reviewing, and sharpening portfolio case studies. built for design leadership, design ops, and creative technology roles.
 
-## What it does
+## what it does
 
-- **Intake + Draft**: Structured Q&A that walks you through project context, professional signals, and an impact calculator to produce a formatted case study draft
-- **Review**: Evaluates existing case study content against proven patterns with specific rewrite suggestions
-- **Refine**: Targeted before/after rewrites for weak areas
+- **intake + draft**: structured q&a that walks you through project context, professional signals, and an impact calculator. produces a formatted case study draft.
+- **review**: evaluates existing case study content against proven patterns. gives specific rewrite suggestions.
+- **refine**: targeted before/after rewrites on weak areas.
 
-## What's in the box
+## what's in it
 
-| File | Purpose |
-|---|---|
-| `SKILL.md` | Process engine — intake workflow, review rubric, and drafting guidelines |
-| `references/portfolio-patterns.md` | Pattern library — identity statements, case study anatomy, voice/tone rules, metrics formulas, vanity metric detection, and role-specific adaptations |
+- `SKILL.md` — process engine (intake workflow, review rubric, drafting guidelines)
+- `references/portfolio-patterns.md` — pattern library (identity statements, case study anatomy, voice/tone, metrics formulas, vanity metric detection, role adaptations)
 
-## Key features
+## highlights
 
-**Impact Calculator** — Asks component questions (people affected, time saved, frequency) and computes portfolio-ready metrics statements. Covers time savings, cost impact, scale/reach, adoption, and velocity. Helps construct defensible estimates when hard numbers aren't available.
+- **impact calculator**: asks component questions (people affected, time saved, frequency) and computes portfolio-ready metrics. covers time savings, cost impact, scale, adoption, and velocity. helps build defensible estimates when hard numbers aren't available.
+- **vanity metric detection**: flags output counts and participation numbers that aren't tied to impact. pushes toward metrics that survive a "so what?" test.
+- **professional signals**: surfaces the stuff hiring managers read between the lines. individual vs team scope, timeline as velocity signal, context comfort, leading vs executing range.
+- **role adaptation**: maps product design case study conventions to design ops, creative tech, and design leadership equivalents.
 
-**Vanity Metric Detection** — Flags output counts and participation numbers (e.g., "70 attendees," "185 deliverables produced") that aren't tied to business impact. Pushes toward metrics that survive a "so what?" test.
+## install
 
-**Professional Signals** — Surfaces hiring-manager-readable signals: individual vs team scope, timeline as velocity indicator, context comfort (built from scratch vs navigated existing complexity), and leading vs executing range.
-
-**Role Adaptation** — Maps standard product design case study patterns to design ops, creative technology, and design leadership equivalents. Different metrics vocabulary, different framing, same structural rigor.
-
-## Install
-
-Copy the `SKILL.md` and `references/` directory into your Cursor skills folder:
+drop the folder into your cursor skills directory:
 
 ```
 ~/.cursor/skills/portfolio-case-study/
@@ -36,12 +31,12 @@ Copy the `SKILL.md` and `references/` directory into your Cursor skills folder:
     └── portfolio-patterns.md
 ```
 
-The skill triggers when you ask to write case studies, review portfolio content, extract impact metrics, draft project descriptions, or improve portfolio copy.
+triggers when you ask to write case studies, review portfolio content, extract impact metrics, or improve portfolio copy.
 
-## Methodology
+## methodology
 
-Patterns derived from competitive analysis of portfolios by designers hired at top-tier enterprise SaaS and tech companies. Content analysis across 8 portfolios and public industry discussion examining structure, tone, word choice, metrics usage, and narrative strategy.
+patterns derived from competitive analysis of portfolios by designers hired at top-tier enterprise saas and tech companies. content analysis across 8 portfolios and public industry discussion examining structure, tone, word choice, metrics usage, and narrative strategy.
 
-## License
+## license
 
-MIT
+mit
