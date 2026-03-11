@@ -26,6 +26,7 @@
       gap: 4px;
       padding: 6px 8px;
       flex-shrink: 0;
+      flex-wrap: wrap;
     }
 
     #toolbar button {
@@ -39,15 +40,19 @@
       white-space: nowrap;
     }
 
-    #toolbar button:hover {
-      background: #3c3c3c;
-    }
+    #toolbar button:hover { background: #3c3c3c; }
 
     #toolbar button.active {
       background: #0e639c;
       border-color: #0e639c;
       color: #ffffff;
     }
+
+    #toolbar button:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+    #toolbar button:disabled:hover { background: transparent; }
 
     .separator {
       width: 1px;
@@ -67,23 +72,34 @@
       background: #252526;
     }
 
-    #saveBtn, #copyBtn {
-      margin-left: auto;
+    #zoomLabel {
+      color: #999;
+      font-size: 11px;
+      min-width: 36px;
+      text-align: center;
+      user-select: none;
     }
-    #saveBtn { margin-left: auto; }
-    #copyBtn { margin-left: 0; }
+
+    .spacer { flex: 1; }
 
     #canvasWrap {
       flex: 1;
       overflow: auto;
       display: flex;
-      align-items: flex-start;
-      justify-content: flex-start;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
 
     #canvas {
       display: block;
       cursor: crosshair;
+      transform-origin: 0 0;
+    }
+
+    #canvasContainer {
+      display: none;
+      position: relative;
     }
 
     #placeholder {
@@ -97,19 +113,28 @@
 </head>
 <body>
   <div id="toolbar">
-    <button id="toolPen" class="active" title="Pen">✏ Pen</button>
-    <button id="toolArrow" title="Arrow">↗ Arrow</button>
-    <button id="toolRect" title="Rectangle">▭ Rect</button>
+    <button id="toolPen" class="active" title="Pen">&#9999; Pen</button>
+    <button id="toolArrow" title="Arrow">&#8599; Arrow</button>
+    <button id="toolRect" title="Rectangle">&#9645; Rect</button>
     <button id="toolText" title="Text">T Text</button>
     <div class="separator"></div>
     <input type="color" id="colorPicker" value="#ff3b3b" title="Color">
     <div class="separator"></div>
-    <button id="saveBtn" title="Save to file">⬇ Save</button>
-    <button id="copyBtn" title="Copy to clipboard">⎘ Copy</button>
+    <button id="undoBtn" title="Undo (Cmd/Ctrl+Z)" disabled>&#8630; Undo</button>
+    <div class="separator"></div>
+    <button id="zoomFit" title="Fit to window">Fit</button>
+    <button id="zoomOut" title="Zoom out">&#8722;</button>
+    <span id="zoomLabel">100%</span>
+    <button id="zoomIn" title="Zoom in">+</button>
+    <div class="spacer"></div>
+    <button id="saveBtn" title="Save to file">&#11015; Save</button>
+    <button id="copyBtn" title="Copy to clipboard">&#9112; Copy</button>
   </div>
   <div id="canvasWrap">
-    <div id="placeholder">Waiting for screenshot…</div>
-    <canvas id="canvas" style="display:none;"></canvas>
+    <div id="placeholder">Waiting for screenshot&hellip;</div>
+    <div id="canvasContainer">
+      <canvas id="canvas"></canvas>
+    </div>
   </div>
 
   <script>
@@ -117,8 +142,9 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     const placeholder = document.getElementById('placeholder');
+    const canvasWrap = document.getElementById('canvasWrap');
+    const canvasContainer = document.getElementById('canvasContainer');
 
-    // Signal extension that webview is ready to receive the image
     vscode.postMessage({ type: 'ready' });
 
     let currentTool = 'pen';
@@ -127,7 +153,67 @@
     let snapshotBeforeShape = null;
     let color = '#ff3b3b';
 
-    // Tool buttons
+    // -- Undo stack (ImageData snapshots, max 50) --
+    const MAX_UNDO = 50;
+    const undoStack = [];
+    const undoBtn = document.getElementById('undoBtn');
+
+    function pushUndo() {
+      undoStack.push(ctx.getImageData(0, 0, canvas.width, canvas.height));
+      if (undoStack.length > MAX_UNDO) undoStack.shift();
+      undoBtn.disabled = false;
+    }
+
+    function performUndo() {
+      if (undoStack.length === 0) return;
+      const prev = undoStack.pop();
+      ctx.putImageData(prev, 0, 0);
+      undoBtn.disabled = undoStack.length === 0;
+    }
+
+    undoBtn.addEventListener('click', performUndo);
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
+        e.preventDefault();
+        performUndo();
+      }
+    });
+
+    // -- Zoom --
+    const ZOOM_LEVELS = [0.25, 0.5, 0.75, 1, 1.5, 2];
+    let currentZoom = 1;
+    let nativeWidth = 0;
+    let nativeHeight = 0;
+    const zoomLabel = document.getElementById('zoomLabel');
+
+    function fitZoom() {
+      if (!nativeWidth) return 1;
+      const wrapRect = canvasWrap.getBoundingClientRect();
+      const pad = 16;
+      const scaleX = (wrapRect.width - pad) / nativeWidth;
+      const scaleY = (wrapRect.height - pad) / nativeHeight;
+      return Math.min(scaleX, scaleY, 1);
+    }
+
+    function applyZoom(z) {
+      currentZoom = z;
+      canvas.style.transform = 'scale(' + z + ')';
+      canvasContainer.style.width = Math.ceil(nativeWidth * z) + 'px';
+      canvasContainer.style.height = Math.ceil(nativeHeight * z) + 'px';
+      zoomLabel.textContent = Math.round(z * 100) + '%';
+    }
+
+    document.getElementById('zoomFit').addEventListener('click', () => applyZoom(fitZoom()));
+    document.getElementById('zoomIn').addEventListener('click', () => {
+      const next = ZOOM_LEVELS.find(l => l > currentZoom + 0.001);
+      if (next) applyZoom(next);
+    });
+    document.getElementById('zoomOut').addEventListener('click', () => {
+      const prev = [...ZOOM_LEVELS].reverse().find(l => l < currentZoom - 0.001);
+      if (prev) applyZoom(prev);
+    });
+
+    // -- Tool buttons --
     const tools = { pen: 'toolPen', arrow: 'toolArrow', rect: 'toolRect', text: 'toolText' };
     Object.entries(tools).forEach(([tool, id]) => {
       document.getElementById(id).addEventListener('click', () => {
@@ -141,53 +227,64 @@
       color = e.target.value;
     });
 
-    // Receive image from extension
+    // -- Receive image from extension --
     window.addEventListener('message', (event) => {
       const msg = event.data;
       if (msg.type === 'image') {
         const img = new Image();
         img.onload = () => {
-          canvas.width = img.naturalWidth;
-          canvas.height = img.naturalHeight;
+          nativeWidth = img.naturalWidth;
+          nativeHeight = img.naturalHeight;
+          canvas.width = nativeWidth;
+          canvas.height = nativeHeight;
           ctx.drawImage(img, 0, 0);
           placeholder.style.display = 'none';
-          canvas.style.display = 'block';
+          canvasContainer.style.display = 'block';
+          applyZoom(fitZoom());
+          pushUndo();
         };
         img.src = msg.dataUrl;
       }
     });
 
-    // Drawing
-    canvas.addEventListener('mousedown', (e) => {
-      isDrawing = true;
+    // -- Drawing helpers --
+    function canvasCoords(e) {
       const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      startX = (e.clientX - rect.left) * scaleX;
-      startY = (e.clientY - rect.top) * scaleY;
+      return {
+        x: (e.clientX - rect.left) * (canvas.width / rect.width),
+        y: (e.clientY - rect.top) * (canvas.height / rect.height),
+      };
+    }
 
-      if (currentTool === 'arrow' || currentTool === 'rect') {
-        snapshotBeforeShape = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      }
+    canvas.addEventListener('mousedown', (e) => {
+      const { x, y } = canvasCoords(e);
+      startX = x;
+      startY = y;
 
       if (currentTool === 'text') {
-        isDrawing = false;
         const text = window.prompt('Enter text:');
         if (text) {
+          pushUndo();
           ctx.font = '16px sans-serif';
           ctx.fillStyle = color;
           ctx.fillText(text, startX, startY);
         }
+        return;
+      }
+
+      isDrawing = true;
+
+      if (currentTool === 'pen') {
+        pushUndo();
+      } else if (currentTool === 'arrow' || currentTool === 'rect') {
+        snapshotBeforeShape = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        pushUndo();
       }
     });
 
     canvas.addEventListener('mousemove', (e) => {
       if (!isDrawing) return;
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const x = (e.clientX - rect.left) * scaleX;
-      const y = (e.clientY - rect.top) * scaleY;
+      const { x, y } = canvasCoords(e);
 
       if (currentTool === 'pen') {
         ctx.beginPath();
@@ -237,6 +334,7 @@
       ctx.stroke();
     }
 
+    // -- Save / Copy (always at native resolution) --
     document.getElementById('saveBtn').addEventListener('click', () => {
       vscode.postMessage({ type: 'save', dataUrl: canvas.toDataURL('image/png') });
     });

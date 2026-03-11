@@ -27,17 +27,22 @@ export function activate(context: vscode.ExtensionContext): void {
   const projectLinksProvider = new ProjectLinksProvider();
   const recentProvider = new RecentProvider(context, extensionUri);
 
-  vscode.window.registerTreeDataProvider('designTray.quickActions', quickActionsProvider);
-  vscode.window.registerTreeDataProvider('designTray.git', gitProvider);
-  vscode.window.registerTreeDataProvider('designTray.projectLinks', projectLinksProvider);
-  vscode.window.registerTreeDataProvider('designTray.recent', recentProvider);
+  const quickActionsView = vscode.window.createTreeView('designTray.quickActions', { treeDataProvider: quickActionsProvider });
+  const gitView = vscode.window.createTreeView('designTray.git', { treeDataProvider: gitProvider });
+  const projectLinksView = vscode.window.createTreeView('designTray.projectLinks', { treeDataProvider: projectLinksProvider });
+  const recentView = vscode.window.createTreeView('designTray.recent', { treeDataProvider: recentProvider });
+  context.subscriptions.push(quickActionsView, gitView, projectLinksView, recentView);
 
-  queueMicrotask(() => {
-    quickActionsProvider.refresh();
-    gitProvider.refresh();
-    projectLinksProvider.refresh();
-    recentProvider.refresh();
-  });
+  let initialLoadDone = false;
+  quickActionsView.onDidChangeVisibility(({ visible }) => {
+    if (visible && !initialLoadDone) {
+      initialLoadDone = true;
+      quickActionsProvider.refresh();
+      gitProvider.refresh();
+      projectLinksProvider.refresh();
+      recentProvider.refresh();
+    }
+  }, undefined, context.subscriptions);
 
   function addToRecent(item: state.RecentItem): void {
     state.addRecentItem(context, item);
