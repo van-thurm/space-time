@@ -7,6 +7,7 @@ import { RecentProvider } from './providers/recent';
 import * as config from './util/config';
 import * as state from './util/state';
 import * as devEnvironment from './features/devEnvironment';
+import * as screenshot from './features/screenshot';
 
 function openInSystemBrowser(url: string): void {
   const cmd = process.platform === 'darwin' ? 'open' : process.platform === 'win32' ? 'cmd' : 'xdg-open';
@@ -92,7 +93,7 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
 
     vscode.commands.registerCommand('designTray.screenshot', () => {
-      vscode.window.showInformationMessage('Wired in Round 4');
+      screenshot.captureAndAnnotate(context);
     }),
 
     vscode.commands.registerCommand('designTray.gitSwitchBranch', async () => {
