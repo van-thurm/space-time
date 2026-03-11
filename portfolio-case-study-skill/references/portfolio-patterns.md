@@ -2,6 +2,20 @@
 
 Patterns derived from competitive analysis of portfolios by designers hired at top-tier enterprise SaaS and big tech companies. Methodology: content analysis across 8 portfolios and public industry discussion (~250 comments, ~8700 reactions) examining structure, tone, word choice, metrics usage, and narrative strategy.
 
+## Table of Contents
+
+- [Identity Statement Patterns](#identity-statement-patterns)
+- [Case Study Anatomy](#case-study-anatomy)
+- [Metrics Extraction by Role Type](#metrics-extraction-by-role-type)
+- [Impact Calculator](#impact-calculator)
+- [Professional Signals](#professional-signals)
+- [Voice and Tone](#voice-and-tone)
+- [Portfolio Architecture](#portfolio-architecture)
+- [Social Proof Patterns](#social-proof-patterns)
+- [Strategic Absence Checklist](#strategic-absence-checklist)
+- [Role Adaptation: Design Ops & Creative Technology](#role-adaptation-design-ops--creative-technology)
+- [Quality Bar](#quality-bar)
+
 ## Identity Statement Patterns
 
 Formula: **Name + Title/Current Context + Domain + Value Claim** in 1-3 sentences.
@@ -46,11 +60,16 @@ Strong example:
 
 Frame the problem in business terms, not design terms. The problem statement does the heavy lifting — it earns attention for the rest of the case study and implicitly shows how the designer thinks.
 
-Strong example:
+Strong examples:
 > "Design reviews were taking 3 weeks on average, with no standardized criteria and inconsistent attendance. Teams were shipping without design sign-off, leading to rework that cost engineering an estimated 400 hours per quarter."
 
-Weak example:
+> "User onboarding completion rate was just 39%, with most users dropping off before exploring core features. This bottleneck limited conversion and slowed product adoption in key customer segments."
+
+Weak example (product design):
 > "The app needed a redesign to improve the user experience."
+
+Weak example (design ops / program management):
+> "The design process needed to be improved so the team could work better."
 
 ### Section 4: Solution Sections (2-4)
 
@@ -60,11 +79,17 @@ Strong headers:
 - "Consolidating five handoff tools into one source of truth"
 - "Turning ad-hoc design reviews into a scalable quality gate"
 - "Reducing onboarding time from 6 weeks to 10 days"
+- "Increasing mobile checkout conversion by 22% in 90 days"
+- "Shifting from static mockups to interactive prototypes in user testing"
+- "Launching a design system adopted by 8 product teams"
 
 Weak headers:
 - "The new homepage design"
 - "Wireframes and prototypes"
 - "Final screens"
+- "Updated process documentation"
+- "Workshop agendas"
+- "Team meeting notes"
 
 Each section: 4-8 sentences. State the challenge, the decision, and why. Include a moment of tension or insight when possible ("We long operated under the assumption that... After reviewing data, we realized...").
 
@@ -81,10 +106,13 @@ Weak:
 ## Metrics Extraction by Role Type
 
 ### Product / UX Design Metrics
-- Revenue impact (ARR, MRR, conversion lift)
-- User behavior (activation rate, retention, NPS, support volume)
-- Efficiency (time-to-task, error rates, support cost reduction)
-- Scale (users, transactions, markets)
+- Revenue impact (ARR, MRR, conversion lift, upsell rate)
+- User behavior (activation rate, retention, NPS, repeat engagement, support volume)
+- Efficiency (time-to-task, error rates, support cost reduction, steps to completion)
+- Scale (users, transactions, markets, geographic reach)
+- Feature adoption rate (percent of users engaging with new features)
+- Churn reduction (decrease in cancellations, subscription drop-off)
+- Task completion rate (percent of users successfully completing key flows)
 
 ### Design Ops Metrics
 - Team velocity (time from concept to ship, review cycle time)
@@ -101,26 +129,37 @@ Weak:
 - Production throughput (assets per sprint, review turnaround)
 - Capability gaps closed (what was impossible before, now possible)
 - Cross-functional adoption (teams using what you built)
+- Automation implemented (manual steps eliminated, number of automations)
+- Uptime/reliability improvements (incidents avoided, recovery time shortened)
+- Reduction in manual errors (error rates before/after, issues prevented)
+- Speed to deploy (time from concept to working prototype, deployment frequency)
+- API adoption (internal/external consumers, endpoints used)
+- Integration points created (systems or tools now interoperable)
+- Performance gains (page load, processing time, resource cost reductions)
 
 ### Design Leadership Metrics
 - Team scaling (hired X designers, grew team from N to M)
-- Culture/practice (rituals established, critique cadence, design reviews)
-- Organizational influence (stakeholders aligned, cross-functional partnerships)
-- Mentorship (designers promoted, career development outcomes)
-
-### Constructing Defensible Estimates
-
-When hard numbers aren't available, build estimates from components:
-
-1. **Time savings**: (people affected) × (time saved per instance) × (frequency) = total hours
-2. **Scale**: "across N teams" or "serving M designers" or "covering P products"
-3. **Before/after**: any measurable axis — even qualitative shifts framed as "from X to Y"
-4. **Adoption**: "used by N% of the org within M months"
-5. **Comparative**: "reduced from N weeks to M days" or "consolidated N tools into 1"
+- Retention and attrition (designer retention rate, average tenure, attrition reduction)
+- Team diversity (change in representation, hiring across locations, disciplines, or backgrounds)
+- Culture/practice (rituals established, critique cadence, design reviews, new communication norms, psychological safety improvements)
+- Organizational influence (stakeholders aligned, cross-functional partnerships, strategic seats at planning tables)
+- Leadership presence (representation in exec or staff meetings, invited as decision-maker)
+- Mentorship (designers promoted, mentee career development outcomes, number of mentoring relationships formed)
+- Internal mobility (designers moving into new roles, upskilling rates)
+- Training and development programs launched, participation rate
+- Increase in design-to-product/project ratio (designer per team or per engineer uplift)
+- Process adoption across teams (number of org units adopting new design processes)
+- Impact on business outcomes via leadership activities (advocated initiatives resulting in revenue/efficiency gains)
+- Success of promoted design leaders (direct reports promoted, alumni leaders in key roles)
+- Employee engagement or satisfaction (eNPS, engagement surveys, "voice of designer" scores)
+- Influence on hiring processes (improved candidate experience, decreased time-to-hire)
+- Conflict reduction or resolution outcomes (measurable improvements post mediation/intervention)
 
 ## Impact Calculator
 
-Walk users through these formulas to generate portfolio-ready metrics from raw project facts. Ask the component questions, compute the result, then produce a ready-to-use statement. Metrics tell a story — they need to be honest and directionally right, not auditable.
+Walk users through these formulas to generate portfolio-ready metrics from raw project facts. Ask the component questions, compute the result, then produce a ready-to-use statement that a recruiter would understand and a hiring manager would respect. Metrics tell a story — they need to be honest and directionally right, not auditable.
+
+When hard numbers aren't available, break estimates into defensible, observable components. Combine multiple angles for multidimensional impact statements. Clarify assumptions ("conservative estimate," "minimum observable") and triangulate with stories or before/after evidence.
 
 ### Time Savings
 
@@ -152,7 +191,7 @@ Output example: "Eliminated an estimated $800K in annual rework by catching desi
 ### Scale and Reach
 
 Ask:
-1. How many [teams / designers / engineers / products / orgs] did this serve?
+1. How many [teams / designers / engineers / products / orgs] did this serve? Consider breadth: departments, geographies, integrations, partner teams.
 2. What was the starting point vs. the end state?
 3. Over what timeframe?
 
@@ -164,7 +203,7 @@ Ask:
 1. How many potential users existed?
 2. How many actually adopted?
 3. Over what timeframe?
-4. Any retention or repeat-use signal?
+4. Any retention or repeat-use signal? (sustained engagement, organic growth, community contribution)
 
 Compute: `adopters ÷ potential_users = adoption_rate`
 
@@ -178,6 +217,31 @@ Ask:
 3. What changed to make it faster?
 
 Output example: "Reduced design-to-ship cycle from 6 weeks to 12 days by replacing ad-hoc review with structured async critique and automated handoff."
+
+### Quality and Risk Reduction
+
+Ask:
+1. What error rates, incident counts, or failure modes existed before?
+2. What are they now?
+3. Any compliance events met, bugs caught pre-release, or escapes prevented?
+
+Output example: "Improved handoff accuracy, eliminating 90% of downstream design QA fixes."
+
+### Experience Improvement
+
+Ask:
+1. Were there satisfaction scores, support ticket volumes, or sentiment signals before?
+2. What changed?
+
+Output example: "Slashed support tickets related to design specs by 70% in Q2."
+
+### Enablement
+
+Ask:
+1. What can stakeholders do now that was impossible before your work?
+2. What workflow, integration, or capability was unblocked?
+
+Output example: "Enabled real-time collaborative editing — first in company history."
 
 ### Compound Impact
 
@@ -364,7 +428,7 @@ What shifts:
 - Your "metrics" are operational: velocity, adoption, quality, scale
 - Your "design decisions" are often process, tooling, or organizational design decisions
 
-## Quality Bar (2025+)
+## Quality Bar
 
 AI tools have raised baseline expectations for portfolio polish and structure. Content that passed as "fine" in 2023 now reads as low-effort. The portfolio itself is evidence of the same craft the designer claims to bring to work. Sloppy structure, inconsistent formatting, or vague copy signals that the designer either doesn't notice or doesn't care — neither is a good look.
 
