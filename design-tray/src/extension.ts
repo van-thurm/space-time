@@ -97,15 +97,19 @@ export function activate(context: vscode.ExtensionContext): void {
     }),
 
     vscode.commands.registerCommand('designTray.gitSwitchBranch', async () => {
-      await vscode.commands.executeCommand('git.checkout');
-      gitProvider.refresh();
       try {
-        const branch = await git(['branch', '--show-current']);
-        if (branch) {
-          addToRecent({ type: 'branch', label: branch, url: '', timestamp: Date.now() });
+        await vscode.commands.executeCommand('git.checkout');
+        gitProvider.refresh();
+        try {
+          const branch = await git(['branch', '--show-current']);
+          if (branch) {
+            addToRecent({ type: 'branch', label: branch, url: '', timestamp: Date.now() });
+          }
+        } catch {
+          // recent tracking is non-critical
         }
-      } catch {
-        // branch tracking is non-critical
+      } catch (err) {
+        vscode.window.showErrorMessage(`Git error: ${(err as Error).message}. Are you in a git repository?`);
       }
     }),
 
@@ -134,9 +138,9 @@ export function activate(context: vscode.ExtensionContext): void {
       const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
       execFile('gh', ['pr', 'create', '--web'], { cwd }, (err: Error | null) => {
         if (err && err.message.includes('ENOENT')) {
-          vscode.window.showErrorMessage('Install the GitHub CLI (gh) to use this feature.');
+          vscode.window.showErrorMessage('Install the GitHub CLI to create PRs: https://cli.github.com');
         } else if (err) {
-          vscode.window.showErrorMessage(`gh error: ${err.message}`);
+          vscode.window.showErrorMessage(`Git error: ${err.message}. Are you in a git repository?`);
         }
       });
     }),
@@ -144,6 +148,15 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.tasks.onDidEndTask((event) => {
       devEnvironment.onTaskEnd(event);
       quickActionsProvider.refresh();
+    }),
+
+    vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('designTray')) {
+        quickActionsProvider.refresh();
+        gitProvider.refresh();
+        projectLinksProvider.refresh();
+        recentProvider.refresh();
+      }
     }),
   );
 }
