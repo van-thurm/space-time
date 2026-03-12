@@ -1,9 +1,7 @@
 import * as vscode from 'vscode';
 import { execFile } from 'child_process';
-import { QuickActionsProvider } from './providers/quickActions';
-import { GitProvider, git } from './providers/git';
-import { ProjectLinksProvider } from './providers/projectLinks';
-import { RecentProvider } from './providers/recent';
+import { SidebarViewProvider, SIDEBAR_VIEW_ID } from './providers/sidebarView';
+import { git } from './providers/git';
 import * as config from './util/config';
 import * as state from './util/state';
 import * as devEnvironment from './features/devEnvironment';
@@ -22,31 +20,14 @@ function openInSystemBrowser(url: string): void {
 export function activate(context: vscode.ExtensionContext): void {
   const { extensionUri } = context;
 
-  const quickActionsProvider = new QuickActionsProvider(extensionUri);
-  const gitProvider = new GitProvider();
-  const projectLinksProvider = new ProjectLinksProvider();
-  const recentProvider = new RecentProvider(context, extensionUri);
-
-  const quickActionsView = vscode.window.createTreeView('designTray.quickActions', { treeDataProvider: quickActionsProvider });
-  const gitView = vscode.window.createTreeView('designTray.git', { treeDataProvider: gitProvider });
-  const projectLinksView = vscode.window.createTreeView('designTray.projectLinks', { treeDataProvider: projectLinksProvider });
-  const recentView = vscode.window.createTreeView('designTray.recent', { treeDataProvider: recentProvider });
-  context.subscriptions.push(quickActionsView, gitView, projectLinksView, recentView);
-
-  let initialLoadDone = false;
-  quickActionsView.onDidChangeVisibility(({ visible }) => {
-    if (visible && !initialLoadDone) {
-      initialLoadDone = true;
-      quickActionsProvider.refresh();
-      gitProvider.refresh();
-      projectLinksProvider.refresh();
-      recentProvider.refresh();
-    }
-  }, undefined, context.subscriptions);
+  const sidebarProvider = new SidebarViewProvider(extensionUri, context);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(SIDEBAR_VIEW_ID, sidebarProvider)
+  );
 
   function addToRecent(item: state.RecentItem): void {
     state.addRecentItem(context, item);
-    recentProvider.refresh();
+    sidebarProvider.refresh();
   }
 
   context.subscriptions.push(
@@ -88,13 +69,17 @@ export function activate(context: vscode.ExtensionContext): void {
       addToRecent({ type: 'link', label: link?.label ?? url, url, timestamp: Date.now() });
     }),
 
+    vscode.commands.registerCommand('designTray.openPR', (url: string) => {
+      openInSystemBrowser(url);
+    }),
+
     vscode.commands.registerCommand('designTray.startDev', async () => {
       if (devEnvironment.isRunning()) {
         devEnvironment.stopDevEnvironment();
       } else {
         await devEnvironment.startDevEnvironment();
       }
-      quickActionsProvider.refresh();
+      sidebarProvider.refresh();
     }),
 
     vscode.commands.registerCommand('designTray.screenshot', () => {
@@ -104,7 +89,7 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand('designTray.gitSwitchBranch', async () => {
       try {
         await vscode.commands.executeCommand('git.checkout');
-        gitProvider.refresh();
+        sidebarProvider.refresh();
         try {
           const branch = await git(['branch', '--show-current']);
           if (branch) {
@@ -123,17 +108,91 @@ export function activate(context: vscode.ExtensionContext): void {
       if (!name) return;
       try {
         await git(['checkout', '-b', name]);
-        gitProvider.refresh();
+        sidebarProvider.refresh();
         addToRecent({ type: 'branch', label: name, url: '', timestamp: Date.now() });
       } catch (err) {
         vscode.window.showErrorMessage(`Git error: ${(err as Error).message}. Are you in a git repository?`);
       }
     }),
 
+    vscode.commands.registerCommand('designTray.gitCommit', async () => {
+      try {
+        const statusOutput = await git(['status', '--porcelain']);
+        if (!statusOutput) {
+          vscode.window.showInformationMessage('Nothing to commit — working tree clean.');
+          return;
+        }
+
+        const files = statusOutput.split('\n').map(line => {
+          const code = line.substring(0, 2);
+          const filePath = line.substring(3);
+          const statusLabel = code === '??' ? 'untracked'
+            : code.includes('M') ? 'modified'
+            : code.includes('A') ? 'added'
+            : code.includes('D') ? 'deleted'
+            : code.includes('R') ? 'renamed'
+            : code.trim();
+          return { label: filePath, description: statusLabel, picked: true };
+        });
+
+        const selected = await vscode.window.showQuickPick(files, {
+          canPickMany: true,
+          title: 'Select files to commit',
+          placeHolder: `${files.length} changed file${files.length === 1 ? '' : 's'} — uncheck any you want to skip`,
+        });
+        if (!selected || selected.length === 0) return;
+
+        const message = await vscode.window.showInputBox({
+          prompt: 'Commit message',
+          placeHolder: 'Describe your changes…',
+          validateInput: (v) => v.trim() ? null : 'Commit message is required',
+        });
+        if (!message) return;
+
+        await git(['add', ...selected.map(f => f.label)]);
+        await git(['commit', '-m', message]);
+        vscode.window.showInformationMessage(`Committed ${selected.length} file${selected.length === 1 ? '' : 's'}.`);
+        sidebarProvider.refresh();
+      } catch (err) {
+        vscode.window.showErrorMessage(`Git error: ${(err as Error).message}`);
+      }
+    }),
+
     vscode.commands.registerCommand('designTray.gitPush', async () => {
       try {
+        const branch = await git(['branch', '--show-current']);
+        if (!branch) {
+          vscode.window.showErrorMessage('Cannot push: detached HEAD state.');
+          return;
+        }
+
+        let commitLines: string[] = [];
+        try {
+          const logOutput = await git(['log', '--oneline', '@{push}..HEAD']);
+          if (logOutput) commitLines = logOutput.split('\n');
+        } catch {
+          try {
+            const logOutput = await git(['log', '--oneline', '-10']);
+            if (logOutput) commitLines = logOutput.split('\n');
+          } catch { /* no commits */ }
+        }
+
+        if (commitLines.length === 0) {
+          vscode.window.showInformationMessage('Nothing to push — already up to date.');
+          return;
+        }
+
+        const n = commitLines.length;
+        const confirm = await vscode.window.showWarningMessage(
+          `Push branch "${branch}" to remote?\n\nThis will publish your commits so the team can see them. Make sure everything looks right first.\n\n${n} commit${n === 1 ? '' : 's'} to push:\n\n${commitLines.join('\n')}`,
+          { modal: true },
+          'Push',
+        );
+        if (confirm !== 'Push') return;
+
         await git(['push']);
-        vscode.window.showInformationMessage('Pushed successfully.');
+        vscode.window.showInformationMessage(`Pushed "${branch}" to remote.`);
+        sidebarProvider.refresh();
       } catch (err) {
         vscode.window.showErrorMessage(`Git error: ${(err as Error).message}`);
       }
@@ -152,15 +211,12 @@ export function activate(context: vscode.ExtensionContext): void {
 
     vscode.tasks.onDidEndTask((event) => {
       devEnvironment.onTaskEnd(event);
-      quickActionsProvider.refresh();
+      sidebarProvider.refresh();
     }),
 
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('designTray')) {
-        quickActionsProvider.refresh();
-        gitProvider.refresh();
-        projectLinksProvider.refresh();
-        recentProvider.refresh();
+        sidebarProvider.refresh();
       }
     }),
   );

@@ -1,0 +1,88 @@
+{
+  "name": "design-tray",
+  "displayName": "Design Tray",
+  "description": "Activity Bar panel with design tools: Quick Actions, Git, Project Links, Recent",
+  "version": "0.1.0",
+  "publisher": "samsara-design",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Other"],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onView:designTray.sidebar"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "designTray",
+          "title": "Design Tray",
+          "icon": "resources/design-tray.svg"
+        }
+      ]
+    },
+    "views": {
+      "designTray": [
+        {
+          "id": "designTray.sidebar",
+          "name": "Design Tray",
+          "type": "webview"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Design Tray",
+      "properties": {
+        "designTray.devServerUrl": {
+          "type": "string",
+          "default": "http://localhost:3000",
+          "description": "URL opened by browser buttons"
+        },
+        "designTray.figmaUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Figma file URL"
+        },
+        "designTray.sandboxUrl": {
+          "type": "string",
+          "default": "",
+          "description": "Sandbox URL (falls back to CodeSandbox if empty)"
+        },
+        "designTray.projectLinks": {
+          "type": "array",
+          "default": [],
+          "description": "Project links. Each entry: { \"label\": string, \"url\": string }",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "url": { "type": "string" }
+            }
+          }
+        },
+        "designTray.startupCommands": {
+          "type": "array",
+          "default": [],
+          "description": "Startup commands. Each entry: { \"label\": string, \"command\": string }",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "command": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --outfile=dist/extension.js --external:vscode --format=cjs --platform=node",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.0",
+    "typescript": "^5.3.0"
+  }
+}

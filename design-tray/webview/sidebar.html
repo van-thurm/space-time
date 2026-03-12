@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Tray</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #1e1e1e;
+      color: #cccccc;
+      font-size: 12px;
+      line-height: 1.4;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .full-wv { padding: 12px; }
+    .fwv-section { margin-bottom: 16px; }
+    .fwv-section-title {
+      font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
+      text-transform: uppercase; color: #666; padding: 0 4px 8px;
+    }
+    .fwv-card-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .fwv-card {
+      background: #252526; border: 1px solid #333; border-radius: 10px;
+      padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.15s;
+    }
+    .fwv-card:hover { background: #2d2d2e; border-color: #555; transform: translateY(-1px); }
+    .fwv-card-icon { font-size: 20px; margin-bottom: 6px; }
+    .fwv-card-label { font-size: 11px; color: #bbb; }
+    .fwv-card-subtitle { font-size: 9px; color: #5ec88a; margin-top: 2px; }
+    .fwv-card.running { border-color: #5ec88a; box-shadow: 0 0 8px rgba(94, 200, 138, 0.2); }
+    .fwv-git-row {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      background: #252526; border: 1px solid #333; border-radius: 8px;
+      margin-bottom: 4px; cursor: pointer; transition: all 0.1s;
+    }
+    .fwv-git-row:hover { border-color: #555; }
+    .fwv-git-icon { font-size: 14px; width: 20px; text-align: center; }
+    .fwv-git-label { flex: 1; font-size: 12px; }
+    .fwv-git-badge {
+      font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500;
+    }
+    .fwv-git-badge.green { background: #1a3d2a; color: #5ec88a; }
+    .fwv-git-badge.blue { background: #1a3a5c; color: #5ea3e8; }
+    .fwv-git-badge.orange { background: #3d2e18; color: #e0a040; }
+    .fwv-pr-card {
+      padding: 10px 12px; background: #252526; border: 1px solid #333;
+      border-radius: 8px; margin-bottom: 4px; cursor: pointer; transition: all 0.1s;
+    }
+    .fwv-pr-card:hover { border-color: #555; }
+    .fwv-pr-title { font-size: 12px; color: #ccc; margin-bottom: 3px; }
+    .fwv-pr-meta { font-size: 10px; color: #666; }
+    .fwv-pr-meta .num { color: #5ea3e8; }
+    .fwv-link-row {
+      display: flex; align-items: center; gap: 8px; padding: 7px 12px;
+      border-radius: 6px; font-size: 12px; cursor: pointer; color: #999;
+    }
+    .fwv-link-row:hover { background: #2a2d2e; color: #ccc; }
+    .fwv-link-row .desc { font-size: 10px; color: #666; margin-left: auto; }
+    .status-bar {
+      display: flex; align-items: center; gap: 12px; padding: 4px 12px;
+      background: #252526; border-top: 1px solid #333; font-size: 11px; color: #888;
+      position: sticky; bottom: 0; flex-shrink: 0;
+    }
+    .status-bar .sb-item { display: flex; align-items: center; gap: 4px; }
+    .status-bar .sb-accent {
+      background: #264f78; color: #a8d4ff; padding: 1px 8px;
+      border-radius: 3px; font-size: 10px; font-weight: 500;
+    }
+    .loading-bar {
+      height: 2px; background: #333; overflow: hidden;
+    }
+    .loading-bar .track {
+      height: 100%; width: 30%; background: #5ea3e8; border-radius: 1px;
+      animation: slide 1.2s ease-in-out infinite;
+    }
+    @keyframes slide {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(400%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-bar" id="loadingBar"><div class="track"></div></div>
+  <div class="scroll-area">
+    <div class="full-wv">
+      <div class="fwv-section">
+        <div class="fwv-section-title">Quick Actions</div>
+        <div class="fwv-card-grid">
+          <div class="fwv-card" data-command="designTray.openCursorBrowser">
+            <div class="fwv-card-icon">🌐</div>
+            <div class="fwv-card-label">Browser</div>
+          </div>
+          <div class="fwv-card" data-command="designTray.openFigma" id="figmaCard">
+            <div class="fwv-card-icon">◆</div>
+            <div class="fwv-card-label">Figma</div>
+            <div class="fwv-card-subtitle" id="figmaSubtitle" style="display:none">MCP</div>
+          </div>
+          <div class="fwv-card" data-command="designTray.screenshot">
+            <div class="fwv-card-icon">📷</div>
+            <div class="fwv-card-label">Screenshot</div>
+          </div>
+          <div class="fwv-card" data-command="designTray.openSandbox">
+            <div class="fwv-card-icon">⚗</div>
+            <div class="fwv-card-label">Sandbox</div>
+          </div>
+          <div class="fwv-card" data-command="designTray.startDev" id="devEnvCard">
+            <div class="fwv-card-icon">⚡</div>
+            <div class="fwv-card-label" id="devEnvLabel">Dev Env</div>
+            <div class="fwv-card-subtitle" id="devEnvSubtitle" style="display:none">running</div>
+          </div>
+          <div class="fwv-card" data-command="designTray.openExternalBrowser">
+            <div class="fwv-card-icon">↗</div>
+            <div class="fwv-card-label">External</div>
+          </div>
+        </div>
+      </div>
+      <div class="fwv-section" id="gitSection"></div>
+      <div class="fwv-section" id="prsSection"></div>
+      <div class="fwv-section" id="linksSection"></div>
+      <div class="fwv-section" id="recentSection"></div>
+    </div>
+  </div>
+  <div class="status-bar" id="statusBar"></div>
+
+  <script>
+    const vscode = acquireVsCodeApi();
+
+    function relativeTime(isoOrTimestamp) {
+      const ms = typeof isoOrTimestamp === 'string'
+        ? Date.now() - new Date(isoOrTimestamp).getTime()
+        : Date.now() - isoOrTimestamp;
+      const s = Math.floor(ms / 1000);
+      const m = Math.floor(s / 60);
+      const h = Math.floor(m / 60);
+      const d = Math.floor(h / 24);
+      if (s < 60) return 'just now';
+      if (m < 60) return m + 'm ago';
+      if (h < 24) return h + 'h ago';
+      if (d === 1) return 'yesterday';
+      if (d < 7) return d + 'd ago';
+      return Math.floor(d / 7) + 'w ago';
+    }
+
+    let state = vscode.getState() || {
+      branch: '',
+      changeCount: 0,
+      aheadCount: 0,
+      openPrs: [],
+      projectLinks: [],
+      recentItems: [],
+      devServerRunning: false,
+      figmaMcpConnected: false
+    };
+
+    function postCommand(command, args = []) {
+      vscode.postMessage({ type: 'command', command, args });
+    }
+
+    function render() {
+      const devEnvCard = document.getElementById('devEnvCard');
+      const devEnvSubtitle = document.getElementById('devEnvSubtitle');
+      const figmaSubtitle = document.getElementById('figmaSubtitle');
+      devEnvCard.classList.toggle('running', state.devServerRunning);
+      devEnvSubtitle.style.display = state.devServerRunning ? 'block' : 'none';
+      figmaSubtitle.style.display = state.figmaMcpConnected ? 'block' : 'none';
+
+      const gitSection = document.getElementById('gitSection');
+      gitSection.innerHTML = '<div class="fwv-section-title">Git</div>' + [
+        { icon: '⑂', label: state.branch || 'main', badge: 'current', badgeClass: 'blue', cmd: 'designTray.gitSwitchBranch' },
+        { icon: '+', label: 'New Branch', cmd: 'designTray.gitNewBranch' },
+        { icon: '✓', label: 'Commit', badge: state.changeCount > 0 ? state.changeCount + ' changes' : null, badgeClass: 'green', cmd: 'designTray.gitCommit' },
+        { icon: '☁', label: 'Push', badge: state.aheadCount > 0 ? state.aheadCount + ' ahead' : null, badgeClass: 'orange', cmd: 'designTray.gitPush' },
+        { icon: '⑂', label: 'Create PR', cmd: 'designTray.gitCreatePR' }
+      ].map(r => {
+        const badge = r.badge ? `<span class="fwv-git-badge ${r.badgeClass}">${r.badge}</span>` : '';
+        return `<div class="fwv-git-row" data-command="${r.cmd}"><span class="fwv-git-icon">${r.icon}</span><span class="fwv-git-label">${r.label}</span>${badge}</div>`;
+      }).join('');
+
+      const prsSection = document.getElementById('prsSection');
+      if (state.openPrs && state.openPrs.length > 0) {
+        prsSection.style.display = 'block';
+        prsSection.innerHTML = '<div class="fwv-section-title">Open PRs</div>' + state.openPrs.map(pr =>
+          `<div class="fwv-pr-card" data-command="designTray.openPR" data-url="${escapeHtml(pr.url)}">
+            <div class="fwv-pr-title">${escapeHtml(pr.title)}</div>
+            <div class="fwv-pr-meta">#<span class="num">${pr.number}</span> · updated ${relativeTime(pr.updatedAt)}</div>
+          </div>`
+        ).join('');
+      } else {
+        prsSection.style.display = 'none';
+      }
+
+      const linksSection = document.getElementById('linksSection');
+      if (state.projectLinks && state.projectLinks.length > 0) {
+        linksSection.style.display = 'block';
+        linksSection.innerHTML = '<div class="fwv-section-title">Links</div>' + state.projectLinks.map(link =>
+          `<div class="fwv-link-row" data-command="designTray.openProjectLink" data-url="${escapeHtml(link.url)}">${escapeHtml(link.label)}</div>`
+        ).join('');
+      } else {
+        linksSection.style.display = 'none';
+      }
+
+      const recentSection = document.getElementById('recentSection');
+      const recent = (state.recentItems || []).slice(0, 10);
+      if (recent.length > 0) {
+        recentSection.style.display = 'block';
+        recentSection.innerHTML = '<div class="fwv-section-title">Recent</div>' + recent.map(item => {
+          const attrs = item.url ? ` data-command="designTray.openProjectLink" data-url="${escapeHtml(item.url)}"` : '';
+          return `<div class="fwv-link-row"${attrs} style="${item.url ? '' : 'cursor:default;opacity:0.7'}">
+            <span>${escapeHtml(item.label)}</span>
+            <span class="desc">${relativeTime(item.timestamp)}</span>
+          </div>`;
+        }).join('');
+      } else {
+        recentSection.style.display = 'none';
+      }
+
+      const statusParts = [];
+      if (state.branch) statusParts.push(`<span class="sb-accent">${escapeHtml(state.branch)}</span>`);
+      if (state.changeCount > 0) statusParts.push(`<span class="sb-item">${state.changeCount} changes</span>`);
+      if (state.figmaMcpConnected) statusParts.push('<span class="sb-item">MCP</span>');
+      document.getElementById('statusBar').innerHTML = statusParts.join('') || '<span class="sb-item">Ready</span>';
+
+      document.querySelectorAll('[data-command]').forEach(el => {
+        el.onclick = () => {
+          const cmd = el.getAttribute('data-command');
+          const url = el.getAttribute('data-url');
+          if (url) postCommand(cmd, [url]);
+          else postCommand(cmd);
+        };
+      });
+    }
+
+    function escapeHtml(s) {
+      if (!s) return '';
+      const div = document.createElement('div');
+      div.textContent = s;
+      return div.innerHTML;
+    }
+
+    window.addEventListener('message', e => {
+      const msg = e.data;
+      if (msg.type === 'state' && msg.data) {
+        state = { ...state, ...msg.data };
+        vscode.setState(state);
+        document.getElementById('loadingBar').style.display = 'none';
+        render();
+      }
+    });
+
+    if (state.branch) document.getElementById('loadingBar').style.display = 'none';
+    render();
+    vscode.postMessage({ type: 'ready' });
+  </script>
+</body>
+</html>

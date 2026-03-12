@@ -22,12 +22,16 @@ Add these to your workspace `.vscode/settings.json`:
 
 Settings are read live — changes take effect immediately without reloading.
 
-## Sections
+## Sidebar
 
-**Quick Actions** — One-click buttons: open dev server in Cursor's Simple Browser or your system browser, open Figma, open your sandbox, start/stop your dev environment, and capture a screenshot for annotation.
+The entire panel is a custom webview with cards, badges, and status indicators.
 
-**Git** — Shows your current branch. Buttons to switch branch (uses VS Code's built-in branch picker), create a new branch, push, and open a GitHub PR creation form in the browser (requires the [GitHub CLI](https://cli.github.com)).
+**Quick Actions** — 3-column card grid: Browser, Figma (shows MCP badge when detected), Screenshot & Annotate, Sandbox, Dev Environment (shows running state), External Browser.
 
-**Project Links** — Custom links loaded from `designTray.projectLinks`. Each entry opens in your system browser and is tracked in Recent.
+**Git** — Branch display with switch/create, Commit (shows live change count, file picker, message input), Push (confirmation modal with commit list and warning text, live ahead count), Create PR (opens `gh pr create --web`). Open PRs section lists your PRs from GitHub, sorted by last updated.
 
-**Recent** — Auto-populated list of the last 20 items opened via Design Tray, with relative timestamps.
+**Links** — Custom links from `designTray.projectLinks`, each tracked in Recent.
+
+**Recent** — Last 20 items opened via Design Tray with relative timestamps.
+
+**Status Bar** — Sticky footer showing current branch, change count, and MCP status.
