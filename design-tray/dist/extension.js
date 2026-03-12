@@ -398,11 +398,24 @@ function activate(context) {
       openInSystemBrowser(url);
       addToRecent({ type: "figma", label: "Open Figma", url, timestamp: Date.now() });
     }),
-    vscode6.commands.registerCommand("designTray.openSandbox", () => {
-      const url = getSandboxUrl();
+    vscode6.commands.registerCommand("designTray.openSandbox", async () => {
+      let url = getSandboxUrl();
       if (!url) {
         vscode6.window.showInformationMessage("Set `designTray.sandboxUrl` in workspace settings.");
         return;
+      }
+      if (url.includes("{branch}")) {
+        try {
+          const branch = await git(["branch", "--show-current"]);
+          if (!branch) {
+            vscode6.window.showWarningMessage("Cannot resolve {branch}: detached HEAD state.");
+            return;
+          }
+          url = url.replace(/\{branch\}/g, branch);
+        } catch {
+          vscode6.window.showWarningMessage("Could not detect git branch for sandbox URL.");
+          return;
+        }
       }
       openInSystemBrowser(url);
       addToRecent({ type: "sandbox", label: "Sandbox", url, timestamp: Date.now() });

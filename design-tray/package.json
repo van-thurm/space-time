@@ -47,7 +47,7 @@
         "designTray.sandboxUrl": {
           "type": "string",
           "default": "",
-          "description": "Sandbox URL (falls back to CodeSandbox if empty)"
+          "description": "Sandbox URL. Use {branch} for auto-substitution (e.g. https://branch-{branch}.sandbox.internal.samsara.com)"
         },
         "designTray.projectLinks": {
           "type": "array",
