@@ -21,6 +21,8 @@
       flex: 1;
       overflow-y: auto;
       overflow-x: hidden;
+      container-name: sidebar;
+      container-type: inline-size;
     }
     .full-wv { padding: 12px; }
     .fwv-section { margin-bottom: 16px; }
@@ -28,15 +30,24 @@
       font-size: 10px; font-weight: 600; letter-spacing: 1.2px;
       text-transform: uppercase; color: #666; padding: 0 4px 8px;
     }
-    .fwv-card-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .fwv-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
     .fwv-card {
       background: #252526; border: 1px solid #333; border-radius: 10px;
-      padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.15s;
+      padding: 14px 8px 10px; text-align: center; cursor: pointer; transition: all 0.15s;
+      min-width: 0; overflow: hidden;
     }
     .fwv-card:hover { background: #2d2d2e; border-color: #555; transform: translateY(-1px); }
-    .fwv-card-icon { font-size: 20px; margin-bottom: 6px; }
-    .fwv-card-label { font-size: 11px; color: #bbb; }
+    .fwv-card-icon { margin-bottom: 4px; display: flex; justify-content: center; align-items: center; }
+    .fwv-card-icon svg { width: 22px; height: 22px; stroke: #999; fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .fwv-card:hover .fwv-card-icon svg { stroke: #ccc; }
+    .fwv-card-icon svg.figma-icon { stroke: none; fill: #999; }
+    .fwv-card:hover .fwv-card-icon svg.figma-icon { fill: #ccc; }
+    .fwv-card-label { font-size: 10px; color: #888; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .fwv-card-subtitle { font-size: 9px; color: #5ec88a; margin-top: 2px; }
+    @container sidebar (max-width: 160px) {
+      .fwv-card-label { display: none; }
+      .fwv-card { padding: 10px 6px; }
+    }
     .fwv-card.running { border-color: #5ec88a; box-shadow: 0 0 8px rgba(94, 200, 138, 0.2); }
     .fwv-git-row {
       display: flex; align-items: center; gap: 8px; padding: 8px 12px;
@@ -44,7 +55,7 @@
       margin-bottom: 4px; cursor: pointer; transition: all 0.1s;
     }
     .fwv-git-row:hover { border-color: #555; }
-    .fwv-git-icon { font-size: 14px; width: 20px; text-align: center; }
+    .fwv-git-icon { font-size: 14px; min-width: 20px; width: 20px; text-align: center; flex-shrink: 0; }
     .fwv-git-label { flex: 1; font-size: 12px; }
     .fwv-git-badge {
       font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500;
@@ -96,30 +107,30 @@
       <div class="fwv-section">
         <div class="fwv-section-title">Quick Actions</div>
         <div class="fwv-card-grid">
-          <div class="fwv-card" data-command="designTray.openCursorBrowser">
-            <div class="fwv-card-icon">🌐</div>
+          <div class="fwv-card" data-command="designTray.openCursorBrowser" title="Open in Cursor Browser">
+            <div class="fwv-card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10A15.3 15.3 0 0 1 12 2z"/></svg></div>
             <div class="fwv-card-label">Browser</div>
           </div>
-          <div class="fwv-card" data-command="designTray.openFigma" id="figmaCard">
-            <div class="fwv-card-icon">◆</div>
+          <div class="fwv-card" data-command="designTray.openFigma" id="figmaCard" title="Open Figma">
+            <div class="fwv-card-icon"><svg class="figma-icon" viewBox="0 0 24 24"><path d="M5 5.5A3.5 3.5 0 0 1 8.5 2H12v7H8.5A3.5 3.5 0 0 1 5 5.5z"/><path d="M12 2h3.5a3.5 3.5 0 1 1 0 7H12V2z"/><path d="M12 12.5a3.5 3.5 0 1 1 7 0 3.5 3.5 0 1 1-7 0z"/><path d="M5 19.5A3.5 3.5 0 0 1 8.5 16H12v3.5a3.5 3.5 0 1 1-7 0z"/><path d="M5 12.5A3.5 3.5 0 0 1 8.5 9H12v7H8.5A3.5 3.5 0 0 1 5 12.5z"/></svg></div>
             <div class="fwv-card-label">Figma</div>
             <div class="fwv-card-subtitle" id="figmaSubtitle" style="display:none">MCP</div>
           </div>
-          <div class="fwv-card" data-command="designTray.screenshot">
-            <div class="fwv-card-icon">📷</div>
+          <div class="fwv-card" data-command="designTray.screenshot" title="Capture Screenshot">
+            <div class="fwv-card-icon"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>
             <div class="fwv-card-label">Screenshot</div>
           </div>
-          <div class="fwv-card" data-command="designTray.openSandbox">
-            <div class="fwv-card-icon">⚗</div>
+          <div class="fwv-card" data-command="designTray.openSandbox" title="Open Sandbox">
+            <div class="fwv-card-icon"><svg viewBox="0 0 24 24"><path d="M9 3v7.4l-4 6.6a2 2 0 0 0 1.7 3h10.6a2 2 0 0 0 1.7-3l-4-6.6V3"/><path d="M7 3h10"/><path d="M8 14h8"/></svg></div>
             <div class="fwv-card-label">Sandbox</div>
           </div>
-          <div class="fwv-card" data-command="designTray.startDev" id="devEnvCard">
-            <div class="fwv-card-icon">⚡</div>
+          <div class="fwv-card" data-command="designTray.startDev" id="devEnvCard" title="Start/Stop Dev Environment">
+            <div class="fwv-card-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
             <div class="fwv-card-label" id="devEnvLabel">Dev Env</div>
             <div class="fwv-card-subtitle" id="devEnvSubtitle" style="display:none">running</div>
           </div>
-          <div class="fwv-card" data-command="designTray.openExternalBrowser">
-            <div class="fwv-card-icon">↗</div>
+          <div class="fwv-card" data-command="designTray.openExternalBrowser" title="Open in External Browser">
+            <div class="fwv-card-icon"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>
             <div class="fwv-card-label">External</div>
           </div>
         </div>
@@ -178,8 +189,8 @@
       gitSection.innerHTML = '<div class="fwv-section-title">Git</div>' + [
         { icon: '⑂', label: state.branch || 'main', badge: 'current', badgeClass: 'blue', cmd: 'designTray.gitSwitchBranch' },
         { icon: '+', label: 'New Branch', cmd: 'designTray.gitNewBranch' },
-        { icon: '✓', label: 'Commit', badge: state.changeCount > 0 ? state.changeCount + ' changes' : null, badgeClass: 'green', cmd: 'designTray.gitCommit' },
-        { icon: '☁', label: 'Push', badge: state.aheadCount > 0 ? state.aheadCount + ' ahead' : null, badgeClass: 'orange', cmd: 'designTray.gitPush' },
+        { icon: '✓', label: 'Commit', badge: state.changeCount > 0 ? String(state.changeCount) : null, badgeClass: 'green', cmd: 'designTray.gitCommit' },
+        { icon: '☁', label: 'Push', badge: state.aheadCount > 0 ? String(state.aheadCount) : null, badgeClass: 'orange', cmd: 'designTray.gitPush' },
         { icon: '⑂', label: 'Create PR', cmd: 'designTray.gitCreatePR' }
       ].map(r => {
         const badge = r.badge ? `<span class="fwv-git-badge ${r.badgeClass}">${r.badge}</span>` : '';
@@ -226,7 +237,7 @@
 
       const statusParts = [];
       if (state.branch) statusParts.push(`<span class="sb-accent">${escapeHtml(state.branch)}</span>`);
-      if (state.changeCount > 0) statusParts.push(`<span class="sb-item">${state.changeCount} changes</span>`);
+      if (state.changeCount > 0) statusParts.push(`<span class="sb-item">${state.changeCount} changed</span>`);
       if (state.figmaMcpConnected) statusParts.push('<span class="sb-item">MCP</span>');
       document.getElementById('statusBar').innerHTML = statusParts.join('') || '<span class="sb-item">Ready</span>';
 
