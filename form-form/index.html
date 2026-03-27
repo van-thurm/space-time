@@ -169,6 +169,11 @@
     cursor: pointer; padding: 2px; background: #fff;
   }
   .accent-hex { font-size: 12px; color: #737373; font-family: ui-monospace, 'SF Mono', 'Menlo', monospace; }
+  .contrast-warning {
+    font-size: 10px; font-weight: 600; color: #b45309; background: #fef3c7;
+    padding: 2px 6px; border-radius: 4px; white-space: nowrap; letter-spacing: 0.02em;
+  }
+  .contrast-warning.pass { color: #15803d; background: #dcfce7; }
 
   /* Mobile: stack layout with tab toggle */
   .mobile-tabs {
@@ -231,6 +236,8 @@
   .editor.dark .design-row input[type="text"] { background: #1c1917; border-color: #3d3835; color: #e5e5e5; }
   .editor.dark .accent-picker input[type="color"] { background: #2e2a27; border-color: #3d3835; }
   .editor.dark .accent-hex { color: #a3a3a3; }
+  .editor.dark .contrast-warning { color: #fbbf24; background: #422006; }
+  .editor.dark .contrast-warning.pass { color: #4ade80; background: #052e16; }
   .editor.dark .btn-primary { background: #e5e5e5; color: #1c1917; }
   .editor.dark .btn-primary:hover { background: #d4d4d4; }
   .editor.dark .btn-secondary { background: #2e2a27; color: #e5e5e5; border-color: #3d3835; }
@@ -496,6 +503,11 @@
     display: flex; justify-content: center;
     padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
     background: #f5f5f5; border-top: 1px solid #e5e5e5;
+    transform: translateY(100%); opacity: 0; pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+  .lists-bottom-bar.visible {
+    transform: translateY(0); opacity: 1; pointer-events: auto;
   }
   .copy-btn {
     font-family: inherit; font-size: 14px; font-weight: 600; padding: 12px 32px;
@@ -508,9 +520,24 @@
   .copy-btn:not(:disabled):active { transform: scale(0.98); }
   .copy-btn:focus-visible { outline: 2px solid #1c1917; outline-offset: 3px; }
   .copy-btn.copied { background: #16a34a; color: #fff; }
+  .copy-inline-btn {
+    font-family: inherit; font-size: 12px; font-weight: 600; padding: 6px 12px;
+    border-radius: 6px; border: 1px solid #1c1917; background: #1c1917; color: #fff;
+    cursor: pointer; min-height: 32px; transition: opacity 0.15s; white-space: nowrap;
+  }
+  .copy-inline-btn:disabled { opacity: 0.35; cursor: default; }
+  .copy-inline-btn:not(:disabled):hover { opacity: 0.85; }
+  .copy-inline-btn:focus-visible { outline: 2px solid #1c1917; outline-offset: 2px; }
+  .copy-inline-btn.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
+  .add-item-trigger-inline {
+    font-family: inherit; font-size: 12px; font-weight: 500; padding: 6px 12px;
+    border-radius: 6px; border: 1px dashed #d4d4d4; background: #fff; color: #737373;
+    cursor: pointer; min-height: 32px; transition: color 0.15s, border-color 0.15s; white-space: nowrap;
+  }
+  .add-item-trigger-inline:hover { color: #1c1917; border-color: #a3a3a3; }
 
   .lists-toast {
-    position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px);
     background: #1c1917; color: #fff; padding: 10px 20px; border-radius: 8px;
     font-size: 13px; font-weight: 500; opacity: 0; pointer-events: none;
     transition: opacity 0.2s, transform 0.2s; z-index: 30;
@@ -519,8 +546,8 @@
 
   /* ── Field setup panel ── */
   .gear-btn {
-    background: none; border: none; cursor: pointer; padding: 4px 6px; border-radius: 6px;
-    font-size: 16px; line-height: 1; color: #a3a3a3; flex-shrink: 0; margin-top: 4px;
+    background: none; border: none; cursor: pointer; padding: 6px 8px; border-radius: 6px;
+    font-size: 20px; line-height: 1; color: #737373; flex-shrink: 0; margin-top: 2px;
     transition: color 0.15s, background 0.15s;
   }
   .gear-btn:hover { color: #1c1917; background: #f0f0f0; }
@@ -528,6 +555,10 @@
   .field-setup-panel {
     margin-top: 10px; padding: 12px 14px; background: #fff; border: 1px solid #e5e5e5;
     border-radius: 10px; display: flex; flex-direction: column; gap: 6px;
+  }
+  .field-setup-title {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+    color: #a3a3a3; margin-bottom: 2px;
   }
   .field-row { display: flex; align-items: center; gap: 8px; }
   .field-row-tag {
@@ -593,6 +624,7 @@
   body.dark .gear-btn:hover { color: #fafafa; background: #1c1c1c; }
   body.dark .gear-btn.active { color: #fafafa; }
   body.dark .field-setup-panel { background: #171717; border-color: #262626; }
+  body.dark .field-setup-title { color: #737373; }
   body.dark .field-label-input { background: #0a0a0a; border-color: #404040; color: #fafafa; }
   body.dark .field-label-input:focus { border-color: #fafafa; }
   body.dark .add-category-btn { color: #737373; border-color: #404040; }
@@ -637,6 +669,10 @@
   body.dark .lists-bottom-bar { background: #0a0a0a; border-top-color: #262626; }
   body.dark .copy-btn { background: #fafafa; color: #0a0a0a; }
   body.dark .copy-btn.copied { background: #16a34a; color: #fff; }
+  body.dark .copy-inline-btn { background: #fafafa; border-color: #fafafa; color: #0a0a0a; }
+  body.dark .copy-inline-btn.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
+  body.dark .add-item-trigger-inline { background: #171717; border-color: #404040; color: #525252; }
+  body.dark .add-item-trigger-inline:hover { color: #fafafa; border-color: #737373; }
   body.dark .lists-toast { background: #fafafa; color: #0a0a0a; }
 
   @media (max-width: 768px) {
@@ -799,6 +835,29 @@
         <div class="accent-picker">
           <input type="color" id="accentColor" value="#2563eb" oninput="setAccentColor(this.value)" onchange="setAccentColor(this.value)">
           <span id="accentHex" class="accent-hex">#2563eb</span>
+        </div>
+      </div>
+      <div class="design-row">
+        <label>Background</label>
+        <div class="accent-picker">
+          <input type="color" id="bgColor" value="#f5f2ec" oninput="setCustomColor('bg',this.value)" onchange="setCustomColor('bg',this.value)">
+          <span id="bgHex" class="accent-hex">#f5f2ec</span>
+        </div>
+      </div>
+      <div class="design-row">
+        <label>Header text</label>
+        <div class="accent-picker">
+          <input type="color" id="headerTextColor" value="#1c1917" oninput="setCustomColor('headerText',this.value)" onchange="setCustomColor('headerText',this.value)">
+          <span id="headerTextHex" class="accent-hex">#1c1917</span>
+          <span id="headerTextContrast" class="contrast-warning pass" title="WCAG AA contrast ratio">AA ✓</span>
+        </div>
+      </div>
+      <div class="design-row">
+        <label>Body text</label>
+        <div class="accent-picker">
+          <input type="color" id="bodyTextColor" value="#57534e" oninput="setCustomColor('bodyText',this.value)" onchange="setCustomColor('bodyText',this.value)">
+          <span id="bodyTextHex" class="accent-hex">#57534e</span>
+          <span id="bodyTextContrast" class="contrast-warning pass" title="WCAG AA contrast ratio">AA ✓</span>
         </div>
       </div>
       <div class="design-row">
@@ -1016,10 +1075,57 @@ const paddingMap = {
 
 let currentTheme = 'line';
 let customAccent = null;
+let customBg = null;
+let customHeaderText = null;
+let customBodyText = null;
 
 function hexToRgb(hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? { r: parseInt(result[1], 16), g: parseInt(result[2], 16), b: parseInt(result[3], 16) } : null;
+}
+
+function srgbLuminance(r, g, b) {
+  var rs = r / 255, gs = g / 255, bs = b / 255;
+  rs = rs <= 0.03928 ? rs / 12.92 : Math.pow((rs + 0.055) / 1.055, 2.4);
+  gs = gs <= 0.03928 ? gs / 12.92 : Math.pow((gs + 0.055) / 1.055, 2.4);
+  bs = bs <= 0.03928 ? bs / 12.92 : Math.pow((bs + 0.055) / 1.055, 2.4);
+  return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+}
+
+function contrastRatio(hex1, hex2) {
+  var c1 = hexToRgb(hex1), c2 = hexToRgb(hex2);
+  if (!c1 || !c2) return null;
+  var l1 = srgbLuminance(c1.r, c1.g, c1.b);
+  var l2 = srgbLuminance(c2.r, c2.g, c2.b);
+  var lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function updateContrastBadges() {
+  var baseTheme = themes[currentTheme];
+  var bg = customBg || baseTheme.surface;
+  if (!bg.startsWith('#')) bg = baseTheme.card || '#ffffff';
+  var headerText = customHeaderText || baseTheme.text;
+  var bodyText = customBodyText || baseTheme.textSecondary;
+
+  var hBadge = document.getElementById('headerTextContrast');
+  var bBadge = document.getElementById('bodyTextContrast');
+
+  var hRatio = contrastRatio(headerText, bg);
+  var bRatio = contrastRatio(bodyText, bg);
+
+  if (hBadge && hRatio !== null) {
+    var hPass = hRatio >= 4.5;
+    hBadge.className = 'contrast-warning' + (hPass ? ' pass' : '');
+    hBadge.textContent = hRatio.toFixed(1) + ':1 ' + (hPass ? 'AA ✓' : 'AA ✗');
+    hBadge.title = 'WCAG AA requires 4.5:1 for normal text';
+  }
+  if (bBadge && bRatio !== null) {
+    var bPass = bRatio >= 4.5;
+    bBadge.className = 'contrast-warning' + (bPass ? ' pass' : '');
+    bBadge.textContent = bRatio.toFixed(1) + ':1 ' + (bPass ? 'AA ✓' : 'AA ✗');
+    bBadge.title = 'WCAG AA requires 4.5:1 for normal text';
+  }
 }
 
 function setAccentColor(hex) {
@@ -1028,22 +1134,56 @@ function setAccentColor(hex) {
   renderPreview();
 }
 
+function setCustomColor(which, hex) {
+  if (which === 'bg') {
+    customBg = hex;
+    document.getElementById('bgHex').textContent = hex;
+  } else if (which === 'headerText') {
+    customHeaderText = hex;
+    document.getElementById('headerTextHex').textContent = hex;
+  } else if (which === 'bodyText') {
+    customBodyText = hex;
+    document.getElementById('bodyTextHex').textContent = hex;
+  }
+  updateContrastBadges();
+  renderPreview();
+}
+
 function setTheme(name) {
   currentTheme = name;
   customAccent = null;
-  var themeAccent = themes[name].accent;
+  customBg = null;
+  customHeaderText = null;
+  customBodyText = null;
+
+  var t = themes[name];
   var picker = document.getElementById('accentColor');
+  var themeAccent = t.accent;
   if (themeAccent.startsWith('#') && themeAccent.length === 7) {
     picker.value = themeAccent;
   } else {
     picker.value = '#2563eb';
   }
   document.getElementById('accentHex').textContent = picker.value;
-  var suggestedFont = themes[name].suggestedFont || 'system';
+
+  var bgVal = t.surface.startsWith('#') ? t.surface : (t.card || '#ffffff');
+  document.getElementById('bgColor').value = bgVal.length === 7 ? bgVal : '#ffffff';
+  document.getElementById('bgHex').textContent = bgVal;
+
+  var htVal = t.text;
+  document.getElementById('headerTextColor').value = htVal;
+  document.getElementById('headerTextHex').textContent = htVal;
+
+  var btVal = t.textSecondary;
+  document.getElementById('bodyTextColor').value = btVal;
+  document.getElementById('bodyTextHex').textContent = btVal;
+
+  var suggestedFont = t.suggestedFont || 'system';
   document.getElementById('fontFamily').value = suggestedFont;
-  var suggestedNumberStyle = themes[name].suggestedNumberStyle || 'filled';
+  var suggestedNumberStyle = t.suggestedNumberStyle || 'filled';
   document.getElementById('numberStyle').value = suggestedNumberStyle;
   document.querySelectorAll('.theme-swatch').forEach(function(s) { s.classList.toggle('active', s.dataset.theme === name); });
+  updateContrastBadges();
   renderPreview();
 }
 
@@ -1288,6 +1428,10 @@ function generateFormHtml() {
     t.btnShadow = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',0.3)';
     t.focusRing = 'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',' + aF + ')';
   }
+
+  if (customBg) t.surface = customBg;
+  if (customHeaderText) t.text = customHeaderText;
+  if (customBodyText) t.textSecondary = customBodyText;
 
   var cardStyle = t.cardStyle || 'card';
   var numberStyle = document.getElementById('numberStyle').value || 'filled';
@@ -1858,6 +2002,7 @@ function renderListsPage() {
   }).join('');
   var fieldPanel = fieldSetupOpen
     ? '<div class="field-setup-panel">' +
+        '<div class="field-setup-title">update list categories</div>' +
         fieldRows +
         '<button class="add-category-btn" onclick="addCategory()">+ add category</button>' +
         '<button class="field-setup-done" onclick="toggleFieldSetup()">done</button>' +
@@ -1871,6 +2016,10 @@ function renderListsPage() {
       '<div class="lists-header-actions">' +
         '<button onclick="selectAllVisible()" aria-label="Select all visible">select all</button>' +
         '<button onclick="clearAllSelected()" aria-label="Clear selections">clear</button>' +
+        '<button class="copy-inline-btn" id="copyInlineBtn" onclick="doCopy()" ' + (sel.size === 0 ? 'disabled' : '') + ' aria-label="Copy selected values to clipboard">' +
+          (sel.size === 0 ? 'copy' : 'copy ' + sel.size) +
+        '</button>' +
+        '<button class="add-item-trigger-inline" onclick="openAddCard()" aria-label="Add item">+ add</button>' +
       '</div>' +
     '</div>' +
     '<div class="lists-subtitle">' + list.items.length + ' items · ' + sel.size + ' selected</div>' +
@@ -1957,7 +2106,7 @@ function renderListsPage() {
     var editItem = list.items.find(function(it) { return it.id === editingItemId; });
     if (!editItem) {
       editingItemId = null;
-      addBar.innerHTML = '<button class="add-item-trigger" onclick="openAddCard()">+ add item</button>';
+      addBar.innerHTML = '';
     } else {
       var editFields = list.fields.map(function(f, fi) {
         var isId = fi === 0;
@@ -1976,7 +2125,7 @@ function renderListsPage() {
       '</div>';
     }
   } else if (!addCardOpen) {
-    addBar.innerHTML = '<button class="add-item-trigger" onclick="openAddCard()">+ add item</button>';
+    addBar.innerHTML = '';
   } else {
     var cardFields = list.fields.map(function(f, fi) {
       var isId = fi === 0;
@@ -2001,12 +2150,14 @@ function renderListsPage() {
     dz.innerHTML = '<button class="danger-link" onclick="startDelete()">delete this list</button>';
   }
 
-  // Copy button
+  // Copy button (bottom bar)
   var copyBtn = document.getElementById('rosterCopyBtn');
   var copyLabel = list.fields.find(function(f){ return f.key === list.copyField; });
   var cLabel = copyLabel ? copyLabel.label.toLowerCase() : 'value';
   copyBtn.disabled = sel.size === 0;
-  copyBtn.textContent = sel.size === 0 ? 'Copy ' + cLabel + 's' : 'Copy ' + sel.size + ' ' + cLabel + (sel.size === 1 ? '' : 's');
+  copyBtn.textContent = sel.size === 0 ? 'Copy' : 'Copy ' + sel.size + ' ' + cLabel + (sel.size === 1 ? '' : 's');
+
+  updateBottomBarVisibility();
 }
 
 var _swClickTs = 0;
@@ -2213,29 +2364,50 @@ function removeItem(id) {
 }
 
 var rosterToastTimer;
-document.getElementById('rosterCopyBtn').addEventListener('click', function() {
+
+function doCopy() {
   var list = curList();
   if (!list.selected.length) return;
   var sel = new Set(list.selected);
   var vals = list.items.filter(function(it) { return sel.has(it.id); }).map(function(it) { return it[list.copyField] || it[list.fields[0].key] || ''; });
   var text = vals.join(', ');
-  var btn = document.getElementById('rosterCopyBtn');
+  var bottomBtn = document.getElementById('rosterCopyBtn');
+  var inlineBtn = document.getElementById('copyInlineBtn');
   var toast = document.getElementById('rosterToast');
   navigator.clipboard.writeText(text).then(function() {
-    btn.classList.add('copied');
-    btn.textContent = 'Copied!';
+    [bottomBtn, inlineBtn].forEach(function(b) { if (b) { b.classList.add('copied'); b.textContent = 'Copied!'; } });
     toast.textContent = vals.length + ' value' + (vals.length === 1 ? '' : 's') + ' copied';
     toast.classList.add('show');
     clearTimeout(rosterToastTimer);
     rosterToastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2000);
-    setTimeout(function() { btn.classList.remove('copied'); renderListsPage(); }, 1500);
+    setTimeout(function() {
+      [bottomBtn, inlineBtn].forEach(function(b) { if (b) b.classList.remove('copied'); });
+      renderListsPage();
+    }, 1500);
   }).catch(function() {
     toast.textContent = 'Copy failed — try again';
     toast.classList.add('show');
     clearTimeout(rosterToastTimer);
     rosterToastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2000);
   });
-});
+}
+
+document.getElementById('rosterCopyBtn').addEventListener('click', doCopy);
+
+function updateBottomBarVisibility() {
+  var bar = document.querySelector('.lists-bottom-bar');
+  if (!bar) return;
+  var listsView = document.getElementById('pageListsView');
+  if (listsView.classList.contains('hidden')) { bar.classList.remove('visible'); return; }
+  var header = document.getElementById('listsHeader');
+  if (!header) return;
+  var headerRect = header.getBoundingClientRect();
+  var headerHidden = headerRect.bottom < 0;
+  bar.classList.toggle('visible', headerHidden);
+}
+
+document.querySelector('.lists-shell').addEventListener('scroll', updateBottomBarVisibility);
+window.addEventListener('scroll', updateBottomBarVisibility);
 
 renderListsPage();
 
