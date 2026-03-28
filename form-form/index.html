@@ -39,17 +39,9 @@
   .preview-pane { overflow-y: auto; background: #f5f5f5; }
   .preview-pane iframe { width: 100%; height: 100%; border: none; }
 
-  .editor-toolbar {
-    position: sticky; top: 0; z-index: 10; background: #fff;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 24px 0 10px 0; margin-bottom: 4px;
-    border-bottom: 1px solid #e5e5e5;
-  }
-  .logo-header { display: flex; align-items: center; gap: 8px; }
-  .logo-icon { width: 20px; height: 20px; flex-shrink: 0; }
-  .logo-wordmark { height: 15px; width: auto; }
-  .toolbar-actions { display: flex; gap: 6px; }
-  .subtitle { font-size: 12px; color: #a3a3a3; margin-bottom: 16px; margin-top: 8px; letter-spacing: 0.01em; }
+  .nav-download { display: none; }
+  .nav-download.visible { display: inline-flex; }
+  .subtitle { font-size: 12px; color: #a3a3a3; margin-bottom: 16px; margin-top: 16px; padding-top: 16px; letter-spacing: 0.01em; }
 
   .form-meta { margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #e5e5e5; }
   .form-meta > .design-toggle { margin-bottom: 8px; }
@@ -163,6 +155,40 @@
   .design-row input[type="text"] { padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; }
   .design-row textarea { padding: 6px 8px; border: 1px solid #d4d4d4; border-radius: 6px; font-family: inherit; font-size: 13px; flex: 1; min-height: 52px; resize: vertical; }
 
+  .font-search-wrap { position: relative; flex: 1; }
+  .font-search-btn {
+    width: 100%; padding: 5px 8px; border: 1px solid #d4d4d4; border-radius: 6px;
+    font-family: inherit; font-size: 13px; background: #fff; color: #1c1917;
+    cursor: pointer; text-align: left; display: flex; align-items: center; justify-content: space-between;
+  }
+  .font-search-btn::after { content: '▾'; font-size: 10px; color: #a3a3a3; }
+  .font-dd {
+    position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; z-index: 50;
+    background: #fff; border: 1px solid #e5e5e5; border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08); overflow: hidden;
+  }
+  .font-dd.hidden { display: none; }
+  .font-dd-search {
+    width: 100%; padding: 8px 10px; border: none; border-bottom: 1px solid #e5e5e5;
+    font-family: inherit; font-size: 13px; outline: none;
+  }
+  .font-dd-filters { display: flex; gap: 2px; padding: 6px 8px; border-bottom: 1px solid #f0f0f0; }
+  .font-dd-filter {
+    font-family: inherit; font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px;
+    border: none; background: none; color: #737373; cursor: pointer; letter-spacing: 0.02em;
+  }
+  .font-dd-filter:hover { background: #f5f5f5; }
+  .font-dd-filter.active { background: #1c1917; color: #fff; }
+  .font-dd-list { max-height: 220px; overflow-y: auto; padding: 4px; }
+  .font-dd-item {
+    padding: 6px 8px; border-radius: 4px; font-size: 13px; cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .font-dd-item:hover { background: #f5f5f5; }
+  .font-dd-item.active { font-weight: 600; background: #f0f0f0; }
+  .font-dd-item .font-cat { font-size: 10px; color: #a3a3a3; text-transform: uppercase; letter-spacing: 0.04em; }
+  .font-dd-empty { padding: 16px; text-align: center; font-size: 12px; color: #a3a3a3; }
+
   .accent-picker { display: flex; align-items: center; gap: 8px; flex: 1; }
   .accent-picker input[type="color"] {
     width: 32px; height: 28px; border: 1px solid #d4d4d4; border-radius: 6px;
@@ -197,9 +223,8 @@
 
   /* Dark mode — editor only */
   .editor.dark { background: #1c1917; color: #e5e5e5; border-right-color: #2e2a27; }
-  .editor.dark .editor-toolbar { background: #1c1917; border-bottom-color: #2e2a27; }
   .editor.dark .subtitle { color: #737373; }
-  .editor.dark .logo-header { color: #e5e5e5; }
+  
   .editor.dark .form-meta { border-bottom-color: #2e2a27; }
   .editor.dark .form-meta label { color: #737373; }
   .editor.dark .form-meta input,
@@ -244,6 +269,15 @@
   .editor.dark .btn-secondary:hover { background: #3d3835; }
   .editor.dark .btn-icon { border-color: #3d3835; color: #737373; }
   .editor.dark .btn-icon:hover { background: #2e2a27; color: #e5e5e5; }
+  .editor.dark .font-search-btn { background: #1c1917; border-color: #3d3835; color: #e5e5e5; }
+  .editor.dark .font-dd { background: #1c1917; border-color: #3d3835; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+  .editor.dark .font-dd-search { background: #1c1917; border-bottom-color: #3d3835; color: #e5e5e5; }
+  .editor.dark .font-dd-search::placeholder { color: #737373; }
+  .editor.dark .font-dd-filters { border-bottom-color: #2e2a27; }
+  .editor.dark .font-dd-filter:hover { background: #2e2a27; }
+  .editor.dark .font-dd-filter.active { background: #e5e5e5; color: #1c1917; }
+  .editor.dark .font-dd-item:hover { background: #2e2a27; }
+  .editor.dark .font-dd-item.active { background: #2e2a27; }
   .editor.dark .editor-footer { border-top-color: #2e2a27; }
   .editor.dark .vt-logo { color: #525252; }
   .editor.dark .vt-credit { color: #525252; }
@@ -255,9 +289,9 @@
     display: flex; align-items: center; justify-content: space-between; height: 48px;
   }
   .app-nav-left { display: flex; align-items: center; gap: 20px; }
-  .nav-logo { display: flex; align-items: center; gap: 6px; color: #1c1917; text-decoration: none; }
-  .nav-logo svg { width: 16px; height: 16px; flex-shrink: 0; }
-  .nav-logo span { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+  .nav-logo { display: flex; align-items: center; color: #1c1917; text-decoration: none; }
+  .nav-logo svg { height: 18px; width: auto; flex-shrink: 0; }
+  .app-nav-right { display: flex; align-items: center; gap: 6px; }
   .page-tabs { display: flex; gap: 0; height: 48px; }
   .page-tabs button {
     padding: 0 12px; border: none; background: none; font-family: inherit;
@@ -272,7 +306,7 @@
   .page-view.hidden { display: none; }
 
   /* ── Lists page ── */
-  .lists-shell { max-width: 600px; margin: 0 auto; min-height: calc(100vh - 48px); display: flex; flex-direction: column; }
+  .lists-shell { max-width: 960px; margin: 0 auto; min-height: calc(100vh - 48px); display: flex; flex-direction: column; }
 
   .list-switcher { position: relative; padding: 12px 20px 0; }
   .list-switcher-btn {
@@ -324,18 +358,36 @@
   .lists-header-actions button:focus-visible { outline: 2px solid #1c1917; outline-offset: 2px; }
   .lists-subtitle { font-size: 12px; color: #a3a3a3; letter-spacing: 0.01em; padding-top: 2px; }
 
-  .scheme-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-  .scheme-row-label { font-size: 11px; color: #a3a3a3; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; margin-right: 2px; }
+  .palette-details { margin-top: 6px; }
+  .palette-details summary {
+    font-size: 11px; color: #a3a3a3; text-transform: uppercase; letter-spacing: 0.04em;
+    font-weight: 500; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 4px;
+    user-select: none;
+  }
+  .palette-details summary::-webkit-details-marker { display: none; }
+  .palette-details summary::before { content: '▸'; font-size: 9px; transition: transform 0.15s; }
+  .palette-details[open] summary::before { transform: rotate(90deg); }
+  .palette-inner { padding: 8px 0 4px; }
+  .palette-presets { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-bottom: 10px; }
   .scheme-swatch {
-    width: 20px; height: 20px; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+    width: 100%; aspect-ratio: 1; border-radius: 50%; cursor: pointer; border: 2px solid transparent;
     display: flex; align-items: center; justify-content: center; transition: border-color 0.15s, transform 0.1s;
-    overflow: hidden; position: relative;
+    overflow: hidden; position: relative; max-width: 28px;
   }
   .scheme-swatch:hover { transform: scale(1.15); }
   .scheme-swatch.active { border-color: #1c1917; }
   .scheme-swatch .sw-half { position: absolute; top: 0; bottom: 0; width: 50%; }
   .scheme-swatch .sw-half:first-child { left: 0; }
   .scheme-swatch .sw-half:last-child { right: 0; }
+  .palette-pickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+  .palette-picker-item {
+    display: flex; align-items: center; gap: 6px; font-size: 11px; color: #737373;
+    text-transform: uppercase; letter-spacing: 0.02em; font-weight: 500;
+  }
+  .palette-picker-item input[type="color"] {
+    width: 22px; height: 22px; border: 1px solid #d4d4d4; border-radius: 4px;
+    padding: 1px; cursor: pointer; background: none;
+  }
 
   .copy-field-row { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
   .copy-field-row label { font-size: 11px; color: #a3a3a3; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 500; }
@@ -498,28 +550,7 @@
   .danger-confirm-box .dc-yes:hover { background: #b91c1c; }
   .danger-confirm-box .dc-no { background: #fff; color: #737373; border: 1px solid #e5e5e5; }
 
-  .lists-bottom-bar {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
-    display: flex; justify-content: center;
-    padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
-    background: #f5f5f5; border-top: 1px solid #e5e5e5;
-    transform: translateY(100%); opacity: 0; pointer-events: none;
-    transition: transform 0.25s ease, opacity 0.25s ease;
-  }
-  .lists-bottom-bar.visible {
-    transform: translateY(0); opacity: 1; pointer-events: auto;
-  }
-  .copy-btn {
-    font-family: inherit; font-size: 14px; font-weight: 600; padding: 12px 32px;
-    border-radius: 10px; border: none; background: #1c1917; color: #fff;
-    cursor: pointer; min-height: 46px; min-width: 200px; max-width: 540px; width: 100%;
-    transition: opacity 0.15s, transform 0.1s;
-  }
-  .copy-btn:disabled { opacity: 0.35; cursor: default; }
-  .copy-btn:not(:disabled):hover { opacity: 0.85; }
-  .copy-btn:not(:disabled):active { transform: scale(0.98); }
-  .copy-btn:focus-visible { outline: 2px solid #1c1917; outline-offset: 3px; }
-  .copy-btn.copied { background: #16a34a; color: #fff; }
+  
   .copy-inline-btn {
     font-family: inherit; font-size: 12px; font-weight: 600; padding: 6px 12px;
     border-radius: 6px; border: 1px solid #1c1917; background: #1c1917; color: #fff;
@@ -594,6 +625,8 @@
   /* ── Dark mode — app nav ── */
   body.dark .app-nav { background: #1c1917; border-bottom-color: #2e2a27; }
   body.dark .nav-logo { color: #e5e5e5; }
+  body.dark .nav-download { background: #e5e5e5; color: #1c1917; border-color: #e5e5e5; }
+  body.dark .nav-download:hover { background: #d4d4d4; }
   body.dark .page-tabs button { color: #737373; }
   body.dark .page-tabs button:hover { color: #a3a3a3; }
   body.dark .page-tabs button.active { color: #e5e5e5; border-bottom-color: #e5e5e5; }
@@ -616,8 +649,10 @@
   body.dark .lists-header-actions button { background: #171717; border-color: #262626; color: #fafafa; }
   body.dark .lists-header-actions button:hover { background: #1c1c1c; }
   body.dark .lists-subtitle { color: #737373; }
-  body.dark .scheme-row-label { color: #737373; }
+  body.dark .palette-details summary { color: #737373; }
   body.dark .scheme-swatch.active { border-color: #fafafa; }
+  body.dark .palette-picker-item { color: #737373; }
+  body.dark .palette-picker-item input[type="color"] { border-color: #404040; }
   body.dark .copy-field-row label { color: #737373; }
   body.dark .copy-field-row select { background: #171717; border-color: #404040; color: #fafafa; }
   body.dark .gear-btn { color: #525252; }
@@ -666,14 +701,15 @@
   body.dark .danger-confirm-box { background: #2d0a0a; border-color: #7f1d1d; }
   body.dark .danger-confirm-box span { color: #fca5a5; }
   body.dark .danger-confirm-box .dc-no { background: #171717; color: #a3a3a3; border-color: #404040; }
-  body.dark .lists-bottom-bar { background: #0a0a0a; border-top-color: #262626; }
-  body.dark .copy-btn { background: #fafafa; color: #0a0a0a; }
-  body.dark .copy-btn.copied { background: #16a34a; color: #fff; }
+  
   body.dark .copy-inline-btn { background: #fafafa; border-color: #fafafa; color: #0a0a0a; }
   body.dark .copy-inline-btn.copied { background: #16a34a; border-color: #16a34a; color: #fff; }
   body.dark .add-item-trigger-inline { background: #171717; border-color: #404040; color: #525252; }
   body.dark .add-item-trigger-inline:hover { color: #fafafa; border-color: #737373; }
   body.dark .lists-toast { background: #fafafa; color: #0a0a0a; }
+  body.dark .lists-footer { border-top-color: #262626; }
+  body.dark .lists-footer .vt-logo { color: #525252; }
+  body.dark .lists-footer .vt-credit { color: #525252; }
 
   @media (max-width: 768px) {
     .layout { grid-template-columns: 1fr; height: auto; min-height: calc(100vh - 48px); }
@@ -691,23 +727,36 @@
 <nav class="app-nav" id="appNav">
   <div class="app-nav-left">
     <div class="nav-logo" aria-label="form form">
-      <svg viewBox="0 0 86 86" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <rect x="27" y="52" width="59" height="8"/><rect x="27" y="26" width="59" height="8"/>
-        <rect x="27" y="78" width="59" height="8"/><rect width="20" height="8"/>
-        <rect y="52" width="20" height="8"/><rect y="26" width="20" height="8"/>
+      <svg viewBox="0 0 1422 275" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+        <path d="M1114.77 233.663V111.781H1131.46V163.918H1128.72C1128.72 152.027 1130.24 141.965 1133.29 133.733C1136.49 125.501 1141.22 119.175 1147.47 114.754C1153.72 110.333 1161.65 108.122 1171.25 108.122H1172.16C1181.77 108.122 1189.7 110.333 1195.95 114.754C1202.35 119.175 1207.08 125.501 1210.12 133.733C1213.17 141.965 1214.7 152.027 1214.7 163.918H1208.52C1208.52 152.027 1210.05 141.965 1213.1 133.733C1216.3 125.501 1221.02 119.175 1227.27 114.754C1233.68 110.333 1241.68 108.122 1251.29 108.122H1252.2C1261.8 108.122 1269.81 110.333 1276.21 114.754C1282.61 119.175 1287.34 125.501 1290.39 133.733C1293.59 141.965 1295.19 152.027 1295.19 163.918V233.663H1273.92V159.116C1273.92 149.207 1271.48 141.508 1266.61 136.02C1261.73 130.379 1254.87 127.559 1246.03 127.559C1236.88 127.559 1229.49 130.456 1223.84 136.249C1218.36 142.042 1215.61 150.121 1215.61 160.488V233.663H1194.35V159.116C1194.35 149.207 1191.83 141.508 1186.8 136.02C1181.92 130.379 1175.06 127.559 1166.22 127.559C1157.07 127.559 1149.76 130.456 1144.27 136.249C1138.78 142.042 1136.03 150.121 1136.03 160.488V233.663H1114.77Z"/>
+        <path d="M1044.07 220.74V98.8584H1060.76V149.166H1059.85C1059.85 131.33 1063.73 118.295 1071.51 110.063C1079.44 101.679 1091.33 97.4863 1107.18 97.4863H1111.3V116.466H1103.52C1091.17 116.466 1081.72 119.744 1075.17 126.299C1068.61 132.854 1065.33 142.306 1065.33 154.654V220.74H1044.07Z"/>
+        <path d="M968.422 211.647C957.903 211.647 948.604 209.817 940.524 206.159C932.444 202.5 925.584 197.698 919.944 191.752C914.455 185.654 910.339 178.87 907.595 171.4C904.851 163.931 903.479 156.308 903.479 148.533V144.646C903.479 136.871 904.851 129.249 907.595 121.779C910.492 114.156 914.76 107.372 920.401 101.427C926.042 95.329 932.902 90.5269 940.981 87.0206C949.061 83.3618 958.208 81.5325 968.422 81.5325C978.788 81.5325 988.012 83.3618 996.091 87.0206C1004.17 90.5269 1010.95 95.329 1016.44 101.427C1022.08 107.372 1026.35 114.156 1029.25 121.779C1032.15 129.249 1033.59 136.871 1033.59 144.646V148.533C1033.59 156.308 1032.15 163.931 1029.25 171.4C1026.5 178.87 1022.39 185.654 1016.9 191.752C1011.41 197.698 1004.63 202.5 996.549 206.159C988.469 209.817 979.093 211.647 968.422 211.647ZM968.422 192.667C977.721 192.667 985.649 190.609 992.204 186.493C998.759 182.377 1003.79 176.889 1007.3 170.028C1010.8 163.016 1012.56 155.165 1012.56 146.475C1012.56 137.786 1010.73 130.011 1007.07 123.151C1003.56 116.138 998.53 110.65 991.975 106.686C985.42 102.57 977.569 100.512 968.422 100.512C959.58 100.512 951.805 102.57 945.098 106.686C938.542 110.65 933.435 116.138 929.776 123.151C926.27 130.011 924.517 137.786 924.517 146.475C924.517 155.165 926.27 163.016 929.776 170.028C933.283 176.889 938.314 182.377 944.869 186.493C951.424 190.609 959.275 192.667 968.422 192.667Z"/>
+        <path d="M853.166 203.845V75.3315C853.166 61.7637 856.672 51.8546 863.685 45.6042C870.85 39.2014 881.293 36 895.013 36H910.105V53.8364H891.354C885.714 53.8364 881.293 55.4371 878.091 58.6385C875.042 61.6875 873.518 66.0322 873.518 71.6728V203.845H853.166ZM836.016 99.1134V75.3581H912.392V99.1134H836.016Z"/>
+        <path d="M651.753 228.345V106.463H668.446V158.6H665.702C665.702 146.709 667.226 136.648 670.275 128.415C673.477 120.183 678.202 113.857 684.453 109.436C690.703 105.015 698.63 102.804 708.235 102.804H709.149C718.754 102.804 726.681 105.015 732.931 109.436C739.334 113.857 744.06 120.183 747.109 128.415C750.158 136.648 751.682 146.709 751.682 158.6H745.508C745.508 146.709 747.033 136.648 750.082 128.415C753.283 120.183 758.009 113.857 764.259 109.436C770.662 105.015 778.666 102.804 788.27 102.804H789.184C798.789 102.804 806.792 105.015 813.195 109.436C819.598 113.857 824.324 120.183 827.373 128.415C830.574 136.648 832.175 146.709 832.175 158.6V228.345H810.908V153.798C810.908 143.889 808.469 136.19 803.591 130.702C798.712 125.062 791.852 122.241 783.01 122.241C773.863 122.241 766.47 125.138 760.829 130.931C755.341 136.724 752.597 144.804 752.597 155.17V228.345H731.33V153.798C731.33 143.889 728.815 136.19 723.784 130.702C718.906 125.062 712.046 122.241 703.204 122.241C694.057 122.241 686.739 125.138 681.251 130.931C675.763 136.724 673.019 144.804 673.019 155.17V228.345H651.753Z"/>
+        <path d="M581.052 212.763V90.8813H597.745V141.189H596.83C596.83 123.353 600.718 110.318 608.493 102.086C616.42 93.7016 628.311 89.5093 644.165 89.5093H648.282V108.489H640.507C628.158 108.489 618.707 111.767 612.151 118.322C605.596 124.877 602.318 134.329 602.318 146.677V212.763H581.052Z"/>
+        <path d="M505.406 208.988C494.888 208.988 485.588 207.158 477.508 203.499C469.429 199.841 462.569 195.039 456.928 189.093C451.44 182.995 447.324 176.211 444.58 168.741C441.836 161.271 440.464 153.649 440.464 145.874V141.987C440.464 134.212 441.836 126.589 444.58 119.12C447.476 111.497 451.745 104.713 457.385 98.7677C463.026 92.6698 469.886 87.8677 477.966 84.3614C486.046 80.7027 495.192 78.8733 505.406 78.8733C515.773 78.8733 524.996 80.7027 533.076 84.3614C541.155 87.8677 547.939 92.6698 553.427 98.7677C559.068 104.713 563.337 111.497 566.233 119.12C569.13 126.589 570.578 134.212 570.578 141.987V145.874C570.578 153.649 569.13 161.271 566.233 168.741C563.489 176.211 559.373 182.995 553.885 189.093C548.397 195.039 541.613 199.841 533.533 203.499C525.453 207.158 516.078 208.988 505.406 208.988ZM505.406 190.008C514.706 190.008 522.633 187.95 529.188 183.834C535.744 179.718 540.774 174.229 544.281 167.369C547.787 160.357 549.54 152.506 549.54 143.816C549.54 135.127 547.711 127.352 544.052 120.492C540.546 113.479 535.515 107.991 528.96 104.027C522.404 99.9111 514.553 97.853 505.406 97.853C496.564 97.853 488.79 99.9111 482.082 104.027C475.527 107.991 470.42 113.479 466.761 120.492C463.255 127.352 461.501 135.127 461.501 143.816C461.501 152.506 463.255 160.357 466.761 167.369C470.267 174.229 475.298 179.718 481.853 183.834C488.408 187.95 496.26 190.008 505.406 190.008Z"/>
+        <path d="M390.15 238.742V110.228C390.15 96.6602 393.657 86.7511 400.669 80.5007C407.834 74.0979 418.277 70.8965 431.997 70.8965H447.09V88.7329H428.339C422.698 88.7329 418.277 90.3336 415.076 93.535C412.027 96.5839 410.502 100.929 410.502 106.569V238.742H390.15ZM373 141.987V118.232H449.376V141.987H373Z"/>
+        <rect x="182.787" y="156.441" width="121.904" height="16.5294"/>
+        <rect x="182.787" y="102.721" width="121.904" height="16.5294"/>
+        <rect x="182.787" y="210.162" width="121.904" height="16.5294"/>
+        <rect x="127" y="49" width="41.3235" height="16.5294"/>
+        <rect x="127" y="156.441" width="41.3235" height="16.5294"/>
+        <rect x="127" y="102.721" width="41.3235" height="16.5294"/>
       </svg>
-      <span>form form</span>
     </div>
     <div class="page-tabs" role="tablist">
       <button class="active" onclick="showPage('forms')" role="tab">forms</button>
       <button onclick="showPage('lists')" role="tab" aria-label="lists">lists</button>
     </div>
   </div>
-  <button class="btn-icon" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>
-    </svg>
-  </button>
+  <div class="app-nav-right">
+    <button class="btn btn-secondary nav-download visible" id="navDownloadBtn" onclick="downloadFiles()">download</button>
+    <button class="btn-icon" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/>
+      </svg>
+    </button>
+  </div>
 </nav>
 
 <div id="pageFormsView" class="page-view">
@@ -718,32 +767,6 @@
 
 <div class="layout">
   <div class="editor" id="editor">
-    <div class="editor-toolbar">
-    <div class="logo-header" aria-label="form form">
-      <svg class="logo-icon" viewBox="0 0 86 86" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-        <rect x="27" y="52" width="59" height="8"/>
-        <rect x="27" y="26" width="59" height="8"/>
-        <rect x="27" y="78" width="59" height="8"/>
-        <rect width="20" height="8"/>
-        <rect y="52" width="20" height="8"/>
-        <rect y="26" width="20" height="8"/>
-      </svg>
-      <svg class="logo-wordmark" viewBox="0 0 447 99" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path d="M8.30054 98.124V35.9253C8.30054 29.3587 9.99754 24.5628 13.3915 21.5377C16.8593 18.4388 21.9134 16.8894 28.5539 16.8894H35.8583V25.522H26.7831C24.0531 25.522 21.9134 26.2967 20.364 27.8461C18.8883 29.3218 18.1505 31.4246 18.1505 34.1545V98.124H8.30054ZM0 51.2961V39.7989H36.9651V51.2961H0Z"/>
-        <path d="M64.0827 83.7236C58.9917 83.7236 54.491 82.8382 50.5805 81.0674C46.6701 79.2966 43.3498 76.9725 40.6199 74.0949C37.9637 71.1436 35.9716 67.8603 34.6435 64.245C33.3154 60.6296 32.6514 56.9405 32.6514 53.1776V51.2961C32.6514 47.5332 33.3154 43.8441 34.6435 40.2287C36.0454 36.5396 38.1113 33.2563 40.8412 30.3787C43.5712 27.4274 46.8914 25.1033 50.8019 23.4063C54.7124 21.6355 59.1393 20.7501 64.0827 20.7501C69.1 20.7501 73.5638 21.6355 77.4743 23.4063C81.3848 25.1033 84.6681 27.4274 87.3243 30.3787C90.0542 33.2563 92.1201 36.5396 93.522 40.2287C94.9239 43.8441 95.6248 47.5332 95.6248 51.2961V53.1776C95.6248 56.9405 94.9239 60.6296 93.522 64.245C92.1939 67.8603 90.2018 71.1436 87.5456 74.0949C84.8894 76.9725 81.6061 79.2966 77.6956 81.0674C73.7852 82.8382 69.2475 83.7236 64.0827 83.7236ZM64.0827 74.5376C68.5835 74.5376 72.4202 73.5416 75.5928 71.5494C78.7655 69.5573 81.2003 66.9011 82.8973 63.5809C84.5943 60.1869 85.4428 56.3871 85.4428 52.1815C85.4428 47.9759 84.5574 44.213 82.7866 40.8928C81.0896 37.4988 78.6548 34.8426 75.4822 32.9242C72.3095 30.9321 68.5097 29.9361 64.0827 29.9361C59.8034 29.9361 56.0404 30.9321 52.794 32.9242C49.6214 34.8426 47.1496 37.4988 45.3789 40.8928C43.6819 44.213 42.8334 47.9759 42.8334 52.1815C42.8334 56.3871 43.6819 60.1869 45.3789 63.5809C47.0759 66.9011 49.5107 69.5573 52.6833 71.5494C55.856 73.5416 59.6558 74.5376 64.0827 74.5376Z"/>
-        <path d="M100.694 85.5509V26.5617H108.773V50.91H108.331C108.331 42.2774 110.212 35.969 113.975 31.9848C117.812 27.9267 123.567 25.8977 131.24 25.8977H133.232V35.0836H129.469C123.493 35.0836 118.919 36.67 115.746 39.8426C112.573 43.0153 110.987 47.5898 110.987 53.5662V85.5509H100.694Z"/>
-        <path d="M134.912 93.0922V34.1031H142.991V59.3367H141.663C141.663 53.5817 142.401 48.712 143.877 44.7277C145.426 40.7435 147.714 37.6815 150.739 35.5418C153.764 33.4021 157.6 32.3323 162.249 32.3323H162.691C167.34 32.3323 171.176 33.4021 174.202 35.5418C177.3 37.6815 179.588 40.7435 181.063 44.7277C182.539 48.712 183.277 53.5817 183.277 59.3367H180.289C180.289 53.5817 181.026 48.712 182.502 44.7277C184.051 40.7435 186.339 37.6815 189.364 35.5418C192.463 33.4021 196.336 32.3323 200.985 32.3323H201.427C206.076 32.3323 209.949 33.4021 213.048 35.5418C216.147 37.6815 218.434 40.7435 219.91 44.7277C221.459 48.712 222.234 53.5817 222.234 59.3367V93.0922H211.941V57.0126C211.941 52.2167 210.761 48.4907 208.4 45.8345C206.039 43.1045 202.718 41.7396 198.439 41.7396C194.012 41.7396 190.434 43.1414 187.704 45.9452C185.048 48.7489 183.719 52.6594 183.719 57.6766V93.0922H173.427V57.0126C173.427 52.2167 172.209 48.4907 169.775 45.8345C167.414 43.1045 164.093 41.7396 159.814 41.7396C155.387 41.7396 151.845 43.1414 149.189 45.9452C146.533 48.7489 145.205 52.6594 145.205 57.6766V93.0922H134.912Z"/>
-        <path d="M232.394 81.2346V19.0359C232.394 12.4693 234.091 7.67339 237.485 4.6483C240.952 1.54943 246.006 0 252.647 0H259.951V8.63256H250.876C248.146 8.63256 246.006 9.40728 244.457 10.9567C242.981 12.4324 242.244 14.5352 242.244 17.2651V81.2346H232.394ZM224.093 30.546V19.0488H261.058V30.546H224.093Z"/>
-        <path d="M288.176 85.0104C283.085 85.0104 278.584 84.125 274.674 82.3543C270.763 80.5835 267.443 78.2593 264.713 75.3818C262.057 72.4305 260.065 69.1472 258.737 65.5318C257.408 61.9165 256.744 58.2273 256.744 54.4644V52.583C256.744 48.8201 257.408 45.1309 258.737 41.5156C260.138 37.8265 262.204 34.5431 264.934 31.6656C267.664 28.7143 270.984 26.3902 274.895 24.6932C278.805 22.9224 283.232 22.037 288.176 22.037C293.193 22.037 297.657 22.9224 301.567 24.6932C305.478 26.3902 308.761 28.7143 311.417 31.6656C314.147 34.5431 316.213 37.8265 317.615 41.5156C319.017 45.1309 319.718 48.8201 319.718 52.583V54.4644C319.718 58.2273 319.017 61.9165 317.615 65.5318C316.287 69.1472 314.295 72.4305 311.639 75.3818C308.982 78.2593 305.699 80.5835 301.789 82.3543C297.878 84.125 293.341 85.0104 288.176 85.0104ZM288.176 75.8245C292.677 75.8245 296.513 74.8284 299.686 72.8363C302.859 70.8442 305.293 68.188 306.99 64.8678C308.687 61.4738 309.536 57.674 309.536 53.4684C309.536 49.2628 308.65 45.4999 306.88 42.1796C305.183 38.7856 302.748 36.1295 299.575 34.2111C296.403 32.219 292.603 31.2229 288.176 31.2229C283.896 31.2229 280.134 32.219 276.887 34.2111C273.714 36.1295 271.243 38.7856 269.472 42.1796C267.775 45.4999 266.926 49.2628 266.926 53.4684C266.926 57.674 267.775 61.4738 269.472 64.8678C271.169 68.188 273.604 70.8442 276.776 72.8363C279.949 74.8284 283.749 75.8245 288.176 75.8245Z"/>
-        <path d="M324.787 89.4116V30.4225H332.866V54.7707H332.424C332.424 46.1382 334.305 39.8298 338.068 35.8455C341.905 31.7874 347.66 29.7584 355.333 29.7584H357.325V38.9444H353.562C347.586 38.9444 343.011 40.5307 339.839 43.7033C336.666 46.876 335.08 51.4505 335.08 57.4269V89.4116H324.787Z"/>
-        <path d="M359.005 95.666V36.6768H367.084V61.9105H365.756C365.756 56.1555 366.494 51.2858 367.97 47.3015C369.519 43.3173 371.807 40.2553 374.832 38.1156C377.857 35.9759 381.693 34.9061 386.342 34.9061H386.784C391.433 34.9061 395.269 35.9759 398.295 38.1156C401.393 40.2553 403.681 43.3173 405.156 47.3015C406.632 51.2858 407.37 56.1555 407.37 61.9105H404.382C404.382 56.1555 405.119 51.2858 406.595 47.3015C408.144 43.3173 410.432 40.2553 413.457 38.1156C416.556 35.9759 420.429 34.9061 425.078 34.9061H425.52C430.169 34.9061 434.042 35.9759 437.141 38.1156C440.24 40.2553 442.527 43.3173 444.003 47.3015C445.552 51.2858 446.327 56.1555 446.327 61.9105V95.666H436.034V59.5863C436.034 54.7905 434.854 51.0645 432.493 48.4083C430.132 45.6783 426.811 44.3133 422.532 44.3133C418.105 44.3133 414.527 45.7152 411.797 48.519C409.141 51.3227 407.812 55.2332 407.812 60.2504V95.666H397.52V59.5863C397.52 54.7905 396.302 51.0645 393.868 48.4083C391.507 45.6783 388.186 44.3133 383.907 44.3133C379.48 44.3133 375.938 45.7152 373.282 48.519C370.626 51.3227 369.298 55.2332 369.298 60.2504V95.666H359.005Z"/>
-      </svg>
-    </div>
-    <div class="toolbar-actions">
-      <button class="btn btn-primary" onclick="renderPreview()">preview</button>
-      <button class="btn btn-secondary" onclick="downloadFiles()">download</button>
-    </div>
-    </div>
     <p class="subtitle">build a form, get Apps Script files.</p>
 
     <details class="form-meta" open>
@@ -862,13 +885,23 @@
       </div>
       <div class="design-row">
         <label>Font</label>
-        <select id="fontFamily" onchange="renderPreview()">
-          <option value="system">system sans</option>
-          <option value="inter">inter</option>
-          <option value="lora">lora (serif)</option>
-          <option value="mono">jetbrains mono</option>
-          <option value="comic">comic neue</option>
-        </select>
+        <div class="font-search-wrap" id="fontSearchWrap">
+          <button class="font-search-btn" id="fontSearchBtn" type="button" onclick="toggleFontDD()">
+            <span id="fontSearchLabel">Inter</span>
+          </button>
+          <input type="hidden" id="fontFamily" value="inter">
+          <div class="font-dd hidden" id="fontDD">
+            <input class="font-dd-search" id="fontDDSearch" type="text" placeholder="Search fonts…" oninput="filterFontDD()">
+            <div class="font-dd-filters" id="fontDDFilters">
+              <button class="font-dd-filter active" data-cat="all" onclick="setFontFilter('all')">all</button>
+              <button class="font-dd-filter" data-cat="sans" onclick="setFontFilter('sans')">sans</button>
+              <button class="font-dd-filter" data-cat="serif" onclick="setFontFilter('serif')">serif</button>
+              <button class="font-dd-filter" data-cat="mono" onclick="setFontFilter('mono')">mono</button>
+              <button class="font-dd-filter" data-cat="display" onclick="setFontFilter('display')">display</button>
+            </div>
+            <div class="font-dd-list" id="fontDDList"></div>
+          </div>
+        </div>
       </div>
       <div class="design-row">
         <label>Corners</label>
@@ -958,9 +991,24 @@
     <div class="roster-list" id="rosterList"></div>
     <div class="add-item-bar" id="addItemBar"></div>
     <div class="danger-zone" id="dangerZone"></div>
-  </div>
-  <div class="lists-bottom-bar">
-    <button class="copy-btn" id="rosterCopyBtn" disabled aria-label="Copy selected values to clipboard">Copy</button>
+    <footer class="editor-footer lists-footer">
+      <svg class="vt-logo" width="18" height="18" viewBox="0 0 16 16" fill="currentColor">
+        <rect x="1" y="1" width="2" height="2"/>
+        <rect x="2" y="3" width="2" height="2"/>
+        <rect x="3" y="5" width="2" height="2"/>
+        <rect x="4" y="7" width="2" height="2"/>
+        <rect x="7" y="1" width="2" height="2"/>
+        <rect x="6" y="3" width="2" height="2"/>
+        <rect x="5" y="5" width="2" height="2"/>
+        <rect x="10" y="1" width="2" height="2"/>
+        <rect x="12" y="1" width="2" height="2"/>
+        <rect x="14" y="1" width="1" height="2"/>
+        <rect x="12" y="3" width="2" height="2"/>
+        <rect x="12" y="5" width="2" height="2"/>
+        <rect x="12" y="7" width="2" height="2"/>
+      </svg>
+      <span class="vt-credit">built by van thurm</span>
+    </footer>
   </div>
   <div class="lists-toast" id="rosterToast" role="status" aria-live="polite"></div>
 </div>
@@ -983,16 +1031,19 @@ function showPage(page) {
   var formsView = document.getElementById('pageFormsView');
   var listsView = document.getElementById('pageListsView');
   var tabs = document.querySelectorAll('.page-tabs button');
+  var dlBtn = document.getElementById('navDownloadBtn');
   if (page === 'forms') {
     formsView.classList.remove('hidden');
     listsView.classList.add('hidden');
     tabs[0].classList.add('active');
     tabs[1].classList.remove('active');
+    if (dlBtn) dlBtn.classList.add('visible');
   } else {
     formsView.classList.add('hidden');
     listsView.classList.remove('hidden');
     tabs[1].classList.add('active');
     tabs[0].classList.remove('active');
+    if (dlBtn) dlBtn.classList.remove('visible');
     renderListsPage();
   }
   localStorage.setItem('ff-page', page);
@@ -1059,13 +1110,61 @@ const themes = {
   }
 };
 
-const fontMap = {
-  system: { family: "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif", googleFont: null },
-  inter: { family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", googleFont: 'Inter:wght@400;500;600;700' },
-  lora: { family: "'Lora', Georgia, 'Times New Roman', serif", googleFont: 'Lora:ital,wght@0,400;0,500;0,600;0,700;1,400' },
-  mono: { family: "'JetBrains Mono', 'SF Mono', 'Menlo', monospace", googleFont: 'JetBrains+Mono:wght@400;500;600;700' },
-  comic: { family: "'Comic Neue', 'Comic Sans MS', 'Chalkboard SE', cursive", googleFont: 'Comic+Neue:ital,wght@0,300;0,400;0,700;1,400' }
-};
+var FONT_LIST = [
+  { key:'system', name:'System Sans', cat:'sans', family:"-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif", gf:null },
+  { key:'inter', name:'Inter', cat:'sans', family:"'Inter',sans-serif", gf:'Inter:wght@400;500;600;700' },
+  { key:'roboto', name:'Roboto', cat:'sans', family:"'Roboto',sans-serif", gf:'Roboto:wght@400;500;700' },
+  { key:'opensans', name:'Open Sans', cat:'sans', family:"'Open Sans',sans-serif", gf:'Open+Sans:wght@400;500;600;700' },
+  { key:'lato', name:'Lato', cat:'sans', family:"'Lato',sans-serif", gf:'Lato:wght@400;700' },
+  { key:'poppins', name:'Poppins', cat:'sans', family:"'Poppins',sans-serif", gf:'Poppins:wght@400;500;600;700' },
+  { key:'montserrat', name:'Montserrat', cat:'sans', family:"'Montserrat',sans-serif", gf:'Montserrat:wght@400;500;600;700' },
+  { key:'nunito', name:'Nunito', cat:'sans', family:"'Nunito',sans-serif", gf:'Nunito:wght@400;600;700' },
+  { key:'raleway', name:'Raleway', cat:'sans', family:"'Raleway',sans-serif", gf:'Raleway:wght@400;500;600;700' },
+  { key:'outfit', name:'Outfit', cat:'sans', family:"'Outfit',sans-serif", gf:'Outfit:wght@400;500;600;700' },
+  { key:'jakarta', name:'Plus Jakarta Sans', cat:'sans', family:"'Plus Jakarta Sans',sans-serif", gf:'Plus+Jakarta+Sans:wght@400;500;600;700' },
+  { key:'dmsans', name:'DM Sans', cat:'sans', family:"'DM Sans',sans-serif", gf:'DM+Sans:wght@400;500;700' },
+  { key:'worksans', name:'Work Sans', cat:'sans', family:"'Work Sans',sans-serif", gf:'Work+Sans:wght@400;500;600;700' },
+  { key:'mulish', name:'Mulish', cat:'sans', family:"'Mulish',sans-serif", gf:'Mulish:wght@400;600;700' },
+  { key:'figtree', name:'Figtree', cat:'sans', family:"'Figtree',sans-serif", gf:'Figtree:wght@400;500;600;700' },
+  { key:'manrope', name:'Manrope', cat:'sans', family:"'Manrope',sans-serif", gf:'Manrope:wght@400;500;600;700' },
+  { key:'sora', name:'Sora', cat:'sans', family:"'Sora',sans-serif", gf:'Sora:wght@400;500;600;700' },
+  { key:'spacegrotesk', name:'Space Grotesk', cat:'sans', family:"'Space Grotesk',sans-serif", gf:'Space+Grotesk:wght@400;500;600;700' },
+  { key:'urbanist', name:'Urbanist', cat:'sans', family:"'Urbanist',sans-serif", gf:'Urbanist:wght@400;500;600;700' },
+  { key:'rubik', name:'Rubik', cat:'sans', family:"'Rubik',sans-serif", gf:'Rubik:wght@400;500;600;700' },
+  { key:'sourcesans', name:'Source Sans 3', cat:'sans', family:"'Source Sans 3',sans-serif", gf:'Source+Sans+3:wght@400;600;700' },
+  { key:'cabin', name:'Cabin', cat:'sans', family:"'Cabin',sans-serif", gf:'Cabin:wght@400;500;600;700' },
+  { key:'lora', name:'Lora', cat:'serif', family:"'Lora',Georgia,serif", gf:'Lora:ital,wght@0,400;0,500;0,600;0,700;1,400' },
+  { key:'playfair', name:'Playfair Display', cat:'serif', family:"'Playfair Display',serif", gf:'Playfair+Display:wght@400;500;600;700' },
+  { key:'merriweather', name:'Merriweather', cat:'serif', family:"'Merriweather',serif", gf:'Merriweather:wght@400;700' },
+  { key:'crimson', name:'Crimson Text', cat:'serif', family:"'Crimson Text',serif", gf:'Crimson+Text:wght@400;600;700' },
+  { key:'garamond', name:'EB Garamond', cat:'serif', family:"'EB Garamond',serif", gf:'EB+Garamond:wght@400;500;600;700' },
+  { key:'baskerville', name:'Libre Baskerville', cat:'serif', family:"'Libre Baskerville',serif", gf:'Libre+Baskerville:wght@400;700' },
+  { key:'sourceserif', name:'Source Serif 4', cat:'serif', family:"'Source Serif 4',serif", gf:'Source+Serif+4:wght@400;600;700' },
+  { key:'cormorant', name:'Cormorant Garamond', cat:'serif', family:"'Cormorant Garamond',serif", gf:'Cormorant+Garamond:wght@400;500;600;700' },
+  { key:'bitter', name:'Bitter', cat:'serif', family:"'Bitter',serif", gf:'Bitter:wght@400;500;600;700' },
+  { key:'ptserif', name:'PT Serif', cat:'serif', family:"'PT Serif',serif", gf:'PT+Serif:wght@400;700' },
+  { key:'notoserif', name:'Noto Serif', cat:'serif', family:"'Noto Serif',serif", gf:'Noto+Serif:wght@400;500;600;700' },
+  { key:'literata', name:'Literata', cat:'serif', family:"'Literata',serif", gf:'Literata:wght@400;500;600;700' },
+  { key:'spectral', name:'Spectral', cat:'serif', family:"'Spectral',serif", gf:'Spectral:wght@400;500;600;700' },
+  { key:'fraunces', name:'Fraunces', cat:'serif', family:"'Fraunces',serif", gf:'Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700' },
+  { key:'mono', name:'JetBrains Mono', cat:'mono', family:"'JetBrains Mono','SF Mono',monospace", gf:'JetBrains+Mono:wght@400;500;600;700' },
+  { key:'firacode', name:'Fira Code', cat:'mono', family:"'Fira Code',monospace", gf:'Fira+Code:wght@400;500;600;700' },
+  { key:'sourcecodepro', name:'Source Code Pro', cat:'mono', family:"'Source Code Pro',monospace", gf:'Source+Code+Pro:wght@400;500;600;700' },
+  { key:'ibmplex', name:'IBM Plex Mono', cat:'mono', family:"'IBM Plex Mono',monospace", gf:'IBM+Plex+Mono:wght@400;500;600;700' },
+  { key:'spacemono', name:'Space Mono', cat:'mono', family:"'Space Mono',monospace", gf:'Space+Mono:wght@400;700' },
+  { key:'robotomono', name:'Roboto Mono', cat:'mono', family:"'Roboto Mono',monospace", gf:'Roboto+Mono:wght@400;500;600;700' },
+  { key:'inconsolata', name:'Inconsolata', cat:'mono', family:"'Inconsolata',monospace", gf:'Inconsolata:wght@400;500;600;700' },
+  { key:'comic', name:'Comic Neue', cat:'display', family:"'Comic Neue','Comic Sans MS',cursive", gf:'Comic+Neue:wght@300;400;700' },
+  { key:'oswald', name:'Oswald', cat:'display', family:"'Oswald',sans-serif", gf:'Oswald:wght@400;500;600;700' },
+  { key:'bebas', name:'Bebas Neue', cat:'display', family:"'Bebas Neue',sans-serif", gf:'Bebas+Neue' },
+  { key:'righteous', name:'Righteous', cat:'display', family:"'Righteous',sans-serif", gf:'Righteous' },
+  { key:'abril', name:'Abril Fatface', cat:'display', family:"'Abril Fatface',serif", gf:'Abril+Fatface' },
+  { key:'pacifico', name:'Pacifico', cat:'display', family:"'Pacifico',cursive", gf:'Pacifico' },
+  { key:'titan', name:'Titan One', cat:'display', family:"'Titan One',sans-serif", gf:'Titan+One' }
+];
+
+var fontMap = {};
+FONT_LIST.forEach(function(f) { fontMap[f.key] = { family: f.family, googleFont: f.gf }; });
 
 const paddingMap = {
   compact: { section: '20px 24px', body: '16px 12px 60px', gap: '12px' },
@@ -1180,6 +1279,8 @@ function setTheme(name) {
 
   var suggestedFont = t.suggestedFont || 'system';
   document.getElementById('fontFamily').value = suggestedFont;
+  var fontEntry = FONT_LIST.find(function(f) { return f.key === suggestedFont; });
+  if (fontEntry) document.getElementById('fontSearchLabel').textContent = fontEntry.name;
   var suggestedNumberStyle = t.suggestedNumberStyle || 'filled';
   document.getElementById('numberStyle').value = suggestedNumberStyle;
   document.querySelectorAll('.theme-swatch').forEach(function(s) { s.classList.toggle('active', s.dataset.theme === name); });
@@ -1770,6 +1871,61 @@ function generateCodeGs(sheetColumns) {
     '}\n';
 }
 
+var fontDDFilter = 'all';
+function toggleFontDD() {
+  var dd = document.getElementById('fontDD');
+  var isHidden = dd.classList.contains('hidden');
+  dd.classList.toggle('hidden');
+  if (isHidden) {
+    var search = document.getElementById('fontDDSearch');
+    search.value = '';
+    search.focus();
+    renderFontDDList();
+  }
+}
+function closeFontDD() {
+  document.getElementById('fontDD').classList.add('hidden');
+}
+function setFontFilter(cat) {
+  fontDDFilter = cat;
+  document.querySelectorAll('.font-dd-filter').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  filterFontDD();
+}
+function filterFontDD() { renderFontDDList(); }
+function renderFontDDList() {
+  var q = (document.getElementById('fontDDSearch').value || '').toLowerCase();
+  var cur = document.getElementById('fontFamily').value;
+  var filtered = FONT_LIST.filter(function(f) {
+    if (fontDDFilter !== 'all' && f.cat !== fontDDFilter) return false;
+    if (q && f.name.toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+  var list = document.getElementById('fontDDList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="font-dd-empty">No fonts found</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(function(f) {
+    return '<div class="font-dd-item' + (f.key === cur ? ' active' : '') + '" onclick="selectFont(\'' + f.key + '\')">' +
+      '<span>' + f.name + '</span>' +
+      '<span class="font-cat">' + f.cat + '</span>' +
+    '</div>';
+  }).join('');
+}
+function selectFont(key) {
+  var font = FONT_LIST.find(function(f) { return f.key === key; });
+  if (!font) return;
+  document.getElementById('fontFamily').value = key;
+  document.getElementById('fontSearchLabel').textContent = font.name;
+  closeFontDD();
+  renderPreview();
+}
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('#fontSearchWrap')) closeFontDD();
+});
+
 function renderPreview() {
   var result = generateFormHtml();
   var html = result.html;
@@ -1809,10 +1965,10 @@ function downloadFiles() {
 var LISTS_KEY = 'ff-lists-v2';
 var COLOR_SCHEMES = {
   bauhaus:  { name: 'Bauhaus',  colors: ['#E63946','#457B9D','#E9C46A','#2A9D8F','#F4A261','#264653'] },
-  swiss:    { name: 'Swiss',    colors: ['#FF4136','#0074D9','#2ECC40','#FF851B','#B10DC9','#85144b'] },
+  swiss:    { name: 'Swiss',    colors: ['#1A1A1A','#E8302F','#2F80ED','#F2C94C','#6FCF97','#9B51E0'] },
   rams:     { name: 'Dieter',   colors: ['#8B7355','#6B8E8E','#C4956A','#7D6B5D','#8B9E7E','#A08060'] },
   memphis:  { name: 'Memphis',  colors: ['#FF6B9D','#C084FC','#67E8F9','#FDE047','#A3E635','#FB923C'] },
-  muji:     { name: 'Muji',     colors: ['#C2956B','#8B9E7E','#B8A088','#7A6F65','#9CAF88','#D4C5A9'] },
+  muji:     { name: 'Muji',     colors: ['#D4A574','#7B9E87','#B8967A','#5B7065','#C4B59A','#8E7B6B'] },
   nordic:   { name: 'Nordic',   colors: ['#6B8DA6','#C4898A','#8EA88C','#5C5C6D','#A3917E','#8B9DB5'] }
 };
 var DEFAULT_ITEMS = [
@@ -1914,6 +2070,7 @@ var switcherOpen = false;
 var deleteConfirm = false;
 var openFilterKey = null;
 var fieldSetupOpen = false;
+var paletteOpen = false;
 var addCardOpen = false;
 var editingItemId = null;
 
@@ -1977,12 +2134,21 @@ function renderListsPage() {
 
   // Header
   var hdr = document.getElementById('listsHeader');
+  var activeScheme = COLOR_SCHEMES[list.colorScheme] || COLOR_SCHEMES.bauhaus;
   var schemeDots = Object.keys(COLOR_SCHEMES).map(function(k) {
     var sc = COLOR_SCHEMES[k];
-    return '<button class="scheme-swatch' + (list.colorScheme === k ? ' active' : '') + '" onclick="setListScheme(\'' + k + '\')" title="' + sc.name + '" aria-label="' + sc.name + ' color scheme">' +
+    return '<button class="scheme-swatch' + (list.colorScheme === k && !list.customColors ? ' active' : '') + '" onclick="setListScheme(\'' + k + '\')" title="' + sc.name + '" aria-label="' + sc.name + ' color scheme">' +
       '<div class="sw-half" style="background:' + sc.colors[0] + '"></div>' +
       '<div class="sw-half" style="background:' + sc.colors[1] + '"></div>' +
     '</button>';
+  }).join('');
+
+  var colorPickers = list.fields.slice(1).map(function(f, i) {
+    var currentColor = list.customColors ? (list.customColors[i] || activeScheme.colors[i % activeScheme.colors.length]) : activeScheme.colors[i % activeScheme.colors.length];
+    return '<div class="palette-picker-item">' +
+      '<input type="color" value="' + currentColor + '" onchange="setFieldColor(' + i + ',this.value)" oninput="setFieldColor(' + i + ',this.value)">' +
+      '<span>' + esc(f.label) + '</span>' +
+    '</div>';
   }).join('');
 
   var copyOpts = list.fields.map(function(f) {
@@ -2023,9 +2189,13 @@ function renderListsPage() {
       '</div>' +
     '</div>' +
     '<div class="lists-subtitle">' + list.items.length + ' items · ' + sel.size + ' selected</div>' +
-    '<div class="scheme-row">' +
-      '<span class="scheme-row-label">palette</span>' + schemeDots +
-    '</div>' +
+    '<details class="palette-details"' + (paletteOpen ? ' open' : '') + ' ontoggle="paletteOpen=this.open">' +
+      '<summary>palette</summary>' +
+      '<div class="palette-inner">' +
+        '<div class="palette-presets">' + schemeDots + '</div>' +
+        '<div class="palette-pickers">' + colorPickers + '</div>' +
+      '</div>' +
+    '</details>' +
     '<div class="copy-field-row">' +
       '<label>copies</label>' +
       '<select onchange="setCopyField(this.value)" aria-label="Field to copy">' + copyOpts + '</select>' +
@@ -2069,7 +2239,7 @@ function renderListsPage() {
         if (fi === 0) return;
         var val = item[f.key];
         if (!val) return;
-        var color = scheme.colors[(fi - 1) % scheme.colors.length];
+        var color = list.customColors ? (list.customColors[fi - 1] || scheme.colors[(fi - 1) % scheme.colors.length]) : scheme.colors[(fi - 1) % scheme.colors.length];
         pillsHtml += '<span class="person-pill" style="' + pillStyle(color) + '">' + esc(val) + '</span>';
       });
       var row = document.createElement('div');
@@ -2150,14 +2320,7 @@ function renderListsPage() {
     dz.innerHTML = '<button class="danger-link" onclick="startDelete()">delete this list</button>';
   }
 
-  // Copy button (bottom bar)
-  var copyBtn = document.getElementById('rosterCopyBtn');
-  var copyLabel = list.fields.find(function(f){ return f.key === list.copyField; });
-  var cLabel = copyLabel ? copyLabel.label.toLowerCase() : 'value';
-  copyBtn.disabled = sel.size === 0;
-  copyBtn.textContent = sel.size === 0 ? 'Copy' : 'Copy ' + sel.size + ' ' + cLabel + (sel.size === 1 ? '' : 's');
-
-  updateBottomBarVisibility();
+  
 }
 
 var _swClickTs = 0;
@@ -2239,7 +2402,21 @@ function confirmDeleteList() {
   saveLists(); renderListsPage();
 }
 
-function setListScheme(key) { curList().colorScheme = key; saveLists(); renderListsPage(); }
+function setListScheme(key) {
+  var l = curList();
+  l.colorScheme = key;
+  delete l.customColors;
+  saveLists(); renderListsPage();
+}
+function setFieldColor(fieldIdx, color) {
+  var l = curList();
+  var scheme = COLOR_SCHEMES[l.colorScheme] || COLOR_SCHEMES.bauhaus;
+  if (!l.customColors) {
+    l.customColors = l.fields.slice(1).map(function(_, i) { return scheme.colors[i % scheme.colors.length]; });
+  }
+  l.customColors[fieldIdx] = color;
+  saveLists(); renderListsPage();
+}
 function setCopyField(key) { curList().copyField = key; saveLists(); renderListsPage(); }
 
 function toggleFieldSetup() { fieldSetupOpen = !fieldSetupOpen; renderListsPage(); }
@@ -2371,17 +2548,16 @@ function doCopy() {
   var sel = new Set(list.selected);
   var vals = list.items.filter(function(it) { return sel.has(it.id); }).map(function(it) { return it[list.copyField] || it[list.fields[0].key] || ''; });
   var text = vals.join(', ');
-  var bottomBtn = document.getElementById('rosterCopyBtn');
   var inlineBtn = document.getElementById('copyInlineBtn');
   var toast = document.getElementById('rosterToast');
   navigator.clipboard.writeText(text).then(function() {
-    [bottomBtn, inlineBtn].forEach(function(b) { if (b) { b.classList.add('copied'); b.textContent = 'Copied!'; } });
+    if (inlineBtn) { inlineBtn.classList.add('copied'); inlineBtn.textContent = 'Copied!'; }
     toast.textContent = vals.length + ' value' + (vals.length === 1 ? '' : 's') + ' copied';
     toast.classList.add('show');
     clearTimeout(rosterToastTimer);
     rosterToastTimer = setTimeout(function() { toast.classList.remove('show'); }, 2000);
     setTimeout(function() {
-      [bottomBtn, inlineBtn].forEach(function(b) { if (b) b.classList.remove('copied'); });
+      if (inlineBtn) inlineBtn.classList.remove('copied');
       renderListsPage();
     }, 1500);
   }).catch(function() {
@@ -2392,22 +2568,6 @@ function doCopy() {
   });
 }
 
-document.getElementById('rosterCopyBtn').addEventListener('click', doCopy);
-
-function updateBottomBarVisibility() {
-  var bar = document.querySelector('.lists-bottom-bar');
-  if (!bar) return;
-  var listsView = document.getElementById('pageListsView');
-  if (listsView.classList.contains('hidden')) { bar.classList.remove('visible'); return; }
-  var header = document.getElementById('listsHeader');
-  if (!header) return;
-  var headerRect = header.getBoundingClientRect();
-  var headerHidden = headerRect.bottom < 0;
-  bar.classList.toggle('visible', headerHidden);
-}
-
-document.querySelector('.lists-shell').addEventListener('scroll', updateBottomBarVisibility);
-window.addEventListener('scroll', updateBottomBarVisibility);
 
 renderListsPage();
 
