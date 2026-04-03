@@ -12,7 +12,7 @@ ACCENT='\033[38;5;216m'
 RESET='\033[0m'
 
 CLARISSA_DIR="${HOME}/.clarissa"
-REPO_URL="${CLARISSA_REPO_URL:-https://raw.githubusercontent.com/vanessariley/clarissa/main}"
+REPO_URL="${CLARISSA_REPO_URL:-https://raw.githubusercontent.com/van-thurm/clarissa/main}"
 
 echo ""
 echo -e "  ${ACCENT}CLARISSA${RESET}  ${DIM}Installer${RESET}"

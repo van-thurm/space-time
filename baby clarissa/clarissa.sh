@@ -239,30 +239,30 @@ _rising_core() {
 _daily_message() {
     local doy=$((10#$(date +%j)))
     local msgs=(
-        "the archer's arrow flies truest when aimed at truth."
+        "your ${SUN_SIGN} Sun runs deepest when aimed at truth."
         "your ${MOON_SIGN} moon needs tending. honor what you feel."
         "${RISING_SIGN} rising: trust your first impression of things."
         "Mars in ${MARS_SIGN} whispers: go deep, not wide."
-        "your Sagittarius stellium demands adventure."
+        "your ${SUN_SIGN} Sun demands authenticity. answer it."
         "Venus in ${VENUS_SIGN} reminds you: build something lasting."
-        "Saturn conjunct your Sun: discipline IS freedom."
+        "Saturn in ${SATURN_SIGN}: discipline IS freedom."
         "Mercury in ${MERCURY_SIGN}: your words carry weight."
-        "the centaur runs toward the horizon. what calls to you?"
-        "your chart is heavy with fire. create, inspire, illuminate."
+        "your ${SUN_SIGN} Sun asks: what calls to you?"
+        "your $(_sign_element "${SUN_SIGN}") Sun knows how to create. trust that."
         "Pluto in ${PLUTO_SIGN}: transform what needs changing."
         "Neptune in ${NEPTUNE_SIGN}: dream practically, manifest mystically."
-        "Uranus in Sagittarius: your rebellion serves truth."
-        "the archer needs open sky. make space for possibility."
+        "Uranus in ${URANUS_SIGN}: your rebellion serves truth."
+        "make space for possibility. your chart asks for room to grow."
         "your moon needs nurturing. care for yourself first."
-        "fire dominant chart: you warm everyone around you."
+        "$(_sign_element "${SUN_SIGN}") energy runs through your chart. lean into it."
         "Saturn lessons are hard but valuable. what are you learning?"
         "Jupiter expands whatever it touches. choose your focus."
-        "Sagittarius sun: optimism is your superpower."
+        "${SUN_SIGN} sun: lean into what makes you, you."
         "Mars in ${MARS_SIGN}: when you commit, you're unstoppable."
         "Venus in ${VENUS_SIGN}: love is built brick by brick."
-        "your stellium makes you intense. that's a feature."
-        "Mercury conjunct Sun: you ARE your ideas."
-        "the archer's bow requires tension. embrace creative pressure."
+        "intensity is a feature of your chart, not a bug."
+        "Mercury in ${MERCURY_SIGN} meets ${SUN_SIGN}: you ARE your ideas."
+        "creative pressure is fuel, not friction. use it."
         "${MOON_SIGN} moon: honor your feelings, they're information."
         "today is a good day to be exactly who you are."
         "your chart screams: MEANING MATTERS. seek it. create it."
@@ -272,12 +272,17 @@ _daily_message() {
 
 _transits_note() {
     local m=$((10#$(date +%m)))
-    case $m in
-        12|1|2)  echo "Capricorn season grounds your fire. good for practical manifestation." ;;
-        3|4|5)   echo "Aries season activates your chart. energy for new beginnings." ;;
-        6|7|8)   echo "Cancer season touches your moon. emotional insights incoming." ;;
-        9|10|11) echo "Sagittarius approaches. solar return brings renewal." ;;
-    esac
+    local current=$(_current_sun_sign)
+    if [[ "$current" == "$SUN_SIGN" ]]; then
+        echo "your solar return is near — renewal energy is strong."
+    else
+        case $m in
+            12|1|2)  echo "Capricorn season: a time for structure and patience." ;;
+            3|4|5)   echo "Aries season: momentum builds. energy for new beginnings." ;;
+            6|7|8)   echo "Cancer season: emotional depth. tend to what you feel." ;;
+            9|10|11) echo "the year turns inward. reflect on what matters." ;;
+        esac
+    fi
 }
 
 # ── Interpretations ────────────────────────────────────
@@ -745,19 +750,19 @@ cmd_advice() {
         echo ""
         echo -e "  ${ACCENT}→ move forward, but stay grounded. build carefully.${RESET}"
     elif ((pd < 12)); then
-        echo "  first quarter moon brings challenges. your fire stellium"
-        echo "  gives you courage to push through obstacles."
+        echo "  first quarter moon brings challenges. your chart's"
+        echo "  $(_sign_element "${SUN_SIGN}") nature gives you courage to push through."
         echo ""
         echo -e "  ${ACCENT}→ expect resistance. push through anyway.${RESET}"
     elif ((pd < 16)); then
         echo "  the full moon illuminates truth. your ${MOON_SIGN} Moon"
         echo "  feels this intensely — emotions may be high. your"
-        echo "  ${SUN_SIGN} fire keeps you moving forward."
+        echo "  ${SUN_SIGN} $(_sign_element "${SUN_SIGN}") energy keeps you moving forward."
         echo ""
         echo -e "  ${ACCENT}→ the timing is ripe. act with confidence.${RESET}"
     elif ((pd < 20)); then
         echo "  waning gibbous is for sharing and gratitude. your"
-        echo "  ${SUN_SIGN} teaching energy shines now. Venus in"
+        echo "  ${SUN_SIGN} energy shines now. Venus in"
         echo "  ${VENUS_SIGN} reminds you: quality over speed."
         echo ""
         echo -e "  ${ACCENT}→ share what you know. give before you take.${RESET}"
@@ -829,10 +834,12 @@ cmd_manual() {
 
         if [[ "$sign_choice" =~ ^[0-9]+$ ]] && (( sign_choice >= 1 && sign_choice <= 12 )); then
             local new_sign="${signs[$((sign_choice-1))]}"
+            # safe: sign_var is from the keys array, new_sign from the signs array
             eval "${sign_var}=\"${new_sign}\""
 
             read -rp "  degree (0-29): " new_deg
             if [[ "$new_deg" =~ ^[0-9]+$ ]] && (( new_deg >= 0 && new_deg <= 29 )); then
+                # safe: deg_var is from the keys array, new_deg is validated 0-29
                 eval "${deg_var}=\"${new_deg}\""
             fi
 

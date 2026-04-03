@@ -33,6 +33,8 @@ _enter_manual_chart() {
     local labels=("Sun" "Moon" "Rising" "Mercury" "Venus" "Mars"
                   "Jupiter" "Saturn" "Uranus" "Neptune" "Pluto")
 
+    # eval below is safe: planet names come from the planets array (hardcoded),
+    # sign values from the signs array, degrees are validated 0-29
     for i in "${!planets[@]}"; do
         read -rp "  ${labels[$i]} sign (1-12): " sign_num
         if [[ "$sign_num" =~ ^[0-9]+$ ]] && (( sign_num >= 1 && sign_num <= 12 )); then
@@ -203,6 +205,7 @@ if [[ -f "$CALC_SCRIPT" ]]; then
 
         result=$(calculate_chart "$birth_year" "$birth_month" "$birth_day" \
                                 "$hour_24" "$birth_min" "$tz_offset" "$lat" "$lon")
+        # safe: result is KEY=VALUE pairs from calculate_chart (controlled output)
         eval "$result"
         calc_success=true
 
