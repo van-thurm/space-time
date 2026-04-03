@@ -150,7 +150,6 @@ get_coordinates() {
         *"san antonio"*)                            echo "29.4241 -98.4936" ;;
         *"san diego"*)                              echo "32.7157 -117.1611" ;;
         *"dallas"*)                                 echo "32.7767 -96.7970" ;;
-        *"garland"*|*"garland, t"*)                 echo "32.9126 -96.6389" ;;
         *"austin"*)                                 echo "30.2672 -97.7431" ;;
         *"san francisco"*|*"sf"*)                   echo "37.7749 -122.4194" ;;
         *"seattle"*)                                echo "47.6062 -122.3321" ;;
