@@ -5,14 +5,14 @@ small tools and projects.
 ## projects
 
 ### [clarissa](https://github.com/van-thurm/clarissa)
-creative assistant tui. git stats, daily tasks, horoscopes, ascii, vibes. then a shortcut to connect me to the stuff i need to work.
+creative assistant tui. git stats, daily tasks, horoscopes, ascii, vibes. then a shortcut to connect me to the stuff i need to work. 
 
 ```npx hey-clarissa``` 
 
 ### [baby clarissa](baby%20clarissa/)
 original tui, archived for reference.
 
-### [block-log](block-log/)
+### [bloc-log](bloc-log/)
 weightlifting tracking app built with next.js to replace that annoying google sheet i was using. deployed on Vercel.
 
 ### [form-form](form-form/)

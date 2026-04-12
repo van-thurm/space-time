@@ -1,10 +1,10 @@
-# Block Log Design System
+# bloc log Design System
 
-This document is the canonical reference for Block Log's design language. It is read by Cursor agents during coding sessions and by the Cowork sketch-to-code skill at `cursorz/.skills/block-log-sketch/SKILL.md`. Keep both in sync when making changes here.
+This document is the canonical reference for bloc log's design language. 
 
 ---
 
-## Principles
+## Agents: design guidance
 
 - Clarity over decoration.
 - Dense but touch-friendly mobile layouts.

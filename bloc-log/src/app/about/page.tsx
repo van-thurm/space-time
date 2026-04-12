@@ -110,14 +110,14 @@ export default function AboutPage() {
 
         {/* About block log */}
         <section className="space-y-3">
-          <h2 className="font-display text-2xl">about block log</h2>
+          <h2 className="font-display text-2xl">about bloc log</h2>
           <p className="font-sans text-sm leading-relaxed text-foreground/90">
             strength training is personal, but it&apos;s not just about the individual.
             the gym can be a place to build resilience, autonomy, and community.
             a place to reclaim time and energy for the things that matter.
           </p>
           <p className="font-sans text-sm leading-relaxed text-foreground/90">
-            that&apos;s what block log is really about — strength for you, solidarity for all of us.
+            that&apos;s what bloc log is really about — strength for you, solidarity for all of us.
           </p>
         </section>
 
