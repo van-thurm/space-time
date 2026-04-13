@@ -6,6 +6,20 @@ import { SetInput } from './SetInput';
 import { GeometricCheck, TimerIcon, TrashIcon } from '@/components/ui/DieterIcons';
 import type { AddedExercise, SetLog } from '@/types';
 
+function isTimeBasedExerciseName(name: string): boolean {
+  const normalized = name.toLowerCase();
+  return [
+    'plank',
+    'hold',
+    'carry',
+    'hang',
+    'wall sit',
+    'dead bug',
+    'hollow',
+    'bird dog',
+  ].some((keyword) => normalized.includes(keyword));
+}
+
 interface AddedExerciseCardProps {
   exercise: AddedExercise;
   workoutId: string;
@@ -51,11 +65,19 @@ export function AddedExerciseCard({
   
   const logExerciseSet = useAppStore((state) => state.logExerciseSet);
   const updateAddedExercise = useAppStore((state) => state.updateAddedExercise);
+  const getSubstitution = useAppStore((state) => state.getSubstitution);
   const userSettings = useAppStore((state) => state.userSettings);
   // Subscribe directly to workoutLogs for reactivity
   const currentLog = useAppStore((state) => 
     state.workoutLogs.find((l) => l.workoutId === workoutId)
   );
+
+  const substitution = getSubstitution(exercise.id);
+  const displayName = substitution?.replacementName || exercise.name;
+  const effectiveReps =
+    substitution && isTimeBasedExerciseName(substitution.replacementName) && !/s|sec|min/i.test(exercise.reps)
+      ? '30s'
+      : exercise.reps;
 
   const handleSaveEdit = () => {
     updateAddedExercise(workoutId, exercise.id, {
@@ -108,7 +130,7 @@ export function AddedExerciseCard({
       <div className="border border-border/30 bg-surface/30 opacity-50">
         <div className="p-3 flex justify-between items-center gap-2">
           <div className="flex-1 min-w-0 flex items-center gap-2">
-            <span className="font-sans text-xs text-muted line-through">{exercise.name}</span>
+            <span className="font-sans text-xs text-muted line-through">{displayName}</span>
             <span className="font-sans text-[10px] text-muted border border-border px-1">skipped</span>
           </div>
           {onRestoreClick && (
@@ -147,7 +169,7 @@ export function AddedExerciseCard({
             {isSessionAdded && (
               <span className="font-sans text-[10px] uppercase text-accent">added</span>
             )}
-            <span className="font-sans text-sm font-bold">{exercise.name}</span>
+            <span className="font-sans text-sm font-bold">{displayName}</span>
           </div>
           <div className="text-right">
             <span className="font-sans text-sm text-muted">
@@ -174,13 +196,16 @@ export function AddedExerciseCard({
         <div className="flex justify-between items-start gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
+              {substitution && (
+                <span className="font-sans text-[10px] text-accent">swapped</span>
+              )}
               <span className="font-sans text-[10px] text-muted whitespace-nowrap">tap to collapse</span>
               {isSessionAdded && (
                 <span className="font-sans text-[10px] uppercase text-accent">added</span>
               )}
             </div>
             <h3 className="font-sans font-bold text-lg mt-1">
-              {exercise.name}
+              {displayName}
             </h3>
           </div>
           
@@ -369,7 +394,7 @@ export function AddedExerciseCard({
         ) : (
           /* Exercise info */
           <div className="flex flex-wrap gap-x-3 gap-y-1 mt-2 font-sans text-sm text-muted">
-            <span>{exercise.sets} sets × {exercise.reps}</span>
+            <span>{exercise.sets} sets × {effectiveReps}</span>
             <span>rest {exercise.restSeconds}s</span>
             <span>rpe {exercise.targetRPE}</span>
           </div>
@@ -382,7 +407,7 @@ export function AddedExerciseCard({
           <SetInput
             key={i}
             setIndex={i}
-            targetReps={isEditing ? String(editedReps) : exercise.reps}
+            targetReps={isEditing ? String(editedReps) : effectiveReps}
             targetRPE={isEditing ? editedRPE : exercise.targetRPE}
             previousSetInExercise={i > 0 ? exerciseLog?.sets[i - 1] : undefined}
             value={exerciseLog?.sets[i]}

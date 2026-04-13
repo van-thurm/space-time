@@ -36,7 +36,7 @@ Defined in `src/app/globals.css`. Always use CSS variable references via Tailwin
 
 ## Typography
 
-Font: **Sora** (Google Fonts) — loaded via `next/font/google`, variable `--font-sans`. Weights: 400, 500, 600, 700.
+Font: **Sligoil** (Velvetyne Type Foundry, SIL OFL) — self-hosted via `@font-face` in `globals.css`, variable `--font-sligoil`. Monospace. Weights: 400 (micro), 500 (micromedium), 700 (microbold).
 
 - `font-display` — `font-bold letter-spacing: -0.01em` — section headings, workout names, numerals
 - `font-sans` — body text, UI controls, labels
@@ -102,6 +102,6 @@ Always-applied rules for coding sessions:
 
 For sibling apps (notes, todo, etc.), preserve:
 - Same token names and base palette
-- Same font (Sora) and typographic split
+- Same font (Sligoil) and typographic split
 - Same zero-radius geometry
 - Same button/input border rhythm

@@ -1,13 +1,19 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
 import { useTheme } from '@/components/ui/ThemeProvider';
+import { useSupabase } from '@/components/auth/AuthProvider';
+import { clearAllUserData } from '@/lib/supabase/db';
+import { stopSync } from '@/lib/supabase/sync';
 import { AppFooter } from '@/components/ui/AppFooter';
 import { AlertMarkIcon } from '@/components/ui/DieterIcons';
 import { SecondaryPageHeader } from '@/components/ui/SecondaryPageHeader';
 
 export default function SettingsPage() {
+  const router = useRouter();
+  const supabase = useSupabase();
   const userSettings = useAppStore((state) => state.userSettings);
   const updateSettings = useAppStore((state) => state.updateSettings);
   const clearAllData = useAppStore((state) => state.clearAllData);
@@ -21,6 +27,26 @@ export default function SettingsPage() {
   const [confirmRestoreArchivedId, setConfirmRestoreArchivedId] = useState<string | null>(null);
   const [confirmClearData, setConfirmClearData] = useState(false);
 
+  const handleSignOut = async () => {
+    stopSync();
+    await supabase.auth.signOut();
+    try { localStorage.removeItem('block-log-cache'); } catch {}
+    router.push('/login');
+  };
+
+  const handleClearAllData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) await clearAllUserData(supabase, user.id);
+    } catch (e) {
+      console.error('[block-log] Failed to clear Supabase data', e);
+    }
+    try { localStorage.removeItem('block-log-cache'); } catch {}
+    clearAllData();
+    setConfirmClearData(false);
+    router.push('/programs/new');
+  };
+
   return (
     <main className="min-h-screen bg-background">
       <SecondaryPageHeader
@@ -28,7 +54,6 @@ export default function SettingsPage() {
         backFallbackHref="/"
       />
 
-      {/* Content */}
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         
         {/* Appearance Section */}
@@ -260,10 +285,7 @@ export default function SettingsPage() {
               <div className="flex flex-col items-end gap-2">
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      clearAllData();
-                      setConfirmClearData(false);
-                    }}
+                    onClick={handleClearAllData}
                     className="min-h-11 px-3 border border-danger bg-danger text-background font-sans text-sm hover:bg-danger/90 transition-colors touch-manipulation"
                   >
                     yes, clear
@@ -276,7 +298,7 @@ export default function SettingsPage() {
                   </button>
                 </div>
                 <p className="font-sans text-xs text-muted text-right">
-                  are you sure? this will delete all your workout data and cannot be undone.
+                  this will permanently delete all your programs and workout history. this cannot be undone.
                 </p>
               </div>
             ) : (
@@ -292,6 +314,22 @@ export default function SettingsPage() {
           </div>
         </section>
 
+        {/* Sign Out */}
+        <section className="border border-border p-4 space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="font-sans text-sm">sign out</p>
+              <p className="font-sans text-xs text-muted max-w-[28ch] leading-snug text-pretty">your data stays saved</p>
+            </div>
+            <button
+              onClick={handleSignOut}
+              className="w-32 min-h-11 border border-border font-sans text-sm text-muted
+                hover:border-foreground hover:text-foreground transition-colors touch-manipulation"
+            >
+              sign out
+            </button>
+          </div>
+        </section>
       </div>
 
       <div className="max-w-2xl mx-auto px-4 mt-12">

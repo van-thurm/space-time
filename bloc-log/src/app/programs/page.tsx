@@ -222,8 +222,6 @@ export default function ProgramsPage() {
   const reorderPrograms = useAppStore((state) => state.reorderPrograms);
   const saveAsTemplate = useAppStore((state) => state.saveAsTemplate);
   const updateProgramStructure = useAppStore((state) => state.updateProgramStructure);
-  const migrateToMultiProgram = useAppStore((state) => state.migrateToMultiProgram);
-  const migrateTemplatePrograms = useAppStore((state) => state.migrateTemplatePrograms);
   const workoutLogs = useAppStore((state) => state.workoutLogs);
   const currentWeek = useAppStore((state) => state.currentWeek);
   
@@ -249,11 +247,6 @@ export default function ProgramsPage() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
-
-  useEffect(() => {
-    migrateToMultiProgram();
-    migrateTemplatePrograms();
-  }, [migrateToMultiProgram, migrateTemplatePrograms]);
 
   // Filter to non-archived programs and keep active program at the top.
   const sortedPrograms = useMemo(() => {

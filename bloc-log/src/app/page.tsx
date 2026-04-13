@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useAppStore } from '@/lib/store';
 import { getWeekWorkouts } from '@/data/program';
 import { getCustomWorkouts } from '@/data/programs/custom';
@@ -9,16 +9,18 @@ import { WorkoutCard } from '@/components/dashboard/WorkoutCard';
 import { ProgressSummary } from '@/components/dashboard/ProgressSummary';
 import { AppFooter } from '@/components/ui/AppFooter';
 import { SecondaryPageHeader } from '@/components/ui/SecondaryPageHeader';
+import { BlockLogWordmark } from '@/components/ui/DieterIcons';
+import { useSyncReady } from '@/components/auth/AuthProvider';
 import Link from 'next/link';
 
 export default function Dashboard() {
+  const syncReady = useSyncReady();
+
   const currentWeek = useAppStore((state) => state.currentWeek);
   const programs = useAppStore((state) => state.programs);
   const activeProgram = useAppStore((state) =>
     state.programs.find((p) => p.id === state.activeProgramId)
   );
-  const migrateToMultiProgram = useAppStore((state) => state.migrateToMultiProgram);
-  const migrateTemplatePrograms = useAppStore((state) => state.migrateTemplatePrograms);
   
   const workouts = useMemo(() => {
     if (!activeProgram) return getWeekWorkouts(currentWeek);
@@ -28,11 +30,6 @@ export default function Dashboard() {
         : ['day 1', 'day 2', 'day 3', 'day 4'];
     return getCustomWorkouts(currentWeek, dayLabels);
   }, [activeProgram, currentWeek]);
-
-  useEffect(() => {
-    migrateToMultiProgram();
-    migrateTemplatePrograms();
-  }, [migrateToMultiProgram, migrateTemplatePrograms]);
   
   const applyWorkoutOverrides = (day: number, fallbackName: string): string => {
     const override = activeProgram?.workoutDayNameOverrides?.[day];
@@ -59,6 +56,15 @@ export default function Dashboard() {
 
   const hasPrograms = programs.some((program) => !program.isArchived);
   const hasActiveProgram = Boolean(activeProgram);
+  const showLoading = !syncReady && !hasPrograms;
+
+  if (showLoading) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center">
+        <BlockLogWordmark height={24} className="text-foreground animate-pulse" />
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-background">

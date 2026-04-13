@@ -1,14 +1,15 @@
-# bloc log
+# block log
 
 A workout tracking app for structured strength programs. Pick a program template (or build your own), log sets and reps each session, and track progress over time.
 
-**Live:** [bloc-log.vercel.app](https://bloc-log.vercel.app)
+**Live:** [block-log.vercel.app](https://block-log.vercel.app)
 
 ## Stack
 
 - Next.js 16 + React 19
 - Tailwind CSS 4
-- Zustand (state) + localStorage (persistence)
+- Zustand (state) + Supabase (auth + persistence)
+- Supabase Auth (email OTP)
 - Recharts (analytics charts)
 - dnd-kit (drag-and-drop exercise reordering)
 - Deployed on Vercel
@@ -17,17 +18,46 @@ A workout tracking app for structured strength programs. Pick a program template
 
 - **Program templates** — 10+ built-in programs (2–5 day splits), or create a custom one
 - **Workout logging** — track sets, reps, and weight with inline editing
-- **Exercise search** — search and add 1000+ exercises
-- **Analytics** — workout heatmap, progress charts, completion charts, csv export
+- **Exercise search** — search and add exercises from ExerciseDB
+- **Analytics** — workout heatmap, progress charts, completion streaks
 - **Rest timer** — configurable countdown between sets
-- **PWA-ready** — installable on mobile, works offline
+- **Drag-and-drop** — reorder exercises within a workout
+- **Cloud sync** — data persists across devices via Supabase
+- **Dark mode** — system-aware with manual toggle
+- **PWA-ready** — installable on mobile
 
-## Local development
+## Setup
+
+### 1. Supabase project
+
+1. Create a free project at [supabase.com](https://supabase.com)
+2. Go to **SQL Editor**, paste the contents of `supabase/schema.sql`, and run it
+3. Go to **Auth > Email Templates**, edit the "Magic Link" template: replace `{{ .ConfirmationURL }}` with `Your code is: {{ .Token }}`
+4. Go to **Settings > API**, copy the **Project URL** and **anon key**
+
+### 2. Environment variables
 
 ```bash
-cd bloc-log
+cp .env.local.example .env.local
+```
+
+Fill in your Supabase values:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+### 3. Run locally
+
+```bash
+cd block-log
 npm install
 npm run dev
 ```
 
 Opens at [http://localhost:3000](http://localhost:3000).
+
+### Optional: custom SMTP
+
+Supabase's built-in email is rate-limited to 3/hour on the free tier. For production, configure a custom SMTP provider (e.g. Resend free tier) in **Auth > Settings > SMTP**.

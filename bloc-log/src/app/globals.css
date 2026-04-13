@@ -1,6 +1,31 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Sligoil';
+  src: url('/fonts/sligoil-micro.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sligoil';
+  src: url('/fonts/sligoil-micromedium.woff2') format('woff2');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Sligoil';
+  src: url('/fonts/sligoil-microbold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+
 :root {
+  --font-sligoil: 'Sligoil';
   --background: #FAF7F2;
   --foreground: #1A1715;
   --muted: #8C857D;
@@ -43,19 +68,19 @@
   --color-success: var(--success);
   --color-surface: var(--surface);
   --color-danger: var(--danger);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-sans);
+  --font-sans: var(--font-sligoil);
+  --font-mono: var(--font-sligoil);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), 'Sora', sans-serif;
+  font-family: var(--font-sligoil), monospace;
   transition: background-color 0.2s, color 0.2s;
 }
 
 .font-display {
-  font-family: var(--font-sans), 'Sora', sans-serif;
+  font-family: var(--font-sligoil), monospace;
   font-weight: 700;
   letter-spacing: -0.01em;
 }

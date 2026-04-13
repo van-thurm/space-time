@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { getTemplate } from '@/data/program-templates';
 import { getProgramWorkouts } from '@/data/programs';
 import type { 
@@ -111,8 +110,15 @@ interface AppState {
   // Utility
   getWorkoutStatus: (workoutId: string) => 'not_started' | 'in_progress' | 'completed';
   clearAllData: () => void;
-  migrateToMultiProgram: () => void;
-  migrateTemplatePrograms: () => void;
+  hydrateFromData: (data: {
+    programs: UserProgram[];
+    activeProgramId: string | null;
+    lastTrainedProgramId: string | null;
+    currentWeek: number;
+    userSettings: UserSettings;
+    customTemplates: UserCustomTemplate[];
+  }) => void;
+
 }
 
 const defaultSettings: UserSettings = {
@@ -216,9 +222,7 @@ function removeExerciseReferencesFromLog(
   };
 }
 
-export const useAppStore = create<AppState>()(
-  persist(
-    (set, get) => ({
+export const useAppStore = create<AppState>()((set, get) => ({
       // Multi-program state
       programs: [],
       activeProgramId: null,
@@ -699,99 +703,6 @@ export const useAppStore = create<AppState>()(
           ),
         });
         return true;
-      },
-
-      // Migrate legacy data to multi-program structure
-      migrateToMultiProgram: () => {
-        const state = get();
-        
-        // Only migrate if we have legacy data and no programs
-        if (state.programs.length === 0 && (state.workoutLogs.length > 0 || state.currentWeek > 1)) {
-          const id = generateId();
-          const earliestActivity = state.workoutLogs
-            .map(getActivityTimestampCandidate)
-            .filter((value): value is string => Boolean(value))
-            .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())[0];
-          const legacyProgram: UserProgram = {
-            id,
-            templateId: '4-day-upper-lower',
-            name: 'My First Block',
-            createdAt: new Date().toISOString(),
-            startedAt: earliestActivity,
-            currentWeek: state.currentWeek,
-            workoutLogs: state.workoutLogs,
-            exerciseSubstitutions: state.exerciseSubstitutions,
-            isActive: true,
-            isArchived: false,
-            workoutDayNameOverrides: {},
-            workoutDayOrder: [1, 2, 3, 4],
-          };
-          
-          set({
-            programs: [legacyProgram],
-            activeProgramId: id,
-          });
-        }
-      },
-
-      migrateTemplatePrograms: () => {
-        const state = get();
-        const programsToMigrate = state.programs.filter(
-          (p) => p.templateId !== 'custom' && !p.migratedToUnified
-        );
-        if (programsToMigrate.length === 0) return;
-
-        const updatedPrograms = state.programs.map((program) => {
-          if (program.templateId === 'custom') return program;
-          if (program.migratedToUnified) return program;
-
-          const template = getTemplate(program.templateId);
-          const weeksTotal = program.customWeeksTotal || template.weeksTotal;
-          const daysPerWeek = program.customDaysPerWeek || template.daysPerWeek;
-          const dayLabels = program.customDayLabels || template.dayLabels;
-          const existingLogIds = new Set(program.workoutLogs.map((l) => l.workoutId));
-
-          const hydratedLogs = hydrateTemplateWorkoutLogs(program.templateId, weeksTotal, daysPerWeek);
-          const newLogs = hydratedLogs.filter((l) => !existingLogIds.has(l.workoutId));
-
-          const mergedLogs = [...program.workoutLogs, ...newLogs];
-          const mergedWithStructure = program.workoutLogs.map((existing) => {
-            const hydrated = hydratedLogs.find((h) => h.workoutId === existing.workoutId);
-            if (!hydrated) return existing;
-            if (existing.addedExercises && existing.addedExercises.length > 0) return existing;
-            return {
-              ...existing,
-              addedExercises: hydrated.addedExercises,
-              exerciseOrder: existing.exerciseOrder || hydrated.exerciseOrder,
-            };
-          });
-
-          const finalLogs = [
-            ...mergedWithStructure,
-            ...newLogs,
-          ];
-
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`[migration] Hydrated program "${program.name}" (${program.templateId}): ${newLogs.length} new logs added`);
-          }
-
-          return {
-            ...program,
-            workoutLogs: finalLogs,
-            customWeeksTotal: weeksTotal,
-            customDaysPerWeek: daysPerWeek,
-            customDayLabels: dayLabels.length > 0 ? dayLabels : undefined,
-            migratedToUnified: true,
-          } as UserProgram;
-        });
-
-        const activeId = state.activeProgramId;
-        const activeUpdated = updatedPrograms.find((p) => p.id === activeId);
-
-        set({
-          programs: updatedPrograms,
-          workoutLogs: activeUpdated ? activeUpdated.workoutLogs : state.workoutLogs,
-        });
       },
 
       setCurrentWeek: (week) => set((state) => {
@@ -1407,19 +1318,28 @@ export const useAppStore = create<AppState>()(
         return 'in_progress';
       },
 
-      // Clear all data (for testing/reset)
       clearAllData: () => set({
         programs: [],
         activeProgramId: null,
         lastTrainedProgramId: null,
+        customTemplates: [],
         currentWeek: 1,
         workoutLogs: [],
         exerciseSubstitutions: {},
         userSettings: defaultSettings,
       }),
-    }),
-    {
-      name: 'block-log-storage',
-    }
-  )
-);
+
+      hydrateFromData: (data) => {
+        const activeProgram = data.programs.find((p) => p.id === data.activeProgramId);
+        set({
+          programs: data.programs,
+          activeProgramId: data.activeProgramId,
+          lastTrainedProgramId: data.lastTrainedProgramId,
+          currentWeek: data.currentWeek,
+          userSettings: data.userSettings,
+          customTemplates: data.customTemplates,
+          workoutLogs: activeProgram?.workoutLogs ?? [],
+          exerciseSubstitutions: activeProgram?.exerciseSubstitutions ?? {},
+        });
+      },
+}));

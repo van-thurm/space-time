@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Sora } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/ThemeProvider";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 // Theme script to prevent flash of unstyled content
 const themeScript = `
@@ -22,12 +22,6 @@ const themeScript = `
   } catch (e) {}
 })();
 `;
-
-const sora = Sora({
-  variable: "--font-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -63,10 +57,12 @@ export default function RootLayout({
       </head>
       <body
         suppressHydrationWarning
-        className={`${sora.variable} antialiased`}
+        className="antialiased"
       >
         <ThemeProvider>
-          {children}
+          <AuthProvider>
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

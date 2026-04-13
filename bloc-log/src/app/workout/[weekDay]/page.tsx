@@ -536,7 +536,14 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
 
       {/* Swap modal */}
       {swapModalExerciseId && (() => {
-        const exerciseToSwap = workingExercises.find((e) => e.id === swapModalExerciseId);
+        const preset = workingExercises.find((e) => e.id === swapModalExerciseId);
+        const added = !preset ? addedExercises.find((e) => e.id === swapModalExerciseId) : undefined;
+        const exerciseToSwap: Exercise | undefined = preset || (added ? {
+          ...added,
+          muscleGroup: added.muscleGroup ? [added.muscleGroup] : [],
+          equipment: added.equipment ? [added.equipment] : [],
+          movement: '',
+        } : undefined);
         if (!exerciseToSwap) return null;
         return (
           <SwapModal
