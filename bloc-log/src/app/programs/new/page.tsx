@@ -396,7 +396,7 @@ export default function NewProgramPage() {
                 value={programName}
                 onChange={(e) => setProgramName(e.target.value)}
                 maxLength={PROGRAM_NAME_MAX}
-                placeholder="e.g., spring strength block"
+                placeholder="e.g., spring strength bloc"
                 className="w-full h-12 px-4 border border-border bg-background font-sans
                   focus:border-foreground focus:outline-none"
               />
@@ -406,7 +406,7 @@ export default function NewProgramPage() {
           {selectedTemplate?.id === 'custom' && (
             <section className="border border-border p-4 space-y-6">
               <div>
-                <h3 className="font-display text-xl">build your training block</h3>
+                <h3 className="font-display text-xl">build your bloc</h3>
                 <p className="font-sans text-sm text-muted mt-2">on the next page, open each day to build your workouts.</p>
               </div>
 
@@ -417,7 +417,7 @@ export default function NewProgramPage() {
                   value={programName}
                   onChange={(e) => setProgramName(e.target.value)}
                   maxLength={PROGRAM_NAME_MAX}
-                  placeholder="e.g., spring strength block"
+                  placeholder="e.g., spring strength bloc"
                   className="w-full h-12 px-4 border border-border bg-background font-sans
                     focus:border-foreground focus:outline-none"
                 />

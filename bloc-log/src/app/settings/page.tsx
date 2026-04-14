@@ -30,7 +30,7 @@ export default function SettingsPage() {
   const handleSignOut = async () => {
     stopSync();
     await supabase.auth.signOut();
-    try { localStorage.removeItem('block-log-cache'); } catch {}
+    try { localStorage.removeItem('bloc-log-cache'); } catch {}
     router.push('/login');
   };
 
@@ -39,9 +39,9 @@ export default function SettingsPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) await clearAllUserData(supabase, user.id);
     } catch (e) {
-      console.error('[block-log] Failed to clear Supabase data', e);
+      console.error('[bloc-log] Failed to clear Supabase data', e);
     }
-    try { localStorage.removeItem('block-log-cache'); } catch {}
+    try { localStorage.removeItem('bloc-log-cache'); } catch {}
     clearAllData();
     setConfirmClearData(false);
     router.push('/programs/new');

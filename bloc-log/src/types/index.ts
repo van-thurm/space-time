@@ -1,4 +1,4 @@
-// block log - type definitions
+// bloc log - type definitions
 
 export type ExerciseCategory = 
   | 'warmup' 

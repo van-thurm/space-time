@@ -102,7 +102,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
         <div className="text-center">
           <p className="font-sans text-muted">invalid workout</p>
           <Link href="/" className="font-sans text-sm underline mt-2 inline-block">
-            back to block
+            back to bloc
           </Link>
         </div>
       </div>
@@ -310,7 +310,7 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
 
       <section className="max-w-2xl mx-auto px-4 pt-3">
         <div className="px-1 py-1.5 space-y-2">
-          <h1 className="font-display text-lg">{activeProgram?.name || 'my block'}</h1>
+          <h1 className="font-display text-lg">{activeProgram?.name || 'my bloc'}</h1>
           <div className="flex flex-wrap items-center gap-2">
             <span className="h-8 px-3 inline-flex items-center border border-border bg-surface/60 font-sans text-xs uppercase tracking-wide text-muted">
               week {week}
@@ -377,10 +377,10 @@ export default function WorkoutPage({ params }: WorkoutPageProps) {
               }`}
             >
               {copyDayStatus === 'done'
-                ? 'copied across block'
+                ? 'copied across bloc'
                 : copyDayStatus === 'needs_setup'
                   ? 'add exercises first'
-                  : 'copy this day across block'}
+                  : 'copy this day across bloc'}
             </button>
           </div>
         )}

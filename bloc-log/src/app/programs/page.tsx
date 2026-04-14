@@ -300,7 +300,7 @@ export default function ProgramsPage() {
 
         <div className="flex-1 flex flex-col items-center justify-center p-8">
           <div className="text-center space-y-4 max-w-sm">
-            <h2 className="font-sans text-lg">welcome to block log</h2>
+            <h2 className="font-sans text-lg">welcome to bloc log</h2>
             <p className="font-sans text-sm text-muted">
               start your first training program
             </p>
@@ -513,13 +513,13 @@ export default function ProgramsPage() {
               return (
                 <div className="border border-success/60 bg-success/10 px-3 py-2 space-y-1">
                   <p className="font-sans text-xs uppercase tracking-wide text-success">program complete</p>
-                  <p className="font-sans text-xs text-muted">keep visible, archive it, or extend weeks/days to continue this block.</p>
+                  <p className="font-sans text-xs text-muted">keep visible, archive it, or extend weeks/days to continue this bloc.</p>
                 </div>
               );
             })()}
 
             <div className="space-y-2 border-t border-border pt-3">
-              <label className="form-label">block length</label>
+              <label className="form-label">bloc length</label>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => {

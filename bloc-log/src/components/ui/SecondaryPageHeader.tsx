@@ -72,7 +72,7 @@ export function SecondaryPageHeader({
   }, [menuOpen]);
 
   const navLinks = [
-    { href: '/', label: 'block' },
+    { href: '/', label: 'bloc' },
     { href: '/programs', label: 'programs' },
     { href: '/timer', label: 'timer' },
     { href: '/analytics', label: 'analytics' },

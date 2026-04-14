@@ -31,7 +31,7 @@ export default function AnalyticsPage() {
     const programName = activeProgram.name.replace(/\s+/g, '-').toLowerCase();
     downloadCSV(
       { workoutLogs, exerciseSubstitutions, programName: activeProgram.name, templateId: activeProgram.templateId },
-      `block-log-${programName}-${date}.csv`
+      `bloc-log-${programName}-${date}.csv`
     );
   };
 
@@ -105,8 +105,8 @@ export default function AnalyticsPage() {
                 </button>
               </div>
               <p className="font-sans text-sm leading-relaxed text-muted text-pretty">
-                this page shows information for completed workouts in your currently active block only. if you want
-                to view analytics for a different block, activate it on the programs page, and then return here.
+                this page shows information for completed workouts in your currently active bloc only. if you want
+                to view analytics for a different bloc, activate it on the programs page, and then return here.
               </p>
             </div>
           )}

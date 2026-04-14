@@ -14,8 +14,8 @@ import type {
   ProgramTemplateId,
 } from '@/types';
 
-const CACHE_KEY = 'block-log-cache';
-const LEGACY_KEY = 'block-log-storage';
+const CACHE_KEY = 'bloc-log-cache';
+const LEGACY_KEY = 'bloc-log-storage';
 const DEBOUNCE_MS = 2000;
 
 let unsubscribe: (() => void) | null = null;
@@ -370,7 +370,7 @@ export async function loadAndHydrate(
       legacyImported = true;
     }
   } catch (e) {
-    console.error('[block-log] localStorage import failed — will retry on next login', e);
+    console.error('[bloc-log] localStorage import failed — will retry on next login', e);
   }
 
   if (!legacyImported) {
@@ -406,7 +406,7 @@ export async function loadAndHydrate(
         writeCache(buildCacheFromStore());
       }
     } catch (e) {
-      console.error('[block-log] Supabase fetch failed — using cached data', e);
+      console.error('[bloc-log] Supabase fetch failed — using cached data', e);
     }
   }
 }

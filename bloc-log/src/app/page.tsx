@@ -69,7 +69,7 @@ export default function Dashboard() {
   return (
     <main className="min-h-screen bg-background">
       <SecondaryPageHeader
-        subtitle={hasActiveProgram ? 'block' : 'no active block'}
+        subtitle={hasActiveProgram ? 'bloc' : 'no active bloc'}
         backFallbackHref="/"
       />
 
@@ -78,9 +78,9 @@ export default function Dashboard() {
         {!hasPrograms || !hasActiveProgram ? (
           <section className="min-h-[50vh] flex items-center justify-center">
             <div className="text-center space-y-4 max-w-sm">
-              <h2 className="font-sans text-lg">no block yet</h2>
+              <h2 className="font-sans text-lg">no bloc yet</h2>
               <p className="font-sans text-sm text-muted">
-                create your first training block to start logging
+                create your first training bloc to start logging
               </p>
               <Link
                 href="/programs/new"
@@ -93,7 +93,7 @@ export default function Dashboard() {
         ) : (
           <>
             <section className="px-1 py-1">
-              <h1 className="font-display text-lg">{activeProgram?.name || 'my block'}</h1>
+              <h1 className="font-display text-lg">{activeProgram?.name || 'my bloc'}</h1>
             </section>
             <section className="flex items-center">
               <WeekSelector />
