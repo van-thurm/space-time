@@ -1,6 +1,6 @@
-# Block Log Design System
+# bloc log design system
 
-This document is the canonical reference for Block Log's design language. It is read by Cursor agents during coding sessions and by the Cowork sketch-to-code skill at `cursorz/.skills/block-log-sketch/SKILL.md`. Keep both in sync when making changes here.
+This document is the canonical reference for bloc log's design language. It is read by Cursor agents during coding sessions and by the Cowork sketch-to-code skill at `cursorz/.skills/bloc-log-sketch/SKILL.md`. Keep both in sync when making changes here.
 
 ---
 
@@ -69,7 +69,7 @@ Font: **Sligoil** (Velvetyne Type Foundry, SIL OFL) — self-hosted via `@font-f
 
 ## Core Components
 
-- **Header:** Use `SecondaryPageHeader` on every route including `/`. Sticky, `border-b border-border`. Layout: 42×42 back slot | block log wordmark | 42×42 `+` menu button. Subtitle (lowercase) shown below wordmark. Never create page-specific header implementations.
+- **Header:** Use `SecondaryPageHeader` on every route including `/`. Sticky, `border-b border-border`. Layout: 42×42 back slot | bloc log wordmark | 42×42 `+` menu button. Subtitle (lowercase) shown below wordmark. Never create page-specific header implementations.
 - **Footer:** `AppFooter` with `VTLogo` + "built by van thurm". Always at bottom.
 - **Button:** `variant` = `primary` (bg-foreground text-background) / `secondary` (border border-foreground) / `ghost`. `size` = `sm` / `md` / `lg`.
 - **WorkoutCard:** Status-tinted card with left border accent. Neutral / in-progress (accent) / completed (success) states.
@@ -87,21 +87,4 @@ Font: **Sligoil** (Velvetyne Type Foundry, SIL OFL) — self-hosted via `@font-f
 - New screens start from existing header/footer patterns before adding custom layout.
 - Do not create page-specific header implementations; extend `SecondaryPageHeader` instead.
 
----
 
-## Cursor Rules
-
-Always-applied rules for coding sessions:
-- `/.cursor/rules/block-log-navigation.mdc` — touch targets, back affordances, focus visibility
-- `/.cursor/rules/block-log-interactions.mdc` — interaction patterns
-- `/.cursor/rules/block-log-deployment.mdc` — deploy via git push only, never `vercel` CLI from root
-
----
-
-## Future Suite Reuse
-
-For sibling apps (notes, todo, etc.), preserve:
-- Same token names and base palette
-- Same font (Sligoil) and typographic split
-- Same zero-radius geometry
-- Same button/input border rhythm

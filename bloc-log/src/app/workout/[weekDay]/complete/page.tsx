@@ -97,10 +97,10 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
   }, [log]);
 
   const datePart = log?.completedAt || log?.lastActivityAt || log?.date || '';
-  const quoteSeed = stableQuoteSeed(`${workoutId}-${activeProgram?.id || 'block-log'}-${datePart}`);
+  const quoteSeed = stableQuoteSeed(`${workoutId}-${activeProgram?.id || 'bloc-log'}-${datePart}`);
   const quote = SUPPORT_QUOTES[quoteSeed % SUPPORT_QUOTES.length];
   const quoteNoOrphan = preventQuoteOrphan(quote);
-  const blockName = activeProgram?.name || 'block';
+  const blockName = activeProgram?.name || 'bloc';
 
   return (
     <main className="min-h-screen bg-background">
@@ -168,7 +168,7 @@ export default function WorkoutCompletePage({ params }: WorkoutCompletePageProps
             href="/"
             className="flex-1 h-11 bg-foreground text-background border border-foreground font-sans text-sm inline-flex items-center justify-center hover:bg-foreground/90 transition-colors touch-manipulation"
           >
-            back to block
+            back to bloc
           </Link>
         </div>
       </div>

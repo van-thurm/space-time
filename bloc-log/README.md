@@ -1,4 +1,4 @@
-# block log
+# bloc log
 
 A workout tracking app for structured strength programs. Pick a program template (or build your own), log sets and reps each session, and track progress over time.
 
@@ -26,11 +26,11 @@ A workout tracking app for structured strength programs. Pick a program template
 - **Dark mode** — system-aware with manual toggle
 - **PWA-ready** — installable on mobile
 
-## Setup
+## setup
 
-### 1. Supabase project
+### 1. supabase project
 
-1. Create a free project at [supabase.com](https://supabase.com)
+1. create a free project at [supabase.com](https://supabase.com)
 2. Go to **SQL Editor**, paste the contents of `supabase/schema.sql`, and run it
 3. Go to **Auth > Email Templates**, edit the "Magic Link" template: replace `{{ .ConfirmationURL }}` with `Your code is: {{ .Token }}`
 4. Go to **Settings > API**, copy the **Project URL** and **anon key**
@@ -51,7 +51,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 ### 3. Run locally
 
 ```bash
-cd block-log
+cd bloc-log
 npm install
 npm run dev
 ```

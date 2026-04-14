@@ -58,7 +58,7 @@ export function exportToCSV(data: ExportData): string {
         const set = exerciseLog.sets[setIndex];
         
         rows.push([
-          programName || 'Block Log',
+          programName || 'Bloc Log',
           formattedDate,
           week.toString(),
           day.toString(),
@@ -80,7 +80,7 @@ export function exportToCSV(data: ExportData): string {
 }
 
 // Trigger download of CSV file
-export function downloadCSV(data: ExportData, filename = 'block-log-export.csv'): void {
+export function downloadCSV(data: ExportData, filename = 'bloc-log-export.csv'): void {
   const csv = exportToCSV(data);
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);

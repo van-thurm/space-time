@@ -12,7 +12,7 @@ creative assistant tui. git stats, daily tasks, horoscopes, ascii, vibes. then a
 ### [baby clarissa](baby%20clarissa/)
 original tui, archived for reference.
 
-### [block-log](block-log/)
+### [bloc-log](bloc-log/)
 weightlifting tracking app built with next.js to replace that annoying google sheet i was using. deployed on Vercel.
 
 ### [form-form](form-form/)

@@ -8,7 +8,7 @@ import { AuthProvider } from "@/components/auth/AuthProvider";
 const themeScript = `
 (function() {
   try {
-    var stored = localStorage.getItem('block-log-theme');
+    var stored = localStorage.getItem('bloc-log-theme');
     var theme = stored || 'system';
     var resolved = theme;
     if (theme === 'system') {
@@ -34,12 +34,12 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "block log",
-  description: "block log — training tracker",
+  title: "bloc log",
+  description: "bloc log — training tracker",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "block log",
+    title: "bloc log",
   },
 };
 
