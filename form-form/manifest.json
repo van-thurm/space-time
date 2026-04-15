@@ -1,7 +1,7 @@
 {
   "name": "form form",
   "short_name": "form form",
-  "description": "Build beautiful Google Apps Script forms — visually.",
+  "description": "visual builder for Google Apps Script forms.",
   "start_url": "./",
   "display": "standalone",
   "orientation": "any",
